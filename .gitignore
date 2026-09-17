@@ -8,3 +8,4 @@ coverage/
 apps/web/dev-dist/
 
 pg_hba.conf.recovery-backup
+apps/api/uploads/

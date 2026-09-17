@@ -8,3 +8,5 @@ export const updateMember = (id:string, body:any) => apiRequest<Member>(`/api/me
 export const addDependent = (id:string, body:any) => apiRequest(`/api/members/${id}/dependents`, { method:'POST', headers:{...auth(),'Content-Type':'application/json'}, body:JSON.stringify(body) })
 export const updateDependent = (memberId:string, dependentId:string, body:any) => apiRequest(`/api/members/${memberId}/dependents/${dependentId}`, { method:'PUT', headers:{...auth(),'Content-Type':'application/json'}, body:JSON.stringify(body) })
 export const removeDependent = (memberId:string, dependentId:string) => apiRequest(`/api/members/${memberId}/dependents/${dependentId}`, { method:'DELETE', headers:auth() })
+
+export const uploadMemberPhoto = (id:string, file:File) => { const body = new FormData(); body.append('file', file); return apiRequest<Member>(`/api/members/${id}/photo`, { method:'POST', headers:auth(), body }) }

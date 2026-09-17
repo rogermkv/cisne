@@ -6,6 +6,7 @@ import crypto from 'node:crypto'
 import { prisma } from '../../../lib/prisma.js'
 import { hashPassword } from '../auth/password.js'
 import { normalizeCpf, normalizePhone } from '../auth/normalization.js'
+import { personPhotosDirectory, personPhotoPath } from '../../../config/storage.js'
 
 const statuses = ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'TERMINATED'] as const
 const date = (value: unknown) => typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? new Date(`${value}T00:00:00.000Z`) : null
@@ -40,7 +41,7 @@ async function saveMultipartPhoto(request: any, reply: any, dependent = false) {
   const allowed: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
   const ext = allowed[part.mimetype]; if (!ext) return reply.code(400).send({ message: 'Formato inválido. Use JPG, JPEG, PNG ou WEBP.' })
   const buffer = await part.toBuffer(); if (buffer.length > 5 * 1024 * 1024) return reply.code(413).send({ message: 'A foto deve ter no máximo 5 MB.' })
-  const directory = path.resolve(process.cwd(), 'uploads', 'person-photos'); await fs.mkdir(directory, { recursive: true }); const file = `${crypto.randomUUID()}.${ext}`; await fs.writeFile(path.join(directory, file), buffer)
+  await fs.mkdir(personPhotosDirectory, { recursive: true }); const file = `${crypto.randomUUID()}.${ext}`; await fs.writeFile(personPhotoPath(file), buffer)
   return prisma.person.update({ where: { id: personId }, data: { photoPath: `/uploads/person-photos/${file}` } })
 }
 
@@ -49,7 +50,6 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
   app.delete('/members/:id/photo', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => { const member = await prisma.member.findUnique({ where: { id: request.params.id } }); if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' }); return prisma.person.update({ where: { id: member.personId }, data: { photoPath: null } }) })
   app.post('/members/:id/dependents/:dependentId/photo', { preHandler: app.requirePermission('members.manage') }, (request, reply) => saveMultipartPhoto(request, reply, true))
   app.delete('/members/:id/dependents/:dependentId/photo', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => { const dependent = await prisma.member.findFirst({ where: { id: request.params.dependentId, titularMemberId: request.params.id } }); if (!dependent) return reply.code(404).send({ message: 'Dependente não encontrado.' }); return prisma.person.update({ where: { id: dependent.personId }, data: { photoPath: null } }) })
-  app.get('/uploads/person-photos/:file', async (request: any, reply) => { try { const file = path.basename(request.params.file); const data = await fs.readFile(path.resolve(process.cwd(), 'uploads', 'person-photos', file)); return reply.type(path.extname(file) === '.png' ? 'image/png' : path.extname(file) === '.webp' ? 'image/webp' : 'image/jpeg').send(data) } catch { return reply.code(404).send({ message: 'Imagem não encontrada.' }) } })
   app.get('/members/categories', { preHandler: app.requirePermission('members.view') }, async () => prisma.memberCategory.findMany({ where: { active: true }, orderBy: { name: 'asc' } }))
   app.get('/members', { preHandler: app.requirePermission('members.view') }, async (request: any) => { const q = request.query?.q?.trim(); const cpfDigits = q?.replace(/\D/g, ''); const rows = await prisma.member.findMany({ where: { ...(request.query?.categoryId ? { categoryId: request.query.categoryId } : {}), ...(validStatus(request.query?.status) ? { status: request.query.status } : {}), ...(q ? { OR: [{ person: { fullName: { contains: q, mode: 'insensitive' } } }, ...(cpfDigits ? [{ person: { cpf: { contains: cpfDigits } } }] : []), { registrationNumber: { contains: q, mode: 'insensitive' } }] } : {}) }, include, orderBy: { person: { fullName: 'asc' } } }); return rows.map(view) })
   app.get('/members/:id', { preHandler: app.requirePermission('members.view') }, async (request: any, reply) => { const member = await prisma.member.findUnique({ where: { id: request.params.id }, include }); if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' }); return view(member) })
