@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ser Cisne">
+  <rect width="512" height="512" rx="112" fill="#0A3D62"/>
+  <path d="M351 127c-46 1-83 25-94 65-9 33 2 60 25 82-23-10-50-14-79-8-50 10-84 50-90 101 35-29 70-34 105-14 37 22 79 22 115-1 53-34 79-106 54-162-10-23-22-43-36-63Z" fill="#f7fbfa"/>
+  <path d="M331 143c19-5 40 0 56 14-21-2-38 4-52 17" fill="none" stroke="#d3a93d" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="324" cy="178" r="7" fill="#0A3D62"/>
+  <path d="M171 365c51 16 109 14 163-9" fill="none" stroke="#006CCB" stroke-width="14" stroke-linecap="round"/>
+</svg>

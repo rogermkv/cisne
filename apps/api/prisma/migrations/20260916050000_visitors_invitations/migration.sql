@@ -1,0 +1,8 @@
+CREATE TABLE "visitors" ("id" TEXT NOT NULL,"personId" TEXT NOT NULL,"active" BOOLEAN NOT NULL DEFAULT true,"blocked" BOOLEAN NOT NULL DEFAULT false,"notes" TEXT,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "visitors_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "visitors_personId_key" ON "visitors"("personId");
+ALTER TABLE "visitors" ADD CONSTRAINT "visitors_personId_fkey" FOREIGN KEY ("personId") REFERENCES "persons"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+CREATE TYPE "VisitorInvitationStatus" AS ENUM ('SCHEDULED','USED','CANCELLED','EXPIRED');
+CREATE TABLE "visitor_invitations" ("id" TEXT NOT NULL,"visitorId" TEXT NOT NULL,"sponsorMemberId" TEXT NOT NULL,"scheduledDate" TIMESTAMP(3) NOT NULL,"status" "VisitorInvitationStatus" NOT NULL DEFAULT 'SCHEDULED',"usedAt" TIMESTAMP(3),"notes" TEXT,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "visitor_invitations_pkey" PRIMARY KEY ("id"));
+ALTER TABLE "visitor_invitations" ADD CONSTRAINT "visitor_invitations_visitorId_fkey" FOREIGN KEY ("visitorId") REFERENCES "visitors"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "visitor_invitations" ADD CONSTRAINT "visitor_invitations_sponsorMemberId_fkey" FOREIGN KEY ("sponsorMemberId") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+CREATE TABLE "club_settings" ("id" TEXT NOT NULL,"visitorAnnualLimit" INTEGER NOT NULL DEFAULT 6,"memberMonthlyInvitationLimit" INTEGER NOT NULL DEFAULT 10,"annualLimitMode" TEXT NOT NULL DEFAULT 'CALENDAR_YEAR',"invitationConsumptionMode" TEXT NOT NULL DEFAULT 'CHECK_IN',"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "club_settings_pkey" PRIMARY KEY ("id"));
