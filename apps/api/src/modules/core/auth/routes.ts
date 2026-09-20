@@ -17,6 +17,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     const user = person?.user
     const passwordMatches = await verifyPassword(password, user?.passwordHash ?? (await dummyPasswordHash))
     if (!user?.active || !passwordMatches) return reply.code(401).send({ message: 'CPF ou senha inválidos.' })
+    await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })
     return { token: createAccessToken(user.id, env.jwtSecret), expiresIn: 8 * 60 * 60 }
   })
 

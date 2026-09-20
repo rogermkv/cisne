@@ -13,6 +13,7 @@ model User {
   active             Boolean    @default(true)
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
+  lastLoginAt        DateTime?
   mustChangePassword Boolean    @default(false)
   personId           String     @unique
   roles              UserRole[]
@@ -21,6 +22,7 @@ model User {
   announcements Announcement[] @relation("AnnouncementAuthor")
   events ClubEvent[] @relation("EventAuthor")
   accessEvents AccessEvent[] @relation("AccessRegistrar")
+  paymentRegistrations FinancialPayment[] @relation("FinancialPaymentRegistrar")
 
   @@map("users")
 }
@@ -65,6 +67,10 @@ model RolePermission {
 model MemberCategory {
   id        String    @id @default(cuid())
   name      String    @unique
+  description String?
+  isDependent Boolean @default(false)
+  requiresHolder Boolean @default(false)
+  annualFeeAmount Decimal? @db.Decimal(12,2)
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime @updatedAt
@@ -88,6 +94,7 @@ model Member {
   dependentes         Member[]          @relation("MemberTitular")
   invitations        VisitorInvitation[]
   charges            FinancialCharge[]
+  responsibleCharges FinancialCharge[] @relation("FinancialResponsible")
   reservations       Reservation[]
   category           MemberCategory @relation(fields: [categoryId], references: [id])
   person             Person           @relation(fields: [personId], references: [id])
@@ -104,6 +111,7 @@ model ReservableSpace {
   active           Boolean  @default(true)
   imagePath        String?
   requiresApproval Boolean  @default(true)
+  reservationRules String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   reservations     Reservation[]
@@ -149,7 +157,8 @@ model Announcement {
   title String
   content String
   startDate DateTime
-  endDate DateTime
+  endDate DateTime?
+  imagePath String?
   active Boolean @default(true)
   audience AnnouncementAudience @default(ALL_MEMBERS)
   createdByUserId String
@@ -294,6 +303,7 @@ enum FinancialChargeStatus {
 model FinancialCharge {
   id String @id @default(cuid())
   memberId String
+  responsibleMemberId String
   type FinancialChargeType
   description String
   referenceYear Int?
@@ -304,7 +314,34 @@ model FinancialCharge {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   member Member @relation(fields:[memberId], references:[id])
+  responsibleMember Member @relation("FinancialResponsible", fields:[responsibleMemberId], references:[id])
+  payments FinancialPayment[]
+  @@index([responsibleMemberId, dueDate])
+  @@index([dueDate, status])
   @@map("financial_charges")
+}
+
+enum FinancialPaymentMethod {
+  PIX
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+model FinancialPayment {
+  id String @id @default(cuid())
+  chargeId String
+  amount Decimal @db.Decimal(12,2)
+  paidAt DateTime @default(now())
+  method FinancialPaymentMethod
+  notes String?
+  registeredByUserId String?
+  charge FinancialCharge @relation(fields:[chargeId], references:[id], onDelete: Cascade)
+  registeredBy User? @relation("FinancialPaymentRegistrar", fields:[registeredByUserId], references:[id], onDelete: SetNull)
+  @@index([chargeId, paidAt])
+  @@map("financial_payments")
 }
 
 enum MemberStatus {

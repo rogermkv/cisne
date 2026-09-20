@@ -28,6 +28,7 @@ const permissionsByRole: Record<string, readonly (typeof permissionKeys)[number]
     'members.view',
     'members.manage',
     'finance.view',
+    'finance.manage',
     'reservations.view',
     'reservations.manage',
     'announcements.view',
@@ -118,8 +119,8 @@ async function main() {
     { id: 'charge-socio-2025', year: 2025, status: 'PAID', due: '2025-01-10', paid: '2025-01-05' },
     { id: 'charge-socio-2026', year: 2026, status: 'PAID', due: '2026-01-10', paid: '2026-01-05' },
     { id: 'charge-socio-2027', year: 2027, status: 'PENDING', due: '2027-01-10', paid: null },
-  ]) await prisma.financialCharge.upsert({ where: { id: c.id }, update: {}, create: { id: c.id, memberId: socioMember.id, type: 'ANNUAL_FEE', description: `Anuidade ${c.year}`, referenceYear: c.year, amount: 1600, dueDate: new Date(`${c.due}T00:00:00Z`), status: c.status as any, paidAt: c.paid ? new Date(`${c.paid}T00:00:00Z`) : null } })
-  const dependentCategory = await prisma.memberCategory.upsert({ where: { name: 'Dependente' }, update: { active: true }, create: { id: 'category-dependent', name: 'Dependente' } })
+  ]) await prisma.financialCharge.upsert({ where: { id: c.id }, update: {}, create: { id: c.id, memberId: socioMember.id, responsibleMemberId: socioMember.id, type: 'ANNUAL_FEE', description: `Anuidade ${c.year}`, referenceYear: c.year, amount: 1600, dueDate: new Date(`${c.due}T00:00:00Z`), status: c.status as any, paidAt: c.paid ? new Date(`${c.paid}T00:00:00Z`) : null } })
+  const dependentCategory = await prisma.memberCategory.upsert({ where: { name: 'Dependente' }, update: { active: true, isDependent: true, requiresHolder: true }, create: { id: 'category-dependent', name: 'Dependente', isDependent: true, requiresHolder: true } })
   const depPerson = await makePerson({ id: 'person-dependente-teste', fullName: 'Dependente Teste', cpf: '93541134780', birthDate: new Date('2010-03-03T00:00:00Z'), city: 'Santa Rosa' })
   await prisma.member.upsert({ where: { personId: depPerson.id }, update: { categoryId: dependentCategory.id, titularMemberId: socioMember.id, relationship: 'Filho(a)', status: 'ACTIVE' }, create: { id: 'member-dependente-teste', personId: depPerson.id, categoryId: dependentCategory.id, titularMemberId: socioMember.id, relationship: 'Filho(a)', admissionDate: new Date(), status: 'ACTIVE' } })
   const visitorPerson = await makePerson({ id: 'person-visitante-teste', fullName: 'Visitante Teste', cpf: '12345678909', phone: '55999990003', city: 'Santa Rosa' })
@@ -184,7 +185,7 @@ async function main() {
     const marcelo=members.find(x=>x.name==='Marcelo Pires')
     for(const [id,name,cpf,birth,holder] of depData){const hm=holder==='roger'?roger:marcelo?.member;if(!hm)continue;const p=await prisma.person.upsert({where:{cpf},update:{fullName:name,birthDate:new Date(`${birth}T00:00:00Z`),city:'Santa Rosa'},create:{id:`person-${id}`,fullName:name,cpf,birthDate:new Date(`${birth}T00:00:00Z`),city:'Santa Rosa'}});await prisma.member.upsert({where:{personId:p.id},update:{categoryId:dependentCategory.id,titularMemberId:hm.id,relationship:'Filho(a)',status:'ACTIVE'},create:{id,personId:p.id,categoryId:dependentCategory.id,titularMemberId:hm.id,relationship:'Filho(a)',admissionDate:new Date(`${birth}T00:00:00Z`),status:'ACTIVE'}})}
     const charges=[['charge-marcelo-2027','Marcelo Pires','2027-03-12','PENDING'],['charge-daniela-2027','Daniela Krause','2027-07-05','PENDING'],['charge-henrique-2027','Henrique Machado','2027-02-18','PENDING'],['charge-camila-2026','Camila Bertoldo','2026-08-01','OVERDUE'],['charge-paulo-2026','Paulo Viana','2026-12-10','PENDING']]
-    for(const [id,name,due,status] of charges){const x=members.find(m=>m.name===name);if(x)await prisma.financialCharge.upsert({where:{id},update:{status:status as any,dueDate:new Date(`${due}T00:00:00Z`),amount:1600},create:{id,memberId:x.member.id,type:'ANNUAL_FEE',description:`Anuidade ${due.slice(0,4)}`,referenceYear:Number(due.slice(0,4)),amount:1600,dueDate:new Date(`${due}T00:00:00Z`),status:status as any}})}
+    for(const [id,name,due,status] of charges){const x=members.find(m=>m.name===name);if(x)await prisma.financialCharge.upsert({where:{id},update:{status:status as any,dueDate:new Date(`${due}T00:00:00Z`),amount:1600,responsibleMemberId:x.member.id},create:{id,memberId:x.member.id,responsibleMemberId:x.member.id,type:'ANNUAL_FEE',description:`Anuidade ${due.slice(0,4)}`,referenceYear:Number(due.slice(0,4)),amount:1600,dueDate:new Date(`${due}T00:00:00Z`),status:status as any}})}
     const ap=await prisma.accessPoint.findUniqueOrThrow({where:{id:'access-point-portaria-principal'}});const entries=[['access-marcelo','Marcelo Pires','2026-09-14T18:22:00Z'],['access-daniela','Daniela Krause','2026-09-13T10:15:00Z'],['access-henrique','Henrique Machado','2026-09-15T19:10:00Z'],['access-paulo','Paulo Viana','2026-09-12T16:40:00Z'],['access-sergio','SÃ©rgio Klein','2026-09-11T09:05:00Z']];for(const [id,name,when] of entries){const x=members.find(m=>m.name===name);if(x)await prisma.accessEvent.upsert({where:{id},update:{occurredAt:new Date(when)},create:{id,personId:x.person.id,accessPointId:ap.id,type:'ENTRY',method:'MANUAL',occurredAt:new Date(when)}})}
   }
 

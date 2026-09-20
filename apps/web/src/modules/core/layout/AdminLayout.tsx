@@ -1,12 +1,13 @@
-import { Bell, CalendarDays, CircleDollarSign, Home, LogOut, Menu, ShieldCheck, UserRound, Users, X } from 'lucide-react'
+import { Bell, CalendarDays, CircleDollarSign, Home, LogOut, Menu, ShieldCheck, UserRound, Users, X, Tags } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { hasPermission } from '../auth/permissions'
 
-export type AdminSection = 'dashboard' | 'members' | 'finance' | 'reservations' | 'announcements' | 'events' | 'access'
+export type AdminSection = 'dashboard' | 'members' | 'categories' | 'finance' | 'reservations' | 'announcements' | 'events' | 'access'
 type Props = { children: ReactNode; active: AdminSection; onNavigate: (section: AdminSection) => void; user: any; logout: () => void; health: 'checking' | 'online' | 'offline' }
 const items: Array<{ key: AdminSection; label: string; icon: any; permission?: string }> = [
   { key: 'dashboard', label: 'Visão geral', icon: Home },
   { key: 'members', label: 'Sócios', icon: Users, permission: 'members.view' },
+  { key: 'categories', label: 'Tipos de Sócio', icon: Tags, permission: 'members.manage' },
   { key: 'finance', label: 'Financeiro', icon: CircleDollarSign, permission: 'finance.view' },
   { key: 'reservations', label: 'Reservas', icon: CalendarDays, permission: 'reservations.view' },
   { key: 'announcements', label: 'Avisos', icon: Bell, permission: 'announcements.view' },

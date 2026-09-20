@@ -10,7 +10,9 @@
     "start": "node dist/server.js",
     "prisma:generate": "dotenv -e ../../.env -- prisma generate",
     "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
-    "prisma:seed": "dotenv -e ../../.env -- prisma db seed"
+    "prisma:seed": "dotenv -e ../../.env -- prisma db seed",
+    "backfill:member-users": "dotenv -e ../../.env -- tsx src/scripts/backfill-member-users.ts",
+    "test:club-modules": "dotenv -e ../../.env -- tsx test/club-modules.smoke.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
