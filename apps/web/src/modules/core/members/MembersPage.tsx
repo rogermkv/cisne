@@ -3,13 +3,13 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import { ArrowLeft, ChevronDown, ChevronUp, MessageCircle, Users } from 'lucide-react'
 import { ApiError, apiUrl } from '../../../api/client'
 import { addDependent, categories, createMember, deleteMember, getMember, listMembers, setMemberStatus, updateMember, uploadMemberPhoto, searchHolders, toggleMemberAccess, resetMemberPassword, type Member } from '../../../api/members'
+import { whatsappUrl } from './phone'
 import './photo.css'
 
 const blank = { fullName: '', cpf: '', birthDate: '', categoryId: '', titularMemberId: '', relationship: '', admissionDate: new Date().toISOString().slice(0, 10), status: 'ACTIVE', phone: '', email: '', city: '', registrationNumber: '', notes: '' }
 const isDependent = (category: any) => Boolean(category?.isDependent || category?.requiresHolder)
 const imageUrl = (path: string) => apiUrl + path
 const money = (value: any) => value == null ? 'Não informado' : Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-const whatsappUrl = (phone?: string | null) => { let digits = String(phone || '').replace(/\D/g, ''); if (digits.startsWith('0')) digits = digits.slice(1); if (!digits.startsWith('55')) digits = '55' + digits; return /^55\d{10,11}$/.test(digits) ? 'https://wa.me/' + digits : null }
 type Errors = Record<string, string>
 type SortKey = 'name' | 'category' | 'status' | 'holder' | 'dueDate' | 'lastAccess'
 type Sort = { key: SortKey; direction: 'asc' | 'desc' }
