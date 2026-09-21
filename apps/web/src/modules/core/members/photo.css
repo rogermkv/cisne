@@ -7,3 +7,7 @@
 @media(max-width:860px){.record-grid{grid-template-columns:1fr}.members-page{padding:18px}.record-card{padding:16px}}
 
 .member-photo-preview{display:flex;align-items:center;justify-content:center;min-height:160px}.member-photo-preview img{display:block;width:140px;height:160px;object-fit:cover;border-radius:12px}.photo-placeholder{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:.78rem}.photo-error{display:block;margin-top:8px;color:#b63e3e;font-weight:700}.holder-picker{position:relative}.holder-results{position:absolute;z-index:10;left:0;right:0;background:#fff;border:1px solid #cddce8;border-radius:8px;box-shadow:0 8px 18px #0a3d6220;overflow:hidden}.holder-results button{display:block;width:100%;padding:10px;text-align:left;border:0;border-bottom:1px solid #e8eef3;background:#fff;color:#12324a}.holder-results button:hover{background:#eaf4fb}
+.members-table td:nth-child(2)::before { content: "Categoria"; }
+.members-table td:nth-child(3)::before { content: "Situação"; }
+.members-table td:nth-child(4)::before { content: "Responsável financeiro"; }
+.members-table td:nth-child(5)::before { content: "Ações"; }

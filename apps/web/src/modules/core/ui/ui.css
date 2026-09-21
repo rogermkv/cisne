@@ -106,6 +106,9 @@ main h1 { overflow-wrap: anywhere; }
 .member-finance-summary em { justify-self: start; margin-top: 3px; }
 .event-card { display: flex; flex-direction: column; gap: 12px; }
 .event-card button { align-self: flex-start; margin-top: auto; }
+.status-badge.INACTIVE { background: #eef2f5; color: #66717c; }
+.login-button { min-height: var(--control-height); }
+.login-form .login-button { min-height: 52px; }
 @media(max-width:767px) {
   .finance-admin-page, .community-page, .reservations-page, .access-page, .members-page { padding: 22px 16px 90px; }
   .access-search { grid-template-columns: minmax(0, 1fr); }
