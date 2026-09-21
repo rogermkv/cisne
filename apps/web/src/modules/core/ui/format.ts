@@ -10,7 +10,7 @@ export const localDateTime = (value?: string | null) => {
 export const memberStatus: Record<string, string> = { ACTIVE: 'Ativo', INACTIVE: 'Inativo', SUSPENDED: 'Suspenso', TERMINATED: 'Desligado' }
 export const chargeStatus: Record<string, string> = { PAID: 'Pago', PENDING: 'Pendente', OVERDUE: 'Em atraso', CANCELLED: 'Cancelado' }
 export const financialStatus: Record<string, string> = { PAID: 'Em dia', PENDING: 'Pendente', OVERDUE: 'Em atraso' }
-export const reservationStatus: Record<string, string> = { REQUESTED: 'Aguardando aprovação', APPROVED: 'Aprovada', REJECTED: 'Recusada', CANCELLED: 'Cancelada', COMPLETED: 'Concluída' }
+export const reservationStatus: Record<string, string> = { REQUESTED: 'Pendente', APPROVED: 'Confirmada', REJECTED: 'Recusada', CANCELLED: 'Cancelada', COMPLETED: 'Concluída', PENDING: 'Pendente', CONFIRMED: 'Confirmada' }
 export const invitationStatus: Record<string, string> = { SCHEDULED: 'Agendado', USED: 'Utilizado', CANCELLED: 'Cancelado', EXPIRED: 'Expirado' }
 export const roleLabel: Record<string, string> = { ADMIN: 'Administrador', SECRETARIA: 'Secretaria', SOCIO: 'Sócio', FUNCIONARIO: 'Funcionário' }
 export const paymentMethod: Record<string, string> = { PIX: 'Pix', CASH: 'Dinheiro', CREDIT_CARD: 'Cartão de crédito', DEBIT_CARD: 'Cartão de débito', BANK_TRANSFER: 'Transferência bancária', OTHER: 'Outro' }

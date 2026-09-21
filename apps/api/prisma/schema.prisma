@@ -18,7 +18,8 @@ model User {
   personId           String     @unique
   roles              UserRole[]
   person             Person    @relation(fields: [personId], references: [id])
-  approvedReservations Reservation[] @relation("ReservationApprover")
+    approvedReservations Reservation[] @relation("ReservationApprover")
+    reservationStatusChanges ReservationStatusHistory[] @relation("ReservationStatusChanger")
   announcements Announcement[] @relation("AnnouncementAuthor")
   events ClubEvent[] @relation("EventAuthor")
   accessEvents AccessEvent[] @relation("AccessRegistrar")
@@ -139,7 +140,7 @@ enum ReservationStatus {
   COMPLETED
 }
 
-model Reservation {
+  model Reservation {
   id               String   @id @default(cuid())
   memberId         String
   spaceId          String
@@ -156,10 +157,25 @@ model Reservation {
   updatedAt        DateTime @updatedAt
   member           Member @relation(fields:[memberId], references:[id])
   space            ReservableSpace @relation(fields:[spaceId], references:[id])
-  approvedBy       User? @relation("ReservationApprover", fields:[approvedByUserId], references:[id])
+    approvedBy       User? @relation("ReservationApprover", fields:[approvedByUserId], references:[id])
+    statusHistory    ReservationStatusHistory[]
   @@index([spaceId, reservationDate])
-  @@map("reservations")
-}
+    @@map("reservations")
+  }
+
+  model ReservationStatusHistory {
+    id              String            @id @default(cuid())
+    reservationId   String
+    fromStatus      ReservationStatus?
+    toStatus        ReservationStatus
+    changedByUserId String?
+    reason          String?
+    createdAt       DateTime          @default(now())
+    reservation     Reservation       @relation(fields:[reservationId], references:[id], onDelete: Cascade)
+    changedBy       User?             @relation("ReservationStatusChanger", fields:[changedByUserId], references:[id], onDelete: SetNull)
+    @@index([reservationId, createdAt])
+    @@map("reservation_status_history")
+  }
 
 enum AnnouncementAudience {
   ALL_MEMBERS
