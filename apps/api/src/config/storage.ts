@@ -6,3 +6,10 @@ export const personPhotosDirectory =
 
 export const personPhotoPath = (file: string) =>
   path.join(personPhotosDirectory, file)
+
+export const spacePhotosDirectory =
+  process.env.SPACE_PHOTOS_DIR ||
+  path.resolve(process.cwd(), 'uploads', 'space-photos')
+
+export const spacePhotoPath = (file: string) =>
+  path.join(spacePhotosDirectory, file)

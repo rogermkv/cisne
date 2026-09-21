@@ -115,7 +115,20 @@ model ReservableSpace {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   reservations     Reservation[]
+  photos           SpacePhoto[]
   @@map("reservable_spaces")
+}
+
+model SpacePhoto {
+  id        String          @id @default(cuid())
+  spaceId   String
+  path      String
+  isPrimary Boolean         @default(false)
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now())
+  space     ReservableSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  @@index([spaceId, sortOrder])
+  @@map("space_photos")
 }
 
 enum ReservationStatus {
