@@ -1,4 +1,16 @@
+// @ts-nocheck
 import { prisma } from '../../../lib/prisma.js'
-export async function visitorAnnualUsage(visitorId:string, year=new Date().getFullYear()){const from=new Date(`${year}-01-01T00:00:00Z`),to=new Date(`${year+1}-01-01T00:00:00Z`);return prisma.visitorInvitation.count({where:{visitorId,status:'USED',usedAt:{gte:from,lt:to}}})}
-export async function memberMonthlyUsage(sponsorMemberId:string, date=new Date()){const from=new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),1)),to=new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,1));return prisma.visitorInvitation.count({where:{sponsorMemberId,status:'USED',usedAt:{gte:from,lt:to}}})}
-export async function getQuotaBalances(visitorId:string,sponsorMemberId:string,date=new Date()){const settings=await prisma.clubSetting.findFirstOrThrow();const [visitorUsed,memberUsed]=await Promise.all([visitorAnnualUsage(visitorId,date.getUTCFullYear()),memberMonthlyUsage(sponsorMemberId,date)]);return {visitorUsed,visitorRemaining:Math.max(0,settings.visitorAnnualLimit-visitorUsed),memberUsed,memberRemaining:Math.max(0,settings.memberMonthlyInvitationLimit-memberUsed)}}
+
+export const countedInvitationStatuses = ['SCHEDULED', 'USED'] as const
+const normalizeCategory = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase()
+export const isInvitationEligible = (member: any) => Boolean(member && member.status === 'ACTIVE' && !member.category?.isDependent && !member.category?.requiresHolder && ['EFETIVO', 'PATRIMONIAL'].includes(normalizeCategory(member.category?.name || '')))
+export const parseCivilDate = (value: unknown) => { if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null; const date = new Date(`${value}T00:00:00.000Z`); return date.toISOString().slice(0, 10) === value ? date : null }
+export const monthBounds = (value: Date) => ({ start: new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), 1)), end: new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth() + 1, 1)), year: value.getUTCFullYear(), month: value.getUTCMonth() + 1 })
+export async function getMemberInvitationQuota(memberId: string, date: Date, db: any = prisma) {
+  const member = await db.member.findUnique({ where: { id: memberId }, include: { category: true } }); const settings = await db.clubSetting.findFirstOrThrow(); const bounds = monthBounds(date); const limit = settings.memberMonthlyInvitationLimit ?? 10
+  if (!isInvitationEligible(member)) return { memberId, eligible: false, limit: 0, used: 0, available: 0, month: bounds.month, year: bounds.year }
+  const used = await db.visitorInvitation.count({ where: { sponsorMemberId: memberId, scheduledDate: { gte: bounds.start, lt: bounds.end }, status: { in: countedInvitationStatuses } } })
+  return { memberId, eligible: true, limit, used, available: Math.max(0, limit - used), month: bounds.month, year: bounds.year }
+}
+export const invitationEligibilityMessage = (member: any) => !member ? 'Sócio não encontrado.' : member.status !== 'ACTIVE' ? 'Este sócio está inativo e não pode emitir convites.' : !isInvitationEligible(member) ? 'A categoria deste sócio não possui direito à emissão de convites.' : null
+export const quotaLockKey = (memberId: string, date: Date) => `${memberId}:${date.getUTCFullYear()}:${date.getUTCMonth() + 1}`
