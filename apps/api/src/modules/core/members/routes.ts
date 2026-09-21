@@ -19,18 +19,21 @@ const initialPassword = (value: Date) => {
   const parts = value.toISOString().slice(0, 10).split('-')
   return parts[2] + parts[1] + parts[0]
 }
+const annualCharge = { where: { type: 'ANNUAL_FEE', status: { in: ['PENDING', 'OVERDUE'] } }, orderBy: { dueDate: 'asc' }, take: 1 }
 const include = {
   person: { include: { user: { select: { id: true, active: true, lastLoginAt: true } }, accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } },
   category: true,
-  titular: { include: { person: true, category: true } },
+  titular: { include: { person: true, category: true, responsibleCharges: annualCharge } },
   dependentes: { include: { person: { include: { accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } }, category: true } },
   charges: { where: { status: { in: ['PENDING', 'OVERDUE'] } }, orderBy: { dueDate: 'asc' }, take: 1 },
+  responsibleCharges: annualCharge,
 }
 const view = (member: any) => ({
   ...member,
   person: { ...member.person, cpf: maskCpf(member.person.cpf), birthDate: member.person.birthDate?.toISOString().slice(0, 10) ?? null },
   admissionDate: member.admissionDate.toISOString().slice(0, 10),
   access: member.person.user ? { active: member.person.user.active, lastLoginAt: member.person.user.lastLoginAt } : null,
+  annualDueDate: (member.category.isDependent || member.category.requiresHolder ? member.titular?.responsibleCharges?.[0] : member.responsibleCharges?.[0])?.dueDate ?? null,
   financialResponsible: member.category.isDependent || member.category.requiresHolder ? member.titular ? { id: member.titular.id, name: member.titular.person.fullName } : null : { id: member.id, name: member.person.fullName },
   dependents: (member.dependentes ?? []).map((item: any) => ({ ...item, person: { ...item.person, cpf: maskCpf(item.person.cpf), birthDate: item.person.birthDate?.toISOString().slice(0, 10) ?? null } })),
 })
