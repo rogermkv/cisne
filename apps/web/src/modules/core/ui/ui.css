@@ -96,6 +96,14 @@ main h1 { overflow-wrap: anywhere; }
 .finance-demo > div { flex: 1 1 180px; }
 .dependent-item-card { flex-wrap: wrap; }
 .member-more-menu { max-height: calc(100dvh - 110px); overflow-y: auto; }
+.category-record-grid { align-items: start; margin: 18px 0; }
+.category-editor { display: grid; gap: 14px; }
+.category-editor h2, .category-help h2 { margin: 4px 0; color: var(--c-blue-dark); font-size: 1.1rem; }
+.category-help { color: var(--c-muted); }
+.category-help svg { color: var(--c-blue); }
+.member-finance-summary, .member-dependent-summary { display: grid; gap: 3px; padding: 10px 0; border-top: 1px solid var(--line); }
+.member-finance-summary span, .member-dependent-summary span { color: var(--c-muted); font-size: .8rem; }
+.member-finance-summary em { justify-self: start; margin-top: 3px; }
 .event-card { display: flex; flex-direction: column; gap: 12px; }
 .event-card button { align-self: flex-start; margin-top: auto; }
 @media(max-width:767px) {
