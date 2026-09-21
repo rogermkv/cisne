@@ -1,7 +1,7 @@
-export const money = (value: unknown) => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+export const money = (value: unknown) => { const amount = Number(value); return Number.isFinite(amount) ? amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '—' }
 // Datas civis são armazenadas à meia-noite UTC; não deslocar para o dia anterior.
-export const dateLabel = (value?: string | null) => value ? new Date(value).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'
-export const dateTimeLabel = (value?: string | null) => value ? new Date(value).toLocaleString('pt-BR') : '—'
+export const dateLabel = (value?: string | null) => { if (!value) return '—'; const date = new Date(value); return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) }
+export const dateTimeLabel = (value?: string | null) => { if (!value) return '—'; const date = new Date(value); return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('pt-BR') }
 export const localDateTime = (value?: string | null) => {
   if (!value) return ''
   const date = new Date(value)
