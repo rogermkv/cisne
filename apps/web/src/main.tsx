@@ -5,6 +5,7 @@ import { registerSW } from 'virtual:pwa-register'
 import { App } from './App'
 import { AuthProvider } from './modules/core/auth/AuthProvider'
 import './styles.css'
+import './modules/core/ui/ui.css'
 
 registerSW({ immediate: true })
 

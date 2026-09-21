@@ -7,11 +7,15 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiUrl}${path}`, init)
+  const headers = new Headers(init?.headers)
+  if (typeof init?.body === 'string' && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  const response = await fetch(`${apiUrl}${path}`, { ...init, headers }).catch(() => {
+    throw new ApiError('Não foi possível conectar ao sistema. Tente novamente.', 0)
+  })
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { message?: string } | null
-    throw new ApiError(body?.message ?? 'Não foi possível concluir a solicitação.', response.status)
+    throw new ApiError(response.status >= 500 ? 'O sistema não conseguiu concluir a solicitação. Tente novamente.' : body?.message ?? 'Não foi possível concluir a solicitação.', response.status)
   }
 
   return response.json() as Promise<T>

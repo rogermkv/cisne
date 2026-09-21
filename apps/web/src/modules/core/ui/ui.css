@@ -1,0 +1,118 @@
+/* Padrões compartilhados preservando a identidade visual do clube. */
+:root { --control-height: 42px; --control-radius: 9px; --line: #d9e5f0; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+button svg { flex-shrink: 0; }
+:focus-visible { outline: 3px solid #e6bf10; outline-offset: 3px; }
+.main-content, .page, main, section, article { min-width: 0; }
+main h1 { overflow-wrap: anywhere; }
+.sidebar { overflow-y: auto; overscroll-behavior: contain; }
+.sidebar__nav { padding: 20px 16px; gap: 5px; }
+.sidebar__footer { flex-shrink: 0; }
+@media(min-width:960px) { .main-content { margin-left: 286px; } }
+.finance-admin-page, .community-page, .reservations-page, .access-page, .members-page { width: 100%; max-width: 1180px; margin-inline: auto; padding: 28px 24px 60px; }
+.section-heading { align-items: center; flex-wrap: wrap; gap: 16px; margin: 24px 0 18px; }
+.section-heading h2 { font-size: 1.2rem; }
+.members-header { flex-wrap: wrap; gap: 16px; }
+.members-header > .login-button { margin-left: auto; }
+.btn, .login-button, .member-row-action, .finance-back, .text-button, .access-back,
+.space-card button, .reservation-row button, .reservation-modal button, .event-card button, .community-modal button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--control-height); padding: 10px 14px; border-radius: var(--control-radius);
+  font-size: .875rem; line-height: 1.25; font-weight: 650; text-align: center; max-width: 100%;
+}
+.btn { border: 1px solid transparent; }
+.btn-primary, .login-button, .space-card button, .event-card button { color: #fff; background: var(--c-blue); border-color: var(--c-blue); box-shadow: none; }
+.btn-primary:hover, .login-button:hover { background: var(--c-blue-mid); }
+.btn-secondary, .text-button, .finance-back, .access-back { background: #f2f6f9; color: var(--c-text); border: 1px solid var(--line); }
+.btn-edit, .member-row-action { background: #fff; color: var(--c-blue); border: 1px solid #9fc8e8; }
+.btn-positive { background: #147849; color: #fff; border-color: #147849; }
+.btn-danger { background: #b43232; color: #fff; border-color: #b43232; }
+.form-actions, .row-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.form-actions { justify-content: flex-end; margin-top: 10px; }
+.row-actions .btn, .row-actions .member-row-action { white-space: normal; }
+.record-side .member-row-action { margin: 4px 6px 4px 0; white-space: normal; }
+.ui-form, .member-form { display: grid; gap: 16px; }
+.ui-form label, .filter-bar label, .member-form label, .category-form label { display: grid; gap: 7px; color: var(--c-text); font-size: .875rem; font-weight: 600; min-width: 0; }
+.ui-form input, .ui-form select, .ui-form textarea, .member-form input:not([type=file]), .member-form select, .member-form textarea,
+.filter-bar input, .filter-bar select, .category-form input:not([type=checkbox]), .members-toolbar input, .members-toolbar select {
+  display: block; width: 100%; min-width: 0; min-height: var(--control-height); padding: 10px 12px;
+  border: 1px solid #bdcddd; border-radius: var(--control-radius); background: #fff; color: var(--c-text); font-weight: 400;
+}
+.ui-form textarea { resize: vertical; min-height: 110px; }
+.filter-bar { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin: 18px 0; }
+.filter-bar label { flex: 1 1 180px; }
+.filter-bar label:first-child { flex-grow: 2; }
+.category-form { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+.category-form > label:first-child { flex: 1 1 240px; }
+.checkbox-field { display: flex !important; align-items: center; min-height: 42px; }
+.checkbox-field input { width: 18px !important; height: 18px; flex-shrink: 0; }
+.form-error, .form-success { margin: 12px 0; padding: 12px 14px; border-radius: 9px; font-size: .875rem; overflow-wrap: anywhere; }
+.form-success { background: #e6f7ef; color: #146b43; }
+.empty-state { margin: 0; padding: 24px; text-align: center; color: var(--c-muted); }
+.muted { color: var(--c-muted); font-size: .875rem; }
+.table-scroll, .members-table-wrap { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.data-table, .members-table { display: table; width: 100%; min-width: 660px; border-collapse: collapse; table-layout: auto; }
+.data-table thead, .members-table thead { display: table-header-group; }
+.data-table tbody, .members-table tbody { display: table-row-group; }
+.data-table tr, .members-table tr { display: table-row; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+.data-table th, .members-table th { padding: 14px 16px; background: #f3f7fa; color: #4e6274; font-size: .75rem; font-weight: 700; text-align: left; text-transform: none; line-height: 1.4; white-space: nowrap; }
+.data-table td, .members-table td, .members-table td:first-child { display: table-cell; width: auto; padding: 14px 16px; border: 0; border-top: 1px solid #e5edf3; vertical-align: middle; font-size: .875rem; line-height: 1.45; color: var(--c-text); }
+.members-table td::before { display: none !important; }
+.data-table tbody tr:hover, .members-table tbody tr:hover { background: #f8fbfd; }
+.data-table td small { display: block; margin-top: 4px; color: var(--c-muted); font-size: .78rem; }
+.data-table td:first-child, .members-table td:first-child { min-width: 190px; }
+.data-table .numeric { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.data-table .actions-column { min-width: 200px; width: 260px; }
+.data-table .row-actions { min-width: 190px; }
+.status-badge { display: inline-block; padding: 5px 9px; border-radius: 16px; font-size: .75rem; font-style: normal; font-weight: 650; line-height: 1.3; background: #eef2f5; color: #4e6274; white-space: nowrap; }
+.status-badge.ACTIVE, .status-badge.PAID, .status-badge.APPROVED { background: #e6f7ef; color: #146b43; }
+.status-badge.PENDING, .status-badge.REQUESTED, .status-badge.SUSPENDED { background: #fff4c9; color: #765b00; }
+.status-badge.OVERDUE, .status-badge.REJECTED, .status-badge.TERMINATED { background: #fde9e9; color: #a32f2f; }
+.ui-modal { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 24px; overflow-y: auto; border: 1px solid var(--line); border-radius: 16px; color: var(--c-text); background: #fff; box-shadow: 0 24px 70px #0a3d6240; }
+.ui-modal::backdrop { background: #0a3d6288; }
+.ui-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.ui-modal-heading h2 { margin: 5px 0; font-size: 1.25rem; }
+.ui-modal-heading .icon-button { flex: none; }
+.payment-entry { padding: 16px 0; border-top: 1px solid var(--line); }
+.management-list { display: grid; gap: 16px; }
+.management-card { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow-wrap: anywhere; }
+.management-card h2 { margin: 0; color: var(--c-blue-dark); font-size: 1.05rem; }
+.management-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.management-card p { white-space: pre-wrap; line-height: 1.5; }
+.management-card .row-actions { margin-top: 16px; }
+.access-history { overflow: visible; }
+.access-history .section-heading input { width: auto; flex: 1 1 160px; min-width: 0; }
+.access-history .section-heading h2 { flex-basis: 100%; }
+.finance-history-row, .reservation-row { flex-wrap: wrap; }
+.finance-history-row > div, .reservation-row > div { min-width: 180px; }
+.finance-history-row em { color: inherit; }
+.finance-modal-card, .reservation-modal > div, .community-modal > div, .dependent-card-modal__content { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.member-photo { flex-shrink: 0; }
+.member-profile > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+.member-section { margin-bottom: 16px; overflow-wrap: anywhere; }
+.finance-demo { gap: 12px; flex-wrap: wrap; }
+.finance-demo > div { flex: 1 1 180px; }
+.dependent-item-card { flex-wrap: wrap; }
+.member-more-menu { max-height: calc(100dvh - 110px); overflow-y: auto; }
+.event-card { display: flex; flex-direction: column; gap: 12px; }
+.event-card button { align-self: flex-start; margin-top: auto; }
+@media(max-width:767px) {
+  .finance-admin-page, .community-page, .reservations-page, .access-page, .members-page { padding: 22px 16px 90px; }
+  .access-search { grid-template-columns: minmax(0, 1fr); }
+  .topbar { padding-inline: 16px; gap: 8px; }
+  .user-menu { margin-left: auto; }
+  .members-header > .login-button { margin-left: 0; }
+  .record-card, .management-card, .access-history { padding: 16px; }
+  .form-actions > button { flex: 1 1 120px; }
+  .ui-modal { padding: 18px; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar label { flex: auto; }
+  .finance-status { gap: 12px; flex-wrap: wrap; }
+  .finance-admin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .finance-admin-stats > div { padding: 14px; }
+  .finance-admin-stats strong { font-size: 1.1rem; }
+  .management-card-heading { align-items: flex-start; }
+  .login-card { padding: 28px 22px; }
+}
