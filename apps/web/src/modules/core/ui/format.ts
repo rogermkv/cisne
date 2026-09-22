@@ -8,7 +8,7 @@ export const localDateTime = (value?: string | null) => {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
 }
 export const memberStatus: Record<string, string> = { ACTIVE: 'Ativo', INACTIVE: 'Inativo', SUSPENDED: 'Suspenso', TERMINATED: 'Desligado' }
-export const chargeStatus: Record<string, string> = { PAID: 'Pago', PENDING: 'Pendente', OVERDUE: 'Em atraso', CANCELLED: 'Cancelado' }
+export const chargeStatus: Record<string, string> = { PAID: 'Paga', PENDING: 'Pendente', OVERDUE: 'Em atraso', PARTIAL: 'Parcial', CANCELLED: 'Cancelada' }
 export const financialStatus: Record<string, string> = { PAID: 'Em dia', PENDING: 'Pendente', OVERDUE: 'Em atraso' }
 export const reservationStatus: Record<string, string> = { REQUESTED: 'Pendente', APPROVED: 'Confirmada', REJECTED: 'Recusada', CANCELLED: 'Cancelada', COMPLETED: 'Concluída', PENDING: 'Pendente', CONFIRMED: 'Confirmada' }
 export const invitationStatus: Record<string, string> = { SCHEDULED: 'Agendado', USED: 'Utilizado', CANCELLED: 'Cancelado', EXPIRED: 'Expirado' }

@@ -14,7 +14,8 @@
     "backfill:member-users": "dotenv -e ../../.env -- tsx src/scripts/backfill-member-users.ts",
     "test:club-modules": "dotenv -e ../../.env -- tsx test/club-modules.smoke.ts",
     "test:reservations": "tsx test/reservation-status.rules.ts",
-    "test:visitor-invitations": "tsx test/visitor-invitations.rules.ts"
+    "test:visitor-invitations": "tsx test/visitor-invitations.rules.ts",
+    "test:finance": "tsx test/finance.rules.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
