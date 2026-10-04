@@ -1,7 +1,9 @@
 // @ts-nocheck
 import type { FastifyPluginAsync } from 'fastify'
 import { promises as fs } from 'node:fs'
+import path from 'node:path'
 import crypto from 'node:crypto'
+import { imageSize } from 'image-size'
 import { prisma } from '../../../lib/prisma.js'
 import { hashPassword } from '../auth/password.js'
 import { normalizeCpf, normalizePhone } from '../auth/normalization.js'
@@ -63,11 +65,18 @@ async function photo(request: any, reply: any) {
   const ext = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' } as any)[part.mimetype]
   if (!ext) return reply.code(400).send({ message: 'Formato inválido. Use JPG, PNG ou WEBP.' })
   const buffer = await part.toBuffer()
+  let dimensions: { width?: number; height?: number; type?: string }
+  try { dimensions = imageSize(buffer) } catch { return reply.code(400).send({ message: 'Arquivo de imagem inválido ou corrompido.' }) }
+  const detectedExt = ({ jpg: 'jpg', png: 'png', webp: 'webp' } as any)[dimensions.type || '']
+  if (!detectedExt || detectedExt !== ext || !dimensions.width || !dimensions.height) return reply.code(400).send({ message: 'O conteúdo da imagem não corresponde ao formato informado.' })
+  if (dimensions.width * 4 !== dimensions.height * 3) return reply.code(400).send({ message: 'A foto deve estar obrigatoriamente na proporção 3:4.' })
   if (buffer.length > 5 * 1024 * 1024) return reply.code(413).send({ message: 'A foto deve ter no máximo 5 MB.' })
   await fs.mkdir(personPhotosDirectory, { recursive: true })
   const file = crypto.randomUUID() + '.' + ext
   await fs.writeFile(personPhotoPath(file), buffer)
+  const current = await prisma.person.findUnique({ where: { id: member.personId }, select: { photoPath: true } })
   await prisma.person.update({ where: { id: member.personId }, data: { photoPath: '/uploads/person-photos/' + file } })
+  if (current?.photoPath) await fs.rm(personPhotoPath(path.basename(current.photoPath)), { force: true })
   return view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include }))
 }
 
@@ -99,7 +108,10 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
   app.delete('/members/:id/photo', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
     const member = await prisma.member.findUnique({ where: { id: request.params.id } })
     if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
-    return prisma.person.update({ where: { id: member.personId }, data: { photoPath: null } })
+    const current = await prisma.person.findUnique({ where: { id: member.personId }, select: { photoPath: true } })
+    await prisma.person.update({ where: { id: member.personId }, data: { photoPath: null } })
+    if (current?.photoPath) await fs.rm(personPhotoPath(path.basename(current.photoPath)), { force: true })
+    return view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include }))
   })
   app.get('/members', { preHandler: app.requirePermission('members.view') }, async (request: any) => {
     const q = request.query?.q?.trim()
