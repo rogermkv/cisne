@@ -70,10 +70,10 @@ export function AdminReservationsPage({ onBack }: { onBack: () => void }) {
     } catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
   const toggleSpace = async (row: any) => { setSaving(true); try { await apiRequest(`/api/spaces/${row.id}`, { method: 'PUT', ...json(), body: JSON.stringify({ ...row, active: !row.active, capacity: row.capacity, price: Number(row.price) }) }); notify(row.active ? 'Espaço desativado.' : 'Espaço ativado.'); await load() } catch (e: any) { setError(e.message) } finally { setSaving(false) } }
-  const deleteSpace = async (row: any) => { if (!window.confirm(`Excluir o espaço “${row.name}”? Esta ação não poderá ser desfeita.`)) return; try { await apiRequest(`/api/spaces/${row.id}`, { method: 'DELETE', ...auth() }); notify('Espaço excluído.'); await load() } catch (e: any) { setError(e.message) } }
+  const deleteSpace = async (row: any) => { if (!window.confirm(`Excluir o espaço “${row.name}”? Esta ação não poderá ser desfeita.`)) return; try { await apiRequest(`/api/spaces/${row.id}`, { method: 'DELETE', headers: auth().headers }); notify('Espaço excluído.'); await load() } catch (e: any) { setError(e.message) } }
   const uploadPhoto = async (space: any, file: File, primary = false) => {
     const body = new FormData(); body.append('file', file); body.append('isPrimary', String(primary))
-    try { await apiRequest(`/api/spaces/${space.id}/photo`, { method: 'POST', ...auth(), body }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify(primary ? 'Foto principal atualizada.' : 'Foto adicionada à galeria.') } catch (e: any) { setError(e.message) }
+    try { await apiRequest(`/api/spaces/${space.id}/photo`, { method: 'POST', headers: auth().headers, body }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify(primary ? 'Foto principal atualizada.' : 'Foto adicionada à galeria.') } catch (e: any) { setError(e.message) }
   }
   const uploadPhotos = async (space: any, files: FileList | null, primary = false) => {
     if (!files?.length) return
@@ -81,10 +81,10 @@ export function AdminReservationsPage({ onBack }: { onBack: () => void }) {
   }
   const removePhoto = async (space: any, photo: any) => {
     if (!window.confirm('Remover esta foto?')) return
-    try { await apiRequest(`/api/spaces/${space.id}/photos/${photo.id}`, { method: 'DELETE', ...auth() }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify('Foto removida.') } catch (e: any) { setError(e.message) }
+    try { await apiRequest(`/api/spaces/${space.id}/photos/${photo.id}`, { method: 'DELETE', headers: auth().headers }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify('Foto removida.') } catch (e: any) { setError(e.message) }
   }
   const setPrimary = async (space: any, photo: any) => {
-    try { await apiRequest(`/api/spaces/${space.id}/photos/${photo.id}/primary`, { method: 'PUT', ...auth() }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify('Foto principal definida.') } catch (e: any) { setError(e.message) }
+    try { await apiRequest(`/api/spaces/${space.id}/photos/${photo.id}/primary`, { method: 'PUT', headers: auth().headers }); const fresh = await apiRequest<any>(`/api/spaces/${space.id}`, auth()); setSpaceEditing(fresh); setSpaceForm({ ...blankSpace, ...fresh, capacity: fresh.capacity ?? '', price: fresh.price ?? '' }); await load(); notify('Foto principal definida.') } catch (e: any) { setError(e.message) }
   }
 
   const openReservation = (row?: any) => { setReservationEditing(row || null); setReservationForm(row ? { ...blankReservation, ...row, memberId: row.memberId, spaceId: row.spaceId, reservationDate: String(row.reservationDate).slice(0, 10), totalAmount: row.totalAmount ?? '' } : { ...blankReservation }); setRecord('reservation-form'); setError('') }

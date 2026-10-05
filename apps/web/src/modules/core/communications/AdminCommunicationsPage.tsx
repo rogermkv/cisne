@@ -36,13 +36,13 @@ export function AdminCommunicationsPage({ kind, onBack }: { kind: 'announcements
       : { title: form.title.trim(), description: form.content.trim(), startDateTime: start, endDateTime: end, location: form.location || null, capacity: form.capacity === '' ? null : Number(form.capacity), memberPrice: form.memberPrice === '' ? null : Number(form.memberPrice), guestPrice: form.guestPrice === '' ? null : Number(form.guestPrice), active: editing?.active !== false }
     setSaving(true)
     try {
-      await apiRequest(editing ? `/api/${kind}/${editing.id}` : `/api/${kind}`, { method: editing ? 'PUT' : 'POST', ...auth(), body: JSON.stringify(body) })
+      await apiRequest(editing ? `/api/${kind}/${editing.id}` : `/api/${kind}`, { method: editing ? 'PUT' : 'POST', headers: auth().headers, body: JSON.stringify(body) })
       setShow(false); setEditing(null); setForm(empty); setMessage(editing ? 'Alteração salva.' : isNotice ? 'Aviso criado.' : 'Evento criado.'); await load()
     } catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
   const toggle = async (row: any) => {
     setSaving(true); setError(''); setMessage('')
-    try { await apiRequest(`/api/${kind}/${row.id}/toggle`, { method: 'POST', ...auth() }); setMessage(row.active ? 'Registro desativado.' : 'Registro ativado.'); await load() }
+    try { await apiRequest(`/api/${kind}/${row.id}/toggle`, { method: 'POST', headers: auth().headers }); setMessage(row.active ? 'Registro desativado.' : 'Registro ativado.'); await load() }
     catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
   return <main className="community-page">

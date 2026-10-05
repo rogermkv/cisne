@@ -69,7 +69,7 @@ export function AdminFinancePage({ onBack }: { onBack: () => void }) {
     event.preventDefault(); setError(''); setSaving(true)
     try {
       const body = { ...editor.form, amount: Number(editor.form.amount), referenceYear: Number(editor.form.referenceYear) }
-      await apiRequest(editor.id ? `/api/finance/charges/${editor.id}` : '/api/finance/charges', { method: editor.id ? 'PUT' : 'POST', ...auth(), body: JSON.stringify(body) })
+      await apiRequest(editor.id ? `/api/finance/charges/${editor.id}` : '/api/finance/charges', { method: editor.id ? 'PUT' : 'POST', headers: auth().headers, body: JSON.stringify(body) })
       setEditor(null); setMessage(editor.id ? 'Cobrança atualizada com sucesso.' : 'Cobrança criada com sucesso.'); await load()
     } catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
@@ -78,14 +78,14 @@ export function AdminFinancePage({ onBack }: { onBack: () => void }) {
     if (!Number.isFinite(value) || value <= 0 || value > balance) return setError(`Informe um valor entre R$ 0,01 e ${money(balance)}.`)
     setSaving(true)
     try {
-      await apiRequest(`/api/finance/charges/${payment.id}/payments`, { method: 'POST', ...auth(), body: JSON.stringify({ amount: value, method: payment.paymentMethod, paidAt: payment.paidAt, notes: payment.notes || null }) })
+      await apiRequest(`/api/finance/charges/${payment.id}/payments`, { method: 'POST', headers: auth().headers, body: JSON.stringify({ amount: value, method: payment.paymentMethod, paidAt: payment.paidAt, notes: payment.notes || null }) })
       setPayment(null); setMessage('Pagamento registrado com sucesso.'); await load()
     } catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
   const cancelCharge = async (row: any) => {
     if (!window.confirm('Tem certeza de que deseja cancelar esta cobrança?')) return
     setSaving(true); setError('')
-    try { await apiRequest(`/api/finance/charges/${row.id}/cancel`, { method: 'POST', ...auth() }); setMessage('Cobrança cancelada.'); await load() } catch (e: any) { setError(e.message) } finally { setSaving(false) }
+    try { await apiRequest(`/api/finance/charges/${row.id}/cancel`, { method: 'POST', headers: auth().headers }); setMessage('Cobrança cancelada.'); await load() } catch (e: any) { setError(e.message) } finally { setSaving(false) }
   }
   const openPayment = (row: any) => { setError(''); setPayment({ ...row, paymentAmount: row.balance ?? row.amount, paymentMethod: 'PIX', paidAt: today(), notes: '' }) }
   const contact = (row: any) => { const url = whatsappUrl(phoneFor(row)); return url ? `${url}?text=${encodeURIComponent(chargeMessage(row))}` : null }
