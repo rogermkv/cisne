@@ -17,6 +17,8 @@
     "test:visitor-invitations": "tsx test/visitor-invitations.rules.ts",
     "test:finance": "tsx test/finance.rules.ts",
     "media:migrate-spaces": "tsx scripts/media/migrate-space-media.ts",
+    "media:migrate-members": "tsx scripts/media/migrate-member-media.ts",
+    "test:media:members": "tsx test/member-media-phase-3.ts",
     "test:media": "tsx test/media-foundation.ts",
     "test:media:spaces": "tsx test/space-media-phase-2.ts",
     "test:media:integration": "tsx test/space-media.integration.ts"

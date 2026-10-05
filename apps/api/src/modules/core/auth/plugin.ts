@@ -37,7 +37,7 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
       where: { id: payload.sub },
       select: {
         id: true,
-        person: { select: { fullName: true, cpf: true, birthDate: true, email: true, phone: true } },
+        person: { select: { id: true, fullName: true, cpf: true, birthDate: true, email: true, phone: true } },
         mustChangePassword: true,
         active: true,
         roles: {
@@ -59,6 +59,7 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
 
     request.authUser = {
       id: user.id,
+      personId: user.person.id,
       name: user.person.fullName,
       cpf: user.person.cpf,
       birthDate: user.person.birthDate?.toISOString() ?? null,

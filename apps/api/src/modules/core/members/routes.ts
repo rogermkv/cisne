@@ -8,6 +8,7 @@ import { prisma } from '../../../lib/prisma.js'
 import { hashPassword } from '../auth/password.js'
 import { normalizeCpf, normalizePhone } from '../auth/normalization.js'
 import { personPhotosDirectory, personPhotoPath } from '../../../config/storage.js'
+import { createMediaService, requireMediaStorage } from '../../media/runtime.js'
 
 const statuses = ['ACTIVE', 'INACTIVE', 'SUSPENDED', 'TERMINATED']
 const date = (value: unknown) => {
@@ -23,22 +24,29 @@ const initialPassword = (value: Date) => {
 }
 const annualCharge = { where: { type: 'ANNUAL_FEE', status: { in: ['PENDING', 'OVERDUE'] } }, orderBy: { dueDate: 'asc' }, take: 1 }
 const include = {
-  person: { include: { user: { select: { id: true, active: true, lastLoginAt: true } }, accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } },
+  person: { include: { photoAsset: true, user: { select: { id: true, active: true, lastLoginAt: true } }, accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } },
   category: true,
   titular: { include: { person: true, category: true, responsibleCharges: annualCharge } },
-  dependentes: { include: { person: { include: { accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } }, category: true } },
+  dependentes: { include: { person: { include: { photoAsset: true, accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } } }, category: true } },
   charges: { where: { status: { in: ['PENDING', 'OVERDUE'] } }, orderBy: { dueDate: 'asc' }, take: 1 },
   responsibleCharges: annualCharge,
 }
 const view = (member: any) => ({
   ...member,
-  person: { ...member.person, cpf: maskCpf(member.person.cpf), birthDate: member.person.birthDate?.toISOString().slice(0, 10) ?? null },
+  person: { ...member.person, photoAsset: undefined, cpf: maskCpf(member.person.cpf), birthDate: member.person.birthDate?.toISOString().slice(0, 10) ?? null },
   admissionDate: member.admissionDate.toISOString().slice(0, 10),
   access: member.person.user ? { active: member.person.user.active, lastLoginAt: member.person.user.lastLoginAt } : null,
   annualDueDate: (member.category.isDependent || member.category.requiresHolder ? member.titular?.responsibleCharges?.[0] : member.responsibleCharges?.[0])?.dueDate ?? null,
   financialResponsible: member.category.isDependent || member.category.requiresHolder ? member.titular ? { id: member.titular.id, name: member.titular.person.fullName } : null : { id: member.id, name: member.person.fullName },
-  dependents: (member.dependentes ?? []).map((item: any) => ({ ...item, person: { ...item.person, cpf: maskCpf(item.person.cpf), birthDate: item.person.birthDate?.toISOString().slice(0, 10) ?? null } })),
+  dependents: (member.dependentes ?? []).map((item: any) => ({ ...item, person: { ...item.person, photoAsset: undefined, cpf: maskCpf(item.person.cpf), birthDate: item.person.birthDate?.toISOString().slice(0, 10) ?? null } })),
 })
+export async function canViewMemberPhoto(authUser: any, member: any): Promise<boolean> {
+  if (!authUser) return false
+  if (authUser.permissions?.includes('members.view')) return true
+  if (authUser.personId === member.personId) return true
+  const viewer = await prisma.member.findUnique({ where: { personId: authUser.personId }, select: { id: true } })
+  return Boolean(viewer && member.titularMemberId === viewer.id)
+}
 async function hierarchy(categoryId: string, holderId: string | null, relationship: string | null, currentId?: string) {
   const category = await prisma.memberCategory.findUnique({ where: { id: categoryId } })
   if (!category) return 'Selecione um tipo de sócio.'
@@ -57,7 +65,8 @@ async function ensureUser(personId: string, birthDate: Date) {
   if (role) await prisma.userRole.upsert({ where: { userId_roleId: { userId: user.id, roleId: role.id } }, update: {}, create: { userId: user.id, roleId: role.id } })
   return user
 }
-async function photo(request: any, reply: any) {
+// Legacy upload implementation retained only as a rollback reference; it is not registered as a route.
+async function legacyUploadForRollback(request: any, reply: any) {
   const member = await prisma.member.findUnique({ where: { id: request.params.id } })
   if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
   const part = await request.file().catch(() => null)
@@ -78,6 +87,44 @@ async function photo(request: any, reply: any) {
   await prisma.person.update({ where: { id: member.personId }, data: { photoPath: '/uploads/person-photos/' + file } })
   if (current?.photoPath) await fs.rm(personPhotoPath(path.basename(current.photoPath)), { force: true })
   return view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include }))
+}
+
+async function deleteCreatedMemberAsset(storageKey: string, assetId: string) {
+  await requireMediaStorage().delete(storageKey).catch(() => undefined)
+  await prisma.mediaAsset.delete({ where: { id: assetId } }).catch(() => undefined)
+}
+
+async function modernPhoto(request: any, reply: any) {
+  const member = await prisma.member.findUnique({ where: { id: request.params.id } })
+  if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
+  const part = await request.file().catch(() => null)
+  if (!part) return reply.code(400).send({ message: 'Arquivo de foto obrigatório.' })
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(part.mimetype)) return reply.code(400).send({ message: 'Formato inválido. Use JPG, PNG ou WEBP.' })
+  let asset: any
+  try {
+    const runtime = createMediaService()
+    asset = await runtime.service.createProcessedMemberImage({ bytes: await part.toBuffer(), requestedMimeType: part.mimetype, visibility: 'PRIVATE', purpose: 'MEMBER_PHOTO', ownerId: member.personId, originalName: part.filename || null, createdByUserId: request.authUser?.id || null })
+    const current = await prisma.person.findUnique({ where: { id: member.personId }, select: { photoAssetId: true } })
+    await prisma.$transaction(tx => tx.person.update({ where: { id: member.personId }, data: { photoAssetId: asset.id, photoPath: '/uploads/person-photos/' + crypto.randomUUID() + '.jpg' } }))
+    if (current?.photoAssetId) await prisma.mediaAsset.update({ where: { id: current.photoAssetId }, data: { deletedAt: new Date() } }).catch(() => undefined)
+  } catch (error: any) {
+    if (asset) await deleteCreatedMemberAsset(asset.storageKey, asset.id)
+    return reply.code(error.message?.includes('5 MB') ? 413 : 400).send({ message: error.message || 'Não foi possível processar a foto.' })
+  }
+  return view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include }))
+}
+
+export async function serveModernOrLegacyMemberPhoto(request: any, reply: any, memberId: string) {
+  const member = await prisma.member.findUnique({ where: { id: memberId }, include: { person: { include: { photoAsset: true } } } })
+  if (!member || !(await canViewMemberPhoto(request.authUser, member))) return reply.code(404).send({ message: 'Imagem não encontrada.' })
+  const asset = member.person.photoAsset
+  try {
+    if (asset && !asset.deletedAt && asset.visibility === 'PRIVATE' && asset.purpose === 'MEMBER_PHOTO') return reply.type(asset.mimeType).header('Cache-Control', 'private, no-store').send(await requireMediaStorage().read(asset.storageKey))
+    if (!member.person.photoPath) return reply.code(404).send({ message: 'Imagem não encontrada.' })
+    const file = path.basename(member.person.photoPath)
+    const ext = path.extname(file).toLowerCase()
+    return reply.type(ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg').header('Cache-Control', 'private, no-store').send(await fs.readFile(personPhotoPath(file)))
+  } catch { return reply.code(404).send({ message: 'Imagem não encontrada.' }) }
 }
 
 export const memberRoutes: FastifyPluginAsync = async (app) => {
@@ -104,13 +151,14 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
     const rows = await prisma.member.findMany({ where: { status: 'ACTIVE', category: { isDependent: false, requiresHolder: false }, OR: [{ person: { fullName: { contains: q, mode: 'insensitive' } } }, ...(cpf ? [{ person: { cpf: { contains: cpf } } }] : [])] }, include: { person: true }, orderBy: { person: { fullName: 'asc' } }, take: 8 })
     return rows.map((item: any) => ({ id: item.id, name: item.person.fullName, cpf: maskCpf(item.person.cpf) }))
   })
-  app.post('/members/:id/photo', { preHandler: app.requirePermission('members.manage') }, photo)
+  app.post('/members/:id/photo', { preHandler: app.requirePermission('members.manage') }, modernPhoto)
+  app.get('/members/:id/photo', { preHandler: app.authenticate }, async (request: any, reply) => serveModernOrLegacyMemberPhoto(request, reply, request.params.id))
   app.delete('/members/:id/photo', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
     const member = await prisma.member.findUnique({ where: { id: request.params.id } })
     if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
-    const current = await prisma.person.findUnique({ where: { id: member.personId }, select: { photoPath: true } })
-    await prisma.person.update({ where: { id: member.personId }, data: { photoPath: null } })
-    if (current?.photoPath) await fs.rm(personPhotoPath(path.basename(current.photoPath)), { force: true })
+    const current = await prisma.person.findUnique({ where: { id: member.personId }, select: { photoAssetId: true } })
+    await prisma.person.update({ where: { id: member.personId }, data: { photoAssetId: null, photoPath: null } })
+    if (current?.photoAssetId) await prisma.mediaAsset.update({ where: { id: current.photoAssetId }, data: { deletedAt: new Date() } }).catch(() => undefined)
     return view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include }))
   })
   app.get('/members', { preHandler: app.requirePermission('members.view') }, async (request: any) => {

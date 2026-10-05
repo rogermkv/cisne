@@ -10,6 +10,17 @@ import multipart from '@fastify/multipart'
 import { personPhotoPath, spacePhotoPath } from './config/storage.js'
 import { mediaRoutes } from './modules/media/routes.js'
 import { mediaView } from './modules/media/view.js'
+import { serveModernOrLegacyMemberPhoto } from './modules/core/members/routes.js'
+import { verifyAccessToken } from './modules/core/auth/jwt.js'
+
+async function authenticateRootPhotoRequest(request: any, reply: any) {
+  const authorization = request.headers.authorization
+  const payload = authorization?.startsWith('Bearer ') ? verifyAccessToken(authorization.slice(7), env.jwtSecret) : null
+  if (!payload) return reply.code(401).send({ message: 'Autenticação necessária.' })
+  const user = await prisma.user.findUnique({ where: { id: payload.sub }, select: { id: true, active: true, mustChangePassword: true, person: { select: { id: true, fullName: true, cpf: true, birthDate: true, email: true, phone: true } }, roles: { select: { role: { select: { name: true, permissions: { select: { permission: { select: { key: true } } } } } } } } } })
+  if (!user?.active) return reply.code(401).send({ message: 'Autenticação necessária.' })
+  request.authUser = { id: user.id, personId: user.person.id, name: user.person.fullName, cpf: user.person.cpf, birthDate: user.person.birthDate?.toISOString() ?? null, email: user.person.email, phone: user.person.phone, mustChangePassword: user.mustChangePassword, roles: user.roles.map((item: any) => item.role.name), permissions: [...new Set(user.roles.flatMap((item: any) => item.role.permissions.map((permission: any) => permission.permission.key)))] }
+}
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -25,6 +36,18 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(coreModule, {
     prefix: '/api',
+  })
+  app.addHook('preHandler', async (request: any, reply) => {
+    if (!request.url.startsWith('/uploads/person-photos/')) return
+    await authenticateRootPhotoRequest(request, reply)
+    if (reply.sent) return
+    const requested = String(request.params?.file || '')
+    const file = path.basename(requested)
+    if (!file || file !== requested) return reply.code(404).send({ message: 'Imagem não encontrada.' })
+    const person = await prisma.person.findFirst({ where: { photoPath: `/uploads/person-photos/${file}` }, select: { member: { select: { id: true } } } })
+    if (!person?.member) return reply.code(404).send({ message: 'Imagem não encontrada.' })
+    const asset = await prisma.person.findFirst({ where: { photoPath: `/uploads/person-photos/${file}` }, select: { photoAssetId: true } })
+    if (asset?.photoAssetId) await serveModernOrLegacyMemberPhoto(request, reply, person.member.id)
   })
   app.get('/uploads/person-photos/:file', async (request:any, reply) => { try { const f=path.basename(request.params.file); const data=await fs.readFile(personPhotoPath(f)); return reply.type(path.extname(f)==='.png'?'image/png':path.extname(f)==='.webp'?'image/webp':'image/jpeg').send(data) } catch { return reply.code(404).send({message:'Imagem não encontrada.'}) } })
 

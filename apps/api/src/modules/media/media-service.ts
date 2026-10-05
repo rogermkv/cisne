@@ -3,7 +3,7 @@ import { imageSize } from 'image-size'
 import { randomUUID } from 'node:crypto'
 import type { MediaStorage } from './media-storage.js'
 import { normalizeStorageKey } from './storage-key.js'
-import { prepareSpaceImage } from './image-processing.js'
+import { prepareMemberImage, prepareSpaceImage } from './image-processing.js'
 
 export type MediaVisibility = 'PUBLIC' | 'PRIVATE'
 export type MediaPurpose = 'MEMBER_PHOTO' | 'SPACE_PHOTO' | 'ANNOUNCEMENT_IMAGE' | 'EVENT_IMAGE' | 'ATTACHMENT'
@@ -47,6 +47,11 @@ export class MediaService {
 
   async createProcessedSpaceImage(input: Omit<CreateMediaAssetInput, 'bytes' | 'mimeType' | 'width' | 'height'> & { bytes: Uint8Array; requestedMimeType: string }): Promise<MediaAssetRecord> {
     const prepared = await prepareSpaceImage(input.bytes, input.requestedMimeType)
+    return this.create({ ...input, bytes: prepared.bytes, mimeType: prepared.mimeType, width: prepared.width, height: prepared.height })
+  }
+
+  async createProcessedMemberImage(input: Omit<CreateMediaAssetInput, 'bytes' | 'mimeType' | 'width' | 'height'> & { bytes: Uint8Array; requestedMimeType: string }): Promise<MediaAssetRecord> {
+    const prepared = await prepareMemberImage(input.bytes, input.requestedMimeType)
     return this.create({ ...input, bytes: prepared.bytes, mimeType: prepared.mimeType, width: prepared.width, height: prepared.height })
   }
 

@@ -2,7 +2,7 @@ import { memberStatus, financialStatus, invitationStatus, dateLabel, money } fro
 import { useEffect, useState } from 'react'
 import { CalendarDays, CreditCard, FileText, Home, KeyRound, LogOut, Megaphone, MoreHorizontal, Users, X, ArrowLeft, LockKeyhole } from 'lucide-react'
 import { QRCodeCanvas } from 'qrcode.react'
-import { ApiError, apiRequest, apiUrl } from '../../../api/client'
+import { ApiError, apiRequest, apiUrl as baseApiUrl } from '../../../api/client'
 import { useAuth } from '../auth/AuthProvider'
 import { AnnouncementsPage, EventsPage } from '../communications/CommunityPages'
 import { ReservationsPage } from '../reservations/ReservationsPage'
@@ -11,6 +11,7 @@ import { FinancePage } from './FinancePage'
 import './badge.css'
 
 const auth = () => ({ Authorization: `Bearer ${sessionStorage.getItem('cisne.accessToken') || ''}` })
+const apiUrl = ''
 function Qr({ value }: { value: string }) { return <div className="member-qr" aria-label="Código QR individual"><QRCodeCanvas value={value || 'CISNE-DEMO'} size={128} includeMargin /></div> }
 function MemberProfilePage({ member, onBack }: { member: any; onBack: () => void }) { return <main className="member-content"><button className="finance-back" onClick={onBack}><ArrowLeft size={18} /> Início</button><span className="member-kicker">Meus dados</span><section className="member-section"><h2>{member.fullName}</h2><p>CPF: {member.cpf}</p><p>Data de nascimento: {member.birthDate ? dateLabel(member.birthDate) : '—'}</p><p>Telefone: {member.phone || '—'}</p><p>E-mail: {member.email || '—'}</p><p>Cidade: {member.city || '—'}</p><p>Matrícula: {member.registrationNumber || '—'}</p></section></main> }
 function MemberInvitationsPage({ invitations, quota, onBack }: { invitations: any[]; quota: any; onBack: () => void }) { return <main className="member-content"><button className="finance-back" onClick={onBack}><ArrowLeft size={18} /> Início</button><span className="member-kicker">Visitantes e convites</span><h1>Meus convites</h1><section className="finance-demo"><div><span>Cota de {quota?.month ? `${String(quota.month).padStart(2, '0')}/${quota.year}` : 'este mês'}</span><strong>{quota?.eligible ? `${quota.used} / ${quota.limit}` : 'Sem cota'}</strong><small>{quota?.eligible ? `${quota.available} convite(s) disponível(is)` : 'Sua categoria de sócio não possui cota mensal de convites.'}</small></div></section><section className="member-section">{invitations.length ? invitations.map((item) => <article className="dependent-item" key={item.id}><div><strong>{item.visitor?.person?.fullName || 'Visitante'}</strong><span>{dateLabel(item.scheduledDate)} · {invitationStatus[item.status] || 'Não informado'}</span></div></article>) : <p className="empty-member">Nenhum convite cadastrado.</p>}</section></main> }
@@ -21,6 +22,14 @@ void MemberInvitationsPage
 export function MemberHome({ onLogout }: { onLogout: () => void }) {
   const [error, setError] = useState(''); const [data, setData] = useState<any>(); const [finance, setFinance] = useState<any>(); const [view, setView] = useState('home'); const [more, setMore] = useState(false); const [dependentCard, setDependentCard] = useState<any>(null)
   useEffect(() => { apiRequest('/api/member/me', { headers: auth() }).then(setData).catch(e => setError(e.message)); apiRequest('/api/member/me/finance', { headers: auth() }).then(setFinance).catch(e => setError(e.message)) }, [view])
+  useEffect(() => {
+    if (!data?.member?.id) return
+    let active = true
+    const urls: string[] = []
+    const load = async (id: string, legacy: string | null) => { if (!legacy) return null; const response = await fetch(`${baseApiUrl}/api/members/${id}/photo`, { headers: auth() }); if (!response.ok) return null; const url = URL.createObjectURL(await response.blob()); urls.push(url); return url }
+    Promise.all([load(data.member.id, data.member.photoPath), ...((data.dependents || []).map((item: any) => load(item.id, item.photoPath)))]).then(values => { if (!active) return; setData((current: any) => ({ ...current, member: { ...current.member, photoPath: values[0] }, dependents: (current.dependents || []).map((item: any, index: number) => ({ ...item, photoPath: values[index + 1] })) })) }).catch(() => undefined)
+    return () => { active = false; urls.forEach(url => URL.revokeObjectURL(url)) }
+  }, [data?.member?.id])
   useEffect(() => { if (!dependentCard) return; const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setDependentCard(null) }; window.addEventListener('keydown', closeOnEscape); return () => window.removeEventListener('keydown', closeOnEscape) }, [dependentCard])
   if (error) return <main className="member-content"><p className="form-error" role="alert">{error}</p><button className="btn btn-secondary" onClick={onLogout}>Sair</button></main>
   if (!data) return <div className="auth-loading">Carregando sua carteirinha…</div>
