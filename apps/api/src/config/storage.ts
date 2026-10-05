@@ -11,5 +11,9 @@ export const spacePhotosDirectory =
   process.env.SPACE_PHOTOS_DIR ||
   path.resolve(process.cwd(), 'uploads', 'space-photos')
 
+export const configuredSpacePhotosDirectory = process.env.SPACE_PHOTOS_DIR?.trim()
+  ? path.resolve(process.env.SPACE_PHOTOS_DIR)
+  : undefined
+
 export const spacePhotoPath = (file: string) =>
   path.join(spacePhotosDirectory, file)

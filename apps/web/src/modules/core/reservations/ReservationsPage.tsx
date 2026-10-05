@@ -7,7 +7,8 @@ import './member-reservations.css'
 
 const auth = () => ({ headers: { Authorization: `Bearer ${sessionStorage.getItem('cisne.accessToken') || ''}` } })
 const today = () => new Date().toISOString().slice(0, 10)
-const imageFor = (space: any, index = 0) => index === 0 ? space?.imagePath || space?.photos?.[0]?.path || null : space?.photos?.[index]?.path || null
+const photoUrl = (photo: any) => photo?.media?.url || photo?.path || null
+const imageFor = (space: any, index = 0) => index === 0 ? space?.primaryMedia?.url || space?.imagePath || photoUrl(space?.photos?.[0]) : photoUrl(space?.photos?.[index])
 const timeLabel = (reservation: any) => reservation.startTime && reservation.endTime ? `${reservation.startTime} às ${reservation.endTime}` : 'Dia inteiro'
 const statusClass = (status: string) => `status-badge ${status}`
 type View = 'spaces' | 'detail' | 'mine'

@@ -16,7 +16,10 @@
     "test:reservations": "tsx test/reservation-status.rules.ts",
     "test:visitor-invitations": "tsx test/visitor-invitations.rules.ts",
     "test:finance": "tsx test/finance.rules.ts",
-    "test:media": "tsx test/media-foundation.ts"
+    "media:migrate-spaces": "tsx scripts/media/migrate-space-media.ts",
+    "test:media": "tsx test/media-foundation.ts",
+    "test:media:spaces": "tsx test/space-media-phase-2.ts",
+    "test:media:integration": "tsx test/space-media.integration.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
@@ -24,7 +27,8 @@
     "@prisma/client": "^6.19.0",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
-    "image-size": "^2.0.4"
+    "image-size": "^2.0.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

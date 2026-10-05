@@ -33,6 +33,15 @@ export class LocalMediaStorage implements MediaStorage {
     }
   }
 
+  private async assertFileInsideRoot(file: string): Promise<void> {
+    const root = await this.fileSystem.realpath(this.absoluteRoot)
+    const realFile = await this.fileSystem.realpath(file)
+    const relative = path.relative(root, realFile)
+    if (!relative || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+      throw new Error('Storage path resolves outside the configured storage root.')
+    }
+  }
+
   async put(storageKey: string, data: Uint8Array): Promise<void> {
     const safeKey = normalizeStorageKey(storageKey)
     const destination = this.resolve(safeKey)
@@ -55,6 +64,7 @@ export class LocalMediaStorage implements MediaStorage {
   async read(storageKey: string): Promise<Buffer> {
     const destination = this.resolve(storageKey)
     await this.assertDirectoryInsideRoot(path.dirname(destination))
+    await this.assertFileInsideRoot(destination)
     return fs.readFile(destination)
   }
 
@@ -65,6 +75,7 @@ export class LocalMediaStorage implements MediaStorage {
   async stat(storageKey: string): Promise<MediaStorageStat> {
     const destination = this.resolve(storageKey)
     await this.assertDirectoryInsideRoot(path.dirname(destination))
+    await this.assertFileInsideRoot(destination)
     const result = await fs.stat(destination)
     return { sizeBytes: result.size, modifiedAt: result.mtime }
   }
@@ -72,6 +83,7 @@ export class LocalMediaStorage implements MediaStorage {
   async delete(storageKey: string): Promise<void> {
     const destination = this.resolve(storageKey)
     await this.assertDirectoryInsideRoot(path.dirname(destination))
+    if (await fs.stat(destination).then(() => true).catch(() => false)) await this.assertFileInsideRoot(destination)
     await fs.rm(destination, { force: true })
   }
 }
