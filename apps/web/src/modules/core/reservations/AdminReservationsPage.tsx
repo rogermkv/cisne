@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { ArrowLeft, CalendarDays, ImagePlus, MoreVertical, Pencil, Plus, Settings, Star, Trash2, Upload, X } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { apiRequest, apiUrl } from '../../../api/client'
+import { apiRequest, mediaUrl } from '../../../api/client'
 import { Feedback } from '../ui/Feedback'
 import { Modal } from '../ui/Modal'
 import { dateLabel, money, reservationStatus } from '../ui/format'
@@ -12,7 +12,7 @@ const auth = () => ({ headers: { Authorization: `Bearer ${sessionStorage.getItem
 const json = () => ({ ...auth(), headers: { ...auth().headers, 'Content-Type': 'application/json' } })
 const blankSpace = { name: '', description: '', capacity: '', price: '', active: true, requiresApproval: true, reservationRules: '' }
 const blankReservation = { memberId: '', spaceId: '', reservationDate: '', startTime: '', endTime: '', totalAmount: '', notes: '', status: 'APPROVED' }
-const image = (path?: string | null) => path ? apiUrl + path : ''
+const image = mediaUrl
 const dayKey = (value: any) => new Date(value).toISOString().slice(0, 10)
 const today = () => new Date().toISOString().slice(0, 10)
 

@@ -1,5 +1,12 @@
 export const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? ''
 
+export const mediaUrl = (value?: string | null) => {
+  if (!value) return ''
+  if (/^(?:https?:)?\/\//i.test(value)) return value
+  const path = value.startsWith('/') ? value : `/${value}`
+  return `${apiUrl}${path}`
+}
+
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number, public readonly field?: string) {
     super(message)
