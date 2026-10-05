@@ -24,6 +24,7 @@ model User {
   events ClubEvent[] @relation("EventAuthor")
   accessEvents AccessEvent[] @relation("AccessRegistrar")
   paymentRegistrations FinancialPayment[] @relation("FinancialPaymentRegistrar")
+  mediaAssets          MediaAsset[] @relation("MediaAssetCreator")
 
   @@map("users")
 }
@@ -124,10 +125,13 @@ model SpacePhoto {
   id        String          @id @default(cuid())
   spaceId   String
   path      String
+  mediaAssetId String?
   isPrimary Boolean         @default(false)
   sortOrder Int             @default(0)
   createdAt DateTime        @default(now())
   space     ReservableSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  mediaAsset MediaAsset? @relation("SpacePhotoAsset", fields: [mediaAssetId], references: [id], onDelete: SetNull)
+  @@unique([mediaAssetId])
   @@index([spaceId, sortOrder])
   @@map("space_photos")
 }
@@ -181,6 +185,47 @@ enum AnnouncementAudience {
   ALL_MEMBERS
   HOLDERS_ONLY
 }
+
+enum MediaVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum MediaPurpose {
+  MEMBER_PHOTO
+  SPACE_PHOTO
+  ANNOUNCEMENT_IMAGE
+  EVENT_IMAGE
+  ATTACHMENT
+}
+
+model MediaAsset {
+  id             String          @id @default(cuid())
+  storageKey     String          @unique
+  mimeType       String
+  sizeBytes      Int
+  width          Int?
+  height         Int?
+  checksumSha256 String
+  visibility     MediaVisibility
+  purpose        MediaPurpose
+  originalName   String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  createdByUserId String?
+  createdByUser  User?           @relation("MediaAssetCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  personPhoto    Person?         @relation("PersonPhotoAsset")
+  spacePhoto     SpacePhoto?     @relation("SpacePhotoAsset")
+  announcementImage Announcement? @relation("AnnouncementImageAsset")
+  eventImage     ClubEvent?      @relation("EventImageAsset")
+
+  @@index([checksumSha256])
+  @@index([visibility, purpose])
+  @@index([deletedAt])
+  @@map("media_assets")
+}
+
 model Announcement {
   id String @id @default(cuid())
   title String
@@ -188,12 +233,15 @@ model Announcement {
   startDate DateTime
   endDate DateTime?
   imagePath String?
+  imageAssetId String?
   active Boolean @default(true)
   audience AnnouncementAudience @default(ALL_MEMBERS)
   createdByUserId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy User @relation("AnnouncementAuthor", fields:[createdByUserId], references:[id])
+  imageAsset MediaAsset? @relation("AnnouncementImageAsset", fields:[imageAssetId], references:[id], onDelete: SetNull)
+  @@unique([imageAssetId])
   @@map("announcements")
 }
 
@@ -205,6 +253,7 @@ model ClubEvent {
   startDateTime DateTime
   endDateTime DateTime?
   imagePath String?
+  imageAssetId String?
   memberPrice Decimal? @db.Decimal(12,2)
   guestPrice Decimal? @db.Decimal(12,2)
   capacity Int?
@@ -213,6 +262,8 @@ model ClubEvent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy User @relation("EventAuthor", fields:[createdByUserId], references:[id])
+  imageAsset MediaAsset? @relation("EventImageAsset", fields:[imageAssetId], references:[id], onDelete: SetNull)
+  @@unique([imageAssetId])
   @@map("club_events")
 }
 
@@ -262,12 +313,15 @@ model Person {
   email      String?      @unique
   city       String?
   photoPath  String?
+  photoAssetId String?
   credentialToken String @unique @default(cuid())
   createdAt  DateTime     @default(now())
   updatedAt  DateTime @updatedAt
   member     Member?
   visitor    Visitor?
   user       User?
+  photoAsset MediaAsset? @relation("PersonPhotoAsset", fields:[photoAssetId], references:[id], onDelete: SetNull)
+  @@unique([photoAssetId])
   accessEvents AccessEvent[]
   @@map("persons")
 }
