@@ -312,6 +312,7 @@ model Person {
   phone      String?
   email      String?      @unique
   city       String?
+  state      String?
   photoPath  String?
   photoAssetId String?
   credentialToken String @unique @default(cuid())
