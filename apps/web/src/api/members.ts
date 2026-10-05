@@ -13,6 +13,7 @@ export const setMemberStatus = (id:string, status:'ACTIVE'|'INACTIVE') => apiReq
 export const deleteMember = (id:string) => apiRequest<{ok:boolean}>(`/api/members/${id}`, { method:'DELETE', headers:auth() })
 
 export const uploadMemberPhoto = (id:string, file:File) => { const body = new FormData(); body.append('file', file); return apiRequest<Member>(`/api/members/${id}/photo`, { method:'POST', headers:auth(), body }) }
+export const deleteMemberPhoto = (id:string) => apiRequest<Member>(`/api/members/${id}/photo`, { method:'DELETE', headers:auth() })
 export const searchHolders = (q:string) => apiRequest<Array<{id:string;name:string;cpf:string}>>(`/api/members/holders/search?q=${encodeURIComponent(q)}`, { headers: auth() })
 export const toggleMemberAccess = (id:string, active:boolean) => apiRequest(`/api/members/${id}/access/toggle`, { method:'POST', headers:{...auth(),'Content-Type':'application/json'}, body:JSON.stringify({active}) })
 export const resetMemberPassword = (id:string) => apiRequest<{message:string}>(`/api/members/${id}/access/reset-password`, { method:'POST', headers:auth() })
