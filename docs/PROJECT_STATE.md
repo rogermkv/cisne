@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `f8cfc6b` (`docs: record family card visibility change`)
+Base HEAD: `59153c2` (`fix: show family titular in dependent card modal`)
 
-Origin: `f8cfc6b`
+Origin: `59153c2`
 
-Production functional release: `f8cfc6b` publicado pelo fluxo oficial; asset frontend `index-UxEdPleQ.js` e health HTTP confirmados.
+Production functional release: `59153c2` publicado pelo fluxo oficial; asset frontend `index-BZPoi-dR.js` e health HTTP confirmados.
 
-Working tree: limpa; alteração de carteirinhas familiares publicada em `origin/main` e validada em produção.
+Working tree: limpa; correção do modal publicada em `origin/main` e validada em produção.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,21 +62,21 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Carteirinhas do grupo familiar para dependentes
 
-Status: PATCH VALIDATED LOCALLY — PENDING RELEASE
+Status: PRODUCTION DEPLOYED — VALIDATED
 
 Cause: dependentes autenticados recebiam apenas sua própria relação vazia de dependentes e não conseguiam acessar as carteirinhas do titular ou dos demais dependentes.
 
-Files currently modified: `apps/web/src/modules/core/member-area/MemberHome.tsx`.
+Files currently modified: nenhum.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
-Production validation: release `f8cfc6b` publicado pelo push oficial; página HTTP 200; `/api/health` HTTP 200 com `status: OK`; asset `index-UxEdPleQ.js`; dependente visualizou “Carteirinhas da família” com titular e outro dependente; nenhuma migration pendente; stash preservado.
+Production validation: release `59153c2` publicado pelo push oficial; página HTTP 200; `/api/health` HTTP 200 com `status: OK`; asset `index-BZPoi-dR.js`; dependente visualizou “Carteirinhas da família” com Roger Herpich como titular; nenhuma migration pendente; stash preservado.
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: publicar a correção do nome do titular no modal e validar novamente em produção; o release anterior continua ativo.
+Pending: a abertura automatizada do modal continua instável; o botão e a lista familiar estão publicados, e não há pendência de deploy.
 
 ## Known Risks
 
@@ -132,7 +132,10 @@ Pending: publicar a correção do nome do titular no modal e validar novamente e
 - Abertura automatizada do modal expirou após a lista familiar estar visível; essa interação permanece `UNKNOWN`.
 - Correção local: o modal de dependente agora usa o membro marcado como titular na lista familiar, exibindo “Dependente de [titular]” em vez do dependente logado.
 - Build após a correção: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Push `f8cfc6b..59153c2` concluído em `origin/main`; auto-deploy concluído.
+- Produção passou a servir `index-BZPoi-dR.js`; health check HTTP 200 com `{"status":"OK"}`.
+- Inspeção visual autenticada confirmou “Carteirinhas da família”, Roger Herpich como Titular e Róbson Herpich como Irmão.
 
 ## Next Step
 
-Publicar o patch do modal pelo processo oficial e confirmar a frase “Dependente de Roger Herpich” em produção.
+Se necessário, repetir manualmente a abertura do modal para observar a frase “Dependente de Roger Herpich”; o patch já está publicado.

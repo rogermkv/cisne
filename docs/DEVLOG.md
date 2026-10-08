@@ -283,3 +283,12 @@ Esse teste não deve ser considerado validação da correção.
 - Build completo: PASS.
 - `npm run test:club-modules --workspace @cisne/api`: PASS.
 - Produção não foi alterada nesta correção; publicação e validação visual permanecem pendentes.
+
+## 2026-10-08 — Production deploy of family card modal correction
+
+- Push oficial concluído em `origin/main`: `f8cfc6b..59153c2`.
+- Auto-deploy concluído; a produção passou a servir o asset `index-BZPoi-dR.js`.
+- Health check: `GET /api/health` HTTP 200 com `{"status":"OK"}`.
+- Smoke visual autenticado confirmou “Carteirinhas da família”, com Roger Herpich como Titular e Róbson Herpich como Irmão.
+- Nenhuma migration foi necessária ou executada.
+- O clique automatizado de abertura do modal permaneceu instável; a validação da frase interna do modal fica `UNKNOWN`, sem declarar PASS indevido.
