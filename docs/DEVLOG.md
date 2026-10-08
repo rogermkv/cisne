@@ -292,3 +292,14 @@ Esse teste não deve ser considerado validação da correção.
 - Smoke visual autenticado confirmou “Carteirinhas da família”, com Roger Herpich como Titular e Róbson Herpich como Irmão.
 - Nenhuma migration foi necessária ou executada.
 - O clique automatizado de abertura do modal permaneceu instável; a validação da frase interna do modal fica `UNKNOWN`, sem declarar PASS indevido.
+
+## 2026-10-08 — Member home visibility improvements
+
+- Situação financeira agora usa vermelho para “Em atraso” e verde para “Em dia”.
+- A home passou a carregar até dois próximos eventos e exibi-los diretamente, mantendo “Ver todos”.
+- A home passou a carregar até dois avisos e exibi-los diretamente, mantendo “Ver todos”.
+- Alterações em `apps/web/src/modules/core/member-area/MemberHome.tsx` e `apps/web/src/modules/core/member-area/badge.css`.
+- Build completo: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Inspeção visual local: PASS; o fixture tinha 0 eventos próximos e 1 aviso, validando também o estado vazio de eventos.
+- Produção não foi alterada; publicação permanece pendente.

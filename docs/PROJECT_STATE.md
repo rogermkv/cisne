@@ -60,13 +60,13 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Carteirinhas do grupo familiar para dependentes
+Título: Melhorias da tela inicial da Área do Sócio
 
-Status: PRODUCTION DEPLOYED — VALIDATED
+Status: VALIDATED LOCALLY — PENDING RELEASE
 
-Cause: dependentes autenticados recebiam apenas sua própria relação vazia de dependentes e não conseguiam acessar as carteirinhas do titular ou dos demais dependentes.
+Cause: melhorar a leitura da situação financeira e trazer eventos próximos e avisos para a tela inicial, sem exigir navegação adicional.
 
-Files currently modified: nenhum.
+Files currently modified: `apps/web/src/modules/core/member-area/MemberHome.tsx`, `apps/web/src/modules/core/member-area/badge.css`.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +76,7 @@ Production validation: release `59153c2` publicado pelo push oficial; página HT
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: a abertura automatizada do modal continua instável; o botão e a lista familiar estão publicados, e não há pendência de deploy.
+Pending: publicar as melhorias da tela inicial e validar o resultado em produção; o release anterior continua ativo.
 
 ## Known Risks
 
@@ -135,7 +135,11 @@ Pending: a abertura automatizada do modal continua instável; o botão e a lista
 - Push `f8cfc6b..59153c2` concluído em `origin/main`; auto-deploy concluído.
 - Produção passou a servir `index-BZPoi-dR.js`; health check HTTP 200 com `{"status":"OK"}`.
 - Inspeção visual autenticada confirmou “Carteirinhas da família”, Roger Herpich como Titular e Róbson Herpich como Irmão.
+- A situação financeira ganhou cores semânticas: vermelho para `OVERDUE` e verde para `PAID`.
+- A home passou a buscar avisos e eventos autenticados e exibir até dois de cada diretamente, com estado vazio e ação “Ver todos”.
+- Build após as melhorias da home: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Inspeção visual local: cards de eventos e avisos confirmados; fixture local tinha 0 eventos próximos e 1 aviso.
 
 ## Next Step
 
-Se necessário, repetir manualmente a abertura do modal para observar a frase “Dependente de Roger Herpich”; o patch já está publicado.
+Publicar as melhorias da tela inicial pelo processo oficial e confirmar cores, eventos e avisos em produção.
