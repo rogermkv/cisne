@@ -366,9 +366,9 @@ model VisitorInvitation {
 }
 model ClubSetting {
   id String @id @default(cuid())
-  visitorAnnualLimit Int @default(6)
+  visitorAnnualLimit Int @default(7)
   memberMonthlyInvitationLimit Int @default(8)
-  annualLimitMode String @default("CALENDAR_YEAR")
+  annualLimitMode String @default("SEASON_NOV_OCT")
   invitationConsumptionMode String @default("CHECK_IN")
   annualFeeAmount Decimal @default(1600)
   annualFeePaymentModes String @default("PIX,CREDIT_CARD,MONTHLY_PIX")

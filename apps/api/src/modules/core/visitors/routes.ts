@@ -2,7 +2,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../../../lib/prisma.js'
 import { normalizeCpf, normalizePhone } from '../auth/normalization.js'
-import { expirePastInvitations, getMemberInvitationQuota, invitationEligibilityMessage, isCurrentMonthDate, monthBounds, parseCivilDate, quotaLockKey, resolveQuotaOwnerId } from './quotas.js'
+import { expirePastInvitations, getMemberInvitationQuota, getVisitorSeasonQuota, invitationEligibilityMessage, isCurrentMonthDate, monthBounds, parseCivilDate, quotaLockKey, resolveQuotaOwnerId } from './quotas.js'
 
 const mask = (v: string) => `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9)}`
 const invitationView = { visitor: { include: { person: true } }, sponsorMember: { include: { person: true, category: true } }, quotaOwnerMember: { include: { person: true } } }
@@ -31,6 +31,8 @@ async function createInvitation(input: any, db: any = prisma) {
   await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`
   const quota = await getMemberInvitationQuota(member.id, scheduledDate, db)
   if (quota.used >= quota.limit) { const error: any = new Error(`Limite mensal atingido. Este grupo já utilizou os ${quota.limit} convites disponíveis neste mês.`); error.statusCode = 409; throw error }
+  const visitorQuota = await getVisitorSeasonQuota(visitor.id, scheduledDate, db)
+  if (visitorQuota.available <= 0) { const error: any = new Error(`Este visitante atingiu a quota de ${visitorQuota.limit} entradas na temporada ${visitorQuota.season}.`); error.statusCode = 409; throw error }
   const duplicate = await db.visitorInvitation.findFirst({ where: { visitorId: visitor.id, quotaOwnerMemberId, scheduledDate, status: { in: ['SCHEDULED', 'USED'] } } })
   if (duplicate) { const error: any = new Error('Este visitante já possui convite deste grupo para esta data.'); error.statusCode = 409; throw error }
   return db.visitorInvitation.create({ data: { visitorId: visitor.id, sponsorMemberId: member.id, quotaOwnerMemberId, scheduledDate, notes: input.notes?.trim() || null }, include: invitationView })
@@ -44,6 +46,7 @@ export const visitorRoutes: FastifyPluginAsync = async app => {
     const rows = await prisma.visitor.findMany({ where, include: view, orderBy: { person: { fullName: 'asc' } } }); return rows.map(displayVisitor)
   })
   app.get('/visitors/:id', { preHandler: app.requirePermission('visitors.view') }, async (req: any, reply) => { await expirePastInvitations(); const row = await prisma.visitor.findUnique({ where: { id: req.params.id }, include: view }); if (!row) return reply.code(404).send({ message: 'Visitante não encontrado.' }); return displayVisitor(row) })
+  app.get('/visitors/:id/season-quota', { preHandler: app.requirePermission('visitors.view') }, async (req: any, reply) => { const row = await prisma.visitor.findUnique({ where: { id: req.params.id }, select: { id: true } }); if (!row) return reply.code(404).send({ message: 'Visitante não encontrado.' }); return getVisitorSeasonQuota(row.id) })
   app.post('/visitors', { preHandler: app.requirePermission('visitors.manage') }, async (req: any, reply) => {
     const b = req.body || {}; const cpf = normalizeCpf(b.cpf); if (!b.fullName?.trim() || !cpf || !b.phone?.trim() || !b.city?.trim() || !b.state?.trim()) return reply.code(400).send({ message: 'Nome, CPF, telefone, cidade e UF são obrigatórios.' })
     try { const existing = await prisma.person.findUnique({ where: { cpf }, include: { visitor: true } }); if (existing) return reply.code(409).send({ message: existing.visitor ? 'Já existe um visitante cadastrado com este CPF.' : 'Já existe uma pessoa cadastrada com este CPF.' }); const person = await prisma.person.create({ data: { fullName: b.fullName.trim(), cpf, phone: normalizePhone(b.phone), city: b.city.trim(), state: b.state.trim().toUpperCase(), email: b.email?.trim().toLowerCase() || null, birthDate: b.birthDate ? date(b.birthDate) : null } }); return reply.code(201).send(await prisma.visitor.create({ data: { personId: person.id, notes: b.notes?.trim() || null }, include: { person: true } })) } catch (e: any) { if (e.code === 'P2002') return reply.code(409).send({ message: 'CPF ou e-mail já cadastrado.' }); throw e }

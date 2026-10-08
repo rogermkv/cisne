@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { getMemberInvitationQuota, isCurrentMonthDate, isInvitationEligible, parseCivilDate, resolveQuotaOwnerId } from '../src/modules/core/visitors/quotas.js'
+import { getMemberInvitationQuota, getVisitorSeasonQuota, isCurrentMonthDate, isInvitationEligible, parseCivilDate, resolveQuotaOwnerId, seasonBounds } from '../src/modules/core/visitors/quotas.js'
 
 const holder = { id: 'holder-1', status: 'ACTIVE', category: { name: 'Patrimonial', isDependent: false, requiresHolder: false } }
 const dependent = { id: 'dependent-1', status: 'ACTIVE', titularMemberId: holder.id, titular: holder, category: { name: 'Dependente', isDependent: true, requiresHolder: true } }
@@ -16,6 +16,16 @@ assert.equal(isCurrentMonthDate(new Date('2026-11-01T00:00:00Z'), new Date('2026
 assert.equal(isCurrentMonthDate(new Date('2026-10-04T00:00:00Z'), new Date('2026-10-05T12:00:00Z')), false)
 assert.equal(resolveQuotaOwnerId(holder), holder.id)
 assert.equal(resolveQuotaOwnerId(dependent), holder.id)
+assert.deepEqual(seasonBounds(new Date('2026-10-08T00:00:00Z')), { start: new Date('2025-11-01T00:00:00.000Z'), end: new Date('2026-11-01T00:00:00.000Z'), startYear: 2025, endYear: 2026, label: '2025/2026' })
+assert.deepEqual(seasonBounds(new Date('2026-11-01T00:00:00Z')), { start: new Date('2026-11-01T00:00:00.000Z'), end: new Date('2027-11-01T00:00:00.000Z'), startYear: 2026, endYear: 2027, label: '2026/2027' })
+const visitorQuotaDb = {
+  clubSetting: { findFirstOrThrow: async () => ({ visitorAnnualLimit: 7 }) },
+  visitor: { findUnique: async () => ({ id: 'visitor-1', personId: 'person-1' }) },
+  accessEvent: { count: async () => 3 },
+  visitorInvitation: { count: async () => 2 },
+}
+const visitorQuota = await getVisitorSeasonQuota('visitor-1', new Date('2026-10-08T00:00:00Z'), visitorQuotaDb)
+assert.deepEqual({ used: visitorQuota.used, reserved: visitorQuota.reserved, available: visitorQuota.available, limit: visitorQuota.limit, season: visitorQuota.season }, { used: 3, reserved: 2, available: 2, limit: 7, season: '2025/2026' })
 
 const rows = [{ status: 'SCHEDULED', quotaOwnerMemberId: holder.id }, { status: 'USED', quotaOwnerMemberId: holder.id }, { status: 'CANCELLED', quotaOwnerMemberId: holder.id }]
 const fakeDb = {

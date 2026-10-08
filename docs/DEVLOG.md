@@ -1,5 +1,30 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Quota de entradas de visitantes por temporada
+
+### Regra implementada
+
+- Cada visitante pode ter até 7 entradas na temporada de 1º de novembro a 31 de outubro.
+- A temporada vigente é calculada no backend e não coincide com o ano-calendário.
+- Entradas consumidas são contadas por `AccessEvent` real; convites pendentes reservam saldo para impedir emissão acima da capacidade restante.
+- Convites cancelados ou expirados deixam de reservar saldo. A quota é renovada automaticamente na virada de novembro.
+
+### Integração
+
+- A emissão pelo associado e pela secretaria consulta a quota do visitante e mostra quantas entradas ainda estão disponíveis.
+- Quando o saldo chega a zero, a interface bloqueia a emissão e o backend retorna conflito explicando a quota atingida.
+- O check-in revalida a quota dentro da transação antes de registrar a entrada, mantendo o limite seguro mesmo em operações concorrentes.
+- A API de validação de visitante passou a retornar a temporada e o saldo atual.
+
+### Validação
+
+- Migration local `20261008150000_visitor_season_quota` aplicada após backup.
+- Configuração local confirmada: `visitorAnnualLimit=7`, `annualLimitMode=SEASON_NOV_OCT`.
+- `npx prisma validate --schema apps/api/prisma/schema.prisma`: PASS.
+- `npm run build`: PASS.
+- `npm run test:visitor-invitations --workspace @cisne/api`: PASS.
+- Produção: não alterada.
+
 ## 2026-10-08 — Refinamento visual da tela de convites
 
 ### Alterações

@@ -158,6 +158,33 @@
   cursor: pointer;
 }
 
+.member-visitor-quota {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 12px;
+  border: 1px solid #b8dfca;
+  border-radius: 10px;
+  background: #effaf3;
+  color: #21623e;
+  font-size: .78rem;
+}
+
+.member-visitor-quota strong {
+  color: #21623e;
+  font-size: .8rem;
+}
+
+.member-visitor-quota.is-exhausted {
+  border-color: #f0baba;
+  background: #fff3f3;
+  color: #9f2525;
+}
+
+.member-visitor-quota.is-exhausted strong {
+  color: #b42323;
+}
+
 .member-new-visitor {
   margin: 16px 0 0;
   padding: 16px;

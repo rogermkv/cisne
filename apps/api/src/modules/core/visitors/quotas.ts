@@ -22,6 +22,13 @@ export const monthBounds = (value: Date) => ({
   month: value.getUTCMonth() + 1,
 })
 
+export const seasonBounds = (value: Date) => {
+  const year = value.getUTCMonth() >= 10 ? value.getUTCFullYear() : value.getUTCFullYear() - 1
+  const start = new Date(Date.UTC(year, 10, 1))
+  const end = new Date(Date.UTC(year + 1, 10, 1))
+  return { start, end, startYear: year, endYear: year + 1, label: `${year}/${year + 1}` }
+}
+
 export const isCurrentMonthDate = (date: Date, now = new Date()) => {
   const current = monthBounds(now)
   return date >= current.start && date < current.end && civilDateValue(date) >= civilDateValue(now)
@@ -45,6 +52,19 @@ export async function getMemberInvitationQuota(memberId: string, date: Date, db:
 export async function expirePastInvitations(db: any = prisma, now = new Date()) {
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
   return db.visitorInvitation.updateMany({ where: { status: 'SCHEDULED', scheduledDate: { lt: today } }, data: { status: 'EXPIRED' } })
+}
+
+export async function getVisitorSeasonQuota(visitorId: string, date = new Date(), db: any = prisma, excludeInvitationId: string | null = null) {
+  const settings = await db.clubSetting.findFirstOrThrow()
+  const bounds = seasonBounds(date)
+  const visitor = await db.visitor.findUnique({ where: { id: visitorId }, select: { id: true, personId: true } })
+  const limit = settings.visitorAnnualLimit ?? 7
+  if (!visitor) return { visitorId, eligible: false, limit, used: 0, reserved: 0, available: 0, season: bounds.label, seasonStart: bounds.start, seasonEnd: bounds.end }
+  const [used, reserved] = await Promise.all([
+    db.accessEvent.count({ where: { personId: visitor.personId, type: 'ENTRY', occurredAt: { gte: bounds.start, lt: bounds.end } } }),
+    db.visitorInvitation.count({ where: { visitorId, status: 'SCHEDULED', scheduledDate: { gte: bounds.start, lt: bounds.end }, ...(excludeInvitationId ? { id: { not: excludeInvitationId } } : {}) } }),
+  ])
+  return { visitorId, eligible: true, limit, used, reserved, available: Math.max(0, limit - used - reserved), season: bounds.label, seasonStart: bounds.start, seasonEnd: bounds.end }
 }
 
 export const invitationEligibilityMessage = (member: any) => !member ? 'Sócio não encontrado.' : member.status !== 'ACTIVE' ? 'Este sócio está inativo e não pode emitir convites.' : !isInvitationEligible(member) ? 'A categoria deste sócio não possui direito à emissão de convites.' : null

@@ -66,9 +66,9 @@ Status: IMPLEMENTED LOCALLY — PENDING REVIEW/RELEASE
 
 Cause: quota mensal de 8 convites por grupo titular, emissão por titular ou dependente, cadastro global para secretaria e integração auditável com controle de acesso.
 
-Files currently modified: refinamento visual da área do sócio no módulo de convites; o commit anterior já contém schema/migration de quota familiar, regras e rotas de convites, controle de acesso, tela administrativa de visitantes e testes.
+Files currently modified: quota de entradas de visitantes por temporada novembro–outubro, validação no cadastro/check-in, indicação visual para associado e secretaria, migration e testes; os commits anteriores contêm o refinamento visual e a quota mensal familiar.
 
-Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
+Validated: build completo PASS, teste de regras de convites PASS, schema Prisma PASS e migration local aplicada com sucesso.
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: validar a tela da secretaria e o fluxo de check-in com fixture integrada; publicar os commits locais somente após revisão explícita. Nenhuma alteração de produção foi feita nesta tarefa.
+Pending: validar visualmente os fluxos autenticados de associado/secretaria e o check-in com fixture integrada; publicar o commit local somente após revisão explícita. Nenhuma alteração de produção foi feita nesta tarefa.
 
 ## Known Risks
 
@@ -155,6 +155,12 @@ Pending: validar a tela da secretaria e o fluxo de check-in com fixture integrad
 - Secretaria: visitantes agora expõem histórico de convites, quem convidou e entradas reais vinculadas ao convite; associados continuam com visão restrita ao grupo familiar.
 - Controle de acesso: convites passados são expirados; check-in válido continua alterando `SCHEDULED` para `USED` e gravando `usedAt`/`invitationId` atomicamente.
 - Validações: schema Prisma PASS, build completo PASS, regras de convites PASS, smoke de módulos do clube PASS.
+- Quota de visitantes: limite configurado em 7 entradas por temporada novembro–outubro (`SEASON_NOV_OCT`), contado por `AccessEvent` real e com convites pendentes reservando saldo para evitar ultrapassagem.
+- Emissão: associado e secretaria consultam a quota do visitante; novas emissões são bloqueadas sem saldo.
+- Check-in: a quota é revalidada dentro da transação antes de registrar a entrada e consumir o convite.
+- Migration local `20261008150000_visitor_season_quota` aplicada com sucesso; configuração local confirmada como `7|SEASON_NOV_OCT`.
+- Backup pré-migration: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-before-visitor-season-quota.dump`.
+- Build após a quota de temporada: PASS; `npm run test:visitor-invitations --workspace @cisne/api`: PASS; produção não foi alterada.
 
 ## Next Step
 
