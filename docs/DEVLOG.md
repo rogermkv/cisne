@@ -1,5 +1,12 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Publicação do layout financeiro
+
+- Push oficial `7aaa33d..874010a` concluído em `origin/main`.
+- O layout financeiro com temporadas expansíveis foi incluído na publicação.
+- Auto-deploy, SHA efetivo do release e health check permanecem `UNKNOWN` nesta sessão por limitação do cliente de navegação.
+- Nenhuma alteração manual foi feita em produção.
+
 ## 2026-10-08 — Simplificação do layout financeiro
 
 - A área financeira deixou de exibir simultaneamente o cartão detalhado da anuidade, a próxima cobrança e todo o histórico.

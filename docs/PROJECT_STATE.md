@@ -8,7 +8,7 @@ Branch: `main`
 
 Base HEAD: commit local mais recente `fix: refine member invitation screen`.
 
-Origin: `e58a943` (quota sazonal publicada pelo push oficial)
+Origin: `874010a` (layout financeiro publicado pelo push oficial)
 
 Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: revisar visualmente a tela financeira em viewport mobile e publicar somente após aprovação explícita. Produção não foi alterada nesta tarefa.
+Pending: confirmar o SHA efetivo do release, health check e inspeção visual da tela financeira em produção. O código foi publicado em `origin/main`; nenhuma edição manual foi feita no servidor.
 
 ## Known Risks
 
@@ -165,6 +165,7 @@ Pending: revisar visualmente a tela financeira em viewport mobile e publicar som
 - A aplicação autenticada de produção continuou acessível após o push; o endpoint `/api/health` foi bloqueado pelo cliente Chrome desta sessão (`ERR_BLOCKED_BY_CLIENT`), portanto health check e SHA efetivo do release permanecem `UNKNOWN`.
 - Tela financeira local: resumo anual, próxima cobrança e histórico aberto substituídos por lista compacta de temporadas; detalhes expandem valores, pagamentos e cobranças mensais por vencimento.
 - Build após o layout financeiro: PASS; produção não foi alterada.
+- Deploy do layout financeiro: push oficial `7aaa33d..874010a` concluído em `origin/main`; auto-deploy e health check permanecem `UNKNOWN` nesta sessão.
 
 ## Next Step
 
