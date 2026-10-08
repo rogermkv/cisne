@@ -215,3 +215,15 @@ Esse teste não deve ser considerado validação da correção.
 - Inspeção visual mobile: PASS; header, bottom nav, item Reservas ativo e scroll confirmados.
 - Build completo: PASS.
 - Nenhuma alteração em backend, banco ou storage.
+
+## 2026-10-08 — Reservation Pix payment flow
+
+- Adicionada tela de pagamento Pix após uma nova solicitação de reserva e ao pagamento de reservas aprovadas.
+- A tela mostra espaço, data, valor e a chave Pix `sercinse@bol.com.br`, com botão para copiar a chave.
+- Adicionado botão para abrir o WhatsApp da secretaria com mensagem pré-preenchida usando o nome do associado e o espaço reservado.
+- O nome do associado passou a ser repassado pela `MemberHome`, evitando uma chamada extra à API dentro de Reservas.
+- Build completo: PASS; API TypeScript, TypeScript do frontend e Vite concluídos sem erros.
+- Nenhuma alteração em backend, banco ou storage. Nenhuma reserva de teste foi criada e nenhuma mensagem foi enviada.
+- Inspeção visual da nova tela Pix ficou pendente porque o clique automatizado no navegador expirou; o link externo não foi aberto.
+- Commit local `9083014` criado com a mensagem `feat: add pix reservation payment flow`.
+- Produção não foi alterada; push e validação de auto-deploy permanecem pendentes.

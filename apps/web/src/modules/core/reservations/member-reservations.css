@@ -37,3 +37,21 @@
 .reservation-secondary-action:hover{background:transparent;color:#006ccb;text-decoration:underline}
 
 @media(max-width:800px){.reservation-booking-card{position:static;padding:6px 0 0}}
+
+.reservation-payment-page{max-width:620px;padding:28px 0 36px}
+.reservation-payment-page h1{margin:4px 0 8px;color:#123f75;font-size:clamp(1.55rem,4vw,2rem)}
+.reservation-payment-intro{margin:0;color:#60758e;line-height:1.55}
+.reservation-payment-details{display:grid;gap:0;margin:26px 0;padding:16px 0;border-block:1px solid #dbe8f2}
+.reservation-payment-details>div{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:6px 0}
+.reservation-payment-details span,.reservation-pix-key>span{color:#60758e;font-size:.8rem}
+.reservation-payment-details strong{color:#123f75;font-size:.9rem;text-align:right}
+.reservation-pix-key{display:grid;gap:8px}
+.reservation-pix-key>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #dbe8f2}
+.reservation-pix-key code{color:#123f75;font:700 .95rem/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
+.reservation-pix-key button{display:inline-flex;align-items:center;gap:6px;flex:none;border:0;background:transparent;color:#006ccb;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
+.reservation-pix-key button:hover{text-decoration:underline}
+.reservation-whatsapp-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;margin-top:28px;padding:10px 14px;border-radius:9px;background:#168455;color:#fff;font-weight:800;text-align:center;text-decoration:none}
+.reservation-whatsapp-button:hover{background:#126b45}
+.reservation-payment-back{display:inline-flex;align-items:center;gap:4px;margin-top:18px;padding:4px 0;border:0;background:transparent;color:#123f75;font:inherit;font-weight:800;cursor:pointer}
+.reservation-payment-back:hover{color:#006ccb;text-decoration:underline}
+@media(max-width:480px){.reservation-payment-page{padding:22px 0 30px}.reservation-payment-details{margin:22px 0 20px}.reservation-pix-key>div{align-items:flex-start;flex-direction:column;gap:10px}.reservation-pix-key button{padding:0}.reservation-whatsapp-button{margin-top:24px}}

@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `eac3babace6548c814a85228e76835b20968e921`
+Base HEAD: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
-Origin: `eac3babace6548c814a85228e76835b20968e921`
+Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: simplificação final da tela de detalhe de Reservas pendente de commit/push; navegação persistente publicada em `eac3bab`.
+Working tree: limpa após o commit local `9083014`; push/publicação do fluxo Pix ainda pendentes; simplificação da tela de detalhe publicada em `ab7c1cb`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -60,17 +60,17 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Navegação persistente da Área do Sócio
+Título: Fluxo Pix e envio de comprovante para reservas
 
-Status: READY FOR PRODUCTION RELEASE
+Status: COMMITTED LOCALLY — PENDING RELEASE
 
-Cause: as telas internas eram renderizadas diretamente por `MemberHome`, sem o shell compartilhado que contém o cabeçalho e a barra inferior.
+Cause: após solicitar ou pagar uma reserva, o associado precisa receber instruções objetivas para copiar a chave Pix e enviar o comprovante à secretaria.
 
 Files currently modified:
 
-- `apps/web/src/modules/core/member-area/member-shell.css`
 - `apps/web/src/modules/core/member-area/MemberHome.tsx`
 - `apps/web/src/modules/core/reservations/ReservationsPage.tsx`
+- `apps/web/src/modules/core/reservations/member-reservations.css`
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -80,7 +80,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: commit/push da simplificação final da tela de detalhe de Reservas e validação do auto-deploy; produção ainda está no release funcional anterior.
+Pending: push deste fluxo, auto-deploy e smoke de produção; produção ainda está no release funcional anterior.
 
 ## Known Risks
 
@@ -105,7 +105,14 @@ Pending: commit/push da simplificação final da tela de detalhe de Reservas e v
 - Build após o segundo ajuste: PASS. Nenhuma alteração em backend, banco ou storage.
 - Simplificação final local: removido o bloco “Resumo da reserva”, criado o valor simples “Valor da reserva” e transformada a ação “Escolher outro espaço” em link textual com seta.
 - Inspeção visual mobile: PASS; header, bottom nav, Reservas ativo, scroll e nova hierarquia visual confirmados. Nenhuma alteração em backend, banco ou storage.
+- Fluxo Pix local: tela plana de pagamento adicionada após nova solicitação e também ao botão “Pagar reserva” de reservas aprovadas; inclui chave `sercinse@bol.com.br`, cópia da chave e link WhatsApp com mensagem pré-preenchida.
+- O nome do associado é reutilizado do carregamento já feito pela Área do Sócio; nenhuma chamada adicional de identificação foi mantida em Reservas.
+- Build completo após o fluxo Pix: PASS (`npm run build`, API TypeScript e Vite).
+- API DEV em `3338`: HTTP 200 em `/api/health`; frontend DEV em `5178`.
+- Inspeção visual do fluxo Pix ainda não foi concluída porque a automação do navegador expirou ao clicar na navegação; nenhuma reserva de teste foi criada e o WhatsApp não foi aberto.
+- Commit local: `9083014` (`feat: add pix reservation payment flow`); push ainda não executado.
+- Nenhuma alteração em backend, banco ou storage; produção não foi alterada.
 
 ## Next Step
 
-Confirmar o health HTTP independente e o estado do auto-deploy documental.
+Revisar/confirmar a tela Pix no navegador com uma reserva existente, depois fazer push e validar o auto-deploy conforme autorização.
