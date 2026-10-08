@@ -325,3 +325,12 @@ Esse teste não deve ser considerado validação da correção.
 - A produção autenticada confirmou “Carteirinhas da família”, Roger Herpich como titular, dois próximos eventos e o card de avisos.
 - O endpoint `/api/health` recusou conexão durante a janela de reinício e ficou `UNKNOWN` nesta sessão; não foi declarado PASS sem resposta HTTP.
 - Validações locais: build completo, regras financeiras e smoke dos módulos do clube — todos PASS.
+
+## 2026-10-08 — Simplificação da home do associado
+
+- Removida a faixa de atalhos `Dependentes`, `Avisos`, `Financeiro` e `Reservas`, que duplicava a navegação inferior e ações já disponíveis nos cards.
+- O card financeiro, a carteira familiar, eventos, avisos e a navegação inferior foram preservados.
+- Build completo: PASS.
+- Inspeção visual local: PASS; a faixa redundante não aparece mais.
+- Push oficial `a9c3d20..40e690d` concluído.
+- Durante as verificações, produção ainda servia o bundle anterior e o endpoint HTTP recusava conexão; ativação do auto-deploy e health check ficam `UNKNOWN` até nova confirmação.

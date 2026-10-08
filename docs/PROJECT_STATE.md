@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `4d426f7` (`feat: prepare phase one annuality finance module`)
+Base HEAD: `40e690d` (`fix: remove redundant member shortcuts`)
 
-Origin: `4d426f7`
+Origin: `40e690d`
 
-Production functional release: `4d426f7` publicado pelo fluxo oficial; página de produção respondeu no navegador com os eventos, avisos e carteira familiar atualizados. O health HTTP independente ficou temporariamente indisponível durante o reinício e permanece `UNKNOWN` nesta sessão.
+Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
-Working tree: limpa antes do registro desta atualização; commits `1ba6d5b`, `ae85cb0` e `4d426f7` publicados em `origin/main`.
+Working tree: alterações da correção visual publicadas em `origin/main`; documentação desta sessão será registrada no próximo commit.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: confirmar o health check independente após a janela de reinício, se necessário; não há publicação de código pendente.
+Pending: aguardar a ativação do commit `40e690d` pelo auto-deploy e confirmar visualmente a remoção da faixa de atalhos; health check também permanece `UNKNOWN`.
 
 ## Known Risks
 
@@ -146,7 +146,10 @@ Pending: confirmar o health check independente após a janela de reinício, se n
 - Documento técnico da Fase 1 criado em `docs/financial-module-phase-1.md`, com limites e plano recomendado para a Fase 2.
 - Build completo após a Fase 1: PASS; `npx tsx test/finance.rules.ts`: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
 - Deploy da Fase 1 e alterações anteriores: push oficial `59153c2..4d426f7` concluído; nenhuma migration foi executada.
+- Correção visual: removida a faixa de atalhos redundante da home; navegação inferior e ações contextuais foram preservadas.
+- Build após a correção: PASS; inspeção visual local confirmou a ausência da faixa.
+- Push oficial `a9c3d20..40e690d` concluído. Produção ainda servia a versão anterior durante as verificações; ativação do auto-deploy permanece `UNKNOWN`.
 
 ## Next Step
 
-Após a estabilização do deploy, repetir o health check independente e, se necessário, fazer validação visual autenticada das telas administrativas e de “Minha anuidade” em produção.
+Após a estabilização do deploy, repetir o health check e confirmar visualmente a home sem a faixa de atalhos.
