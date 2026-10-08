@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `70ffaf0` (`fix: refine member invitation screen`)
+Base HEAD: commit local mais recente `fix: refine member invitation screen`.
 
 Origin: `35f3dd0` (commit local pendente de revisão/publicação)
 
 Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
-Working tree: limpa; commit local `70ffaf0` preservado e não publicado; produção não alterada.
+Working tree: limpa após o commit local mais recente; produção não alterada.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
