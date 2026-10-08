@@ -12,7 +12,7 @@ Origin: `eac3babace6548c814a85228e76835b20968e921`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpo; navegação persistente da Área do Sócio publicada em `eac3bab`.
+Working tree: ajuste visual local pendente na tela de detalhe de Reservas; navegação persistente publicada em `eac3bab`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -80,7 +80,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: confirmar health HTTP independente e o estado do auto-deploy documental; smoke visual autenticado da navegação concluído.
+Pending: revisar/commit/push do ajuste visual do resumo de reserva, caso aprovado; produção ainda está no release funcional anterior.
 
 ## Known Risks
 
@@ -99,6 +99,8 @@ Pending: confirmar health HTTP independente e o estado do auto-deploy documental
 - Frontend DEV iniciado em `http://localhost:5178`; o repositório ainda contém defaults históricos em `vite.config.ts`/configuração da API para `5173`/`3333`, então as portas solicitadas foram usadas por override de processo, sem alterar o código de configuração nesta tarefa.
 - Build completo: PASS.
 - Produção: smoke visual autenticado concluído manualmente: Início → Reservas → Eventos → Avisos → Mais → Início; header, bottom nav, item ativo, cards/fotos, modal de carteirinha e retorno ao Início foram confirmados. Health HTTP independente permanece `UNKNOWN` por bloqueio do proxy/cliente.
+- Ajuste visual local: o resumo da reserva deixou de repetir visualmente o nome do espaço; a data passou a aparecer como linha rotulada e o nome continua no título principal.
+- Build após o ajuste visual: PASS. Nenhuma alteração em backend, banco ou storage.
 
 ## Next Step
 

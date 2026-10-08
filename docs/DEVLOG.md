@@ -190,3 +190,11 @@ Esse teste não deve ser considerado validação da correção.
 - Fotos de dependentes e modal/carteirinha foram confirmados visualmente; o retorno ao Início preservou header, fotos e bottom nav.
 - A implementação funcional validada corresponde ao commit `eac3babace6548c814a85228e76835b20968e921`.
 - Health HTTP independente e estado do auto-deploy documental permanecem `UNKNOWN` por bloqueio de rede/cliente; não foram declarados como PASS.
+
+## 2026-10-08 — Reservation detail visual cleanup
+
+- Removida visualmente a repetição do nome do espaço no resumo da reserva; o título principal continua identificando o espaço.
+- A data do resumo passou a ter rótulo próprio e o valor permaneceu destacado.
+- Alteração restrita a `apps/web/src/modules/core/reservations/member-reservations.css`.
+- Build completo após o ajuste: PASS.
+- Nenhuma alteração em backend, banco, storage ou produção; publicação permanece pendente de aprovação.

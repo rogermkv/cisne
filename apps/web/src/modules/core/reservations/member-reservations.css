@@ -18,3 +18,8 @@
 .reservation-summary>div{gap:12px}
 
 @media(max-width:480px){.member-reservations-page{padding-bottom:calc(88px + env(safe-area-inset-bottom))}}
+
+/* O nome do espaço já está no título da tela; o resumo confirma apenas os dados da solicitação. */
+.reservation-summary strong{display:none}
+.reservation-summary p{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.reservation-summary p::before{content:'Data';color:#60758e;font-size:.8rem}
