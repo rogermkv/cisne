@@ -171,3 +171,12 @@ Esse teste não deve ser considerado validação da correção.
 - Build completo PASS e validação visual local PASS em `http://localhost:5173`.
 - Nenhuma alteração em backend, banco, storage ou produção.
 - Pendente: commit, push, auto-deploy e smoke de produção.
+
+## 2026-10-08 — Post-commit verification
+
+- O commit funcional já existente é `eac3babace6548c814a85228e76835b20968e921`, alinhado com `origin/main`; a árvore de trabalho permaneceu limpa.
+- O stash `stash@{0}` foi preservado e não aplicado.
+- API DEV em `3338`: HTTP 200 em `/api/health`.
+- Frontend DEV em `5178`: processo Vite iniciado por override de processo; o código ainda mantém defaults históricos `5173`/`3333` em sua configuração, sem alteração desses defaults nesta tarefa.
+- Build completo: PASS.
+- A página inicial autenticada de produção carregou e mostrou header e bottom navigation. O terminal não conseguiu consultar produção por bloqueio de proxy, e a automação do navegador expirou ao acionar Reservas; smoke interno, health HTTP e estado do auto-deploy permanecem `UNKNOWN`, não declarados como PASS.

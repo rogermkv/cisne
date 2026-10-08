@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
+Base HEAD: `eac3babace6548c814a85228e76835b20968e921`
 
-Origin: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
+Origin: `eac3babace6548c814a85228e76835b20968e921`
 
-Production: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
+Production: `UNKNOWN` nesta sessão; a página inicial autenticada carregou, mas o SHA publicado e o smoke interno não foram confirmados.
 
-Working tree: correção da navegação persistente da Área do Sócio aguardando commit.
+Working tree: limpo; navegação persistente da Área do Sócio publicada em `eac3bab`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -80,7 +80,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: commit, push, auto-deploy e smoke de produção da navegação persistente.
+Pending: confirmar auto-deploy e concluir smoke interno de produção; a tela inicial de produção carrega, mas a automação do navegador não conseguiu acionar a navegação interna nesta sessão.
 
 ## Known Risks
 
@@ -91,6 +91,15 @@ Pending: commit, push, auto-deploy e smoke de produção da navegação persiste
 - declarar PASS um teste que não reproduza a condição real;
 - alterar produção fora do processo oficial.
 
+## Latest Verification
+
+- `HEAD` e `origin/main`: `eac3babace6548c814a85228e76835b20968e921`.
+- `git status -sb`: limpo; `stash@{0}` preservado e não aplicado.
+- API DEV iniciada em `http://localhost:3338/api/health`, HTTP 200.
+- Frontend DEV iniciado em `http://localhost:5178`; o repositório ainda contém defaults históricos em `vite.config.ts`/configuração da API para `5173`/`3333`, então as portas solicitadas foram usadas por override de processo, sem alterar o código de configuração nesta tarefa.
+- Build completo: PASS.
+- Produção: página inicial acessível na sessão autenticada do navegador e exibe header/bottom nav; navegação interna e health HTTP não foram confirmados nesta sessão por bloqueio do proxy terminal e timeout da automação de clique.
+
 ## Next Step
 
-Publicar a navegação persistente pelo processo oficial e validar produção.
+Confirmar o auto-deploy oficial e executar o smoke interno de produção em uma sessão com acesso funcional à navegação do navegador.
