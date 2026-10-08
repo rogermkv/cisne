@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `4aa36d5` (`feat: align family invitations with access control`)
+Base HEAD: `70ffaf0` (`fix: refine member invitation screen`)
 
 Origin: `35f3dd0` (commit local pendente de revisão/publicação)
 
 Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
-Working tree: limpa; commit local `4aa36d5` preservado e não publicado.
+Working tree: limpa; commit local `70ffaf0` preservado e não publicado; produção não alterada.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -66,7 +66,7 @@ Status: IMPLEMENTED LOCALLY — PENDING REVIEW/RELEASE
 
 Cause: quota mensal de 8 convites por grupo titular, emissão por titular ou dependente, cadastro global para secretaria e integração auditável com controle de acesso.
 
-Files currently modified: schema/migration de quota familiar, regras e rotas de convites, controle de acesso, área do sócio, tela administrativa de visitantes e testes.
+Files currently modified: refinamento visual da área do sócio no módulo de convites; o commit anterior já contém schema/migration de quota familiar, regras e rotas de convites, controle de acesso, tela administrativa de visitantes e testes.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: revisar o módulo de convites em ambiente local, validar a tela da secretaria e o fluxo de check-in com fixture integrada; nenhuma alteração de produção foi feita nesta tarefa.
+Pending: validar a tela da secretaria e o fluxo de check-in com fixture integrada; publicar os commits locais somente após revisão explícita. Nenhuma alteração de produção foi feita nesta tarefa.
 
 ## Known Risks
 

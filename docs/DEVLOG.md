@@ -1,5 +1,20 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Refinamento visual da tela de convites
+
+### Alterações
+
+- A seção de convites foi renomeada para **Convites emitidos**, com o histórico visualmente separado da ação de criar um novo convite.
+- O cadastro de novo convite passou a abrir como uma camada/modal responsiva, com comportamento de folha inferior em telas móveis, mantendo o histórico fora do fluxo de preenchimento.
+- Os dados do visitante foram reorganizados em cartões, com hierarquia visual para nome, data/status, emissor, telefone e ações.
+- A seleção do visitante e o cadastro de um novo visitante também receberam blocos visuais próprios.
+
+### Validação
+
+- `npm run build`: PASS.
+- `git diff --check`: PASS.
+- Produção: não alterada; nenhuma publicação foi feita neste ajuste.
+
 ## 2026-10-06 — Reconciliation and member photo bug
 
 ### Context
