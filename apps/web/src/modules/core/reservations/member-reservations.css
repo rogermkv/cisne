@@ -23,3 +23,6 @@
 .reservation-summary strong{display:none}
 .reservation-summary p{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .reservation-summary p::before{content:'Data';color:#60758e;font-size:.8rem}
+
+/* Mantém o resumo no mesmo plano do formulário, sem um cartão dentro do cartão. */
+.reservation-summary{padding:16px 0 0;border-top:1px solid #dbe8f2;border-radius:0;background:transparent}

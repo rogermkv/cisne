@@ -198,3 +198,10 @@ Esse teste não deve ser considerado validação da correção.
 - Alteração restrita a `apps/web/src/modules/core/reservations/member-reservations.css`.
 - Build completo após o ajuste: PASS.
 - Nenhuma alteração em backend, banco, storage ou produção; publicação permanece pendente de aprovação.
+
+## 2026-10-08 — Reservation summary flattened
+
+- Removido o cartão visual interno do resumo da reserva; o resumo agora fica no mesmo plano do formulário, com separação por linha.
+- Alteração restrita ao CSS de Reservas; nenhuma lógica de reserva foi modificada.
+- Build completo após o segundo ajuste: PASS.
+- Nenhuma alteração em backend, banco, storage ou produção; publicação permanece pendente de aprovação.
