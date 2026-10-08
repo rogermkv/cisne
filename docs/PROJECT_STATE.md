@@ -6,13 +6,13 @@ Last updated: 2026-10-07
 
 Branch: `main`
 
-Base HEAD: `ec5901838866120d0c95f43329143622d181b45d`
+Base HEAD: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
-Origin: `ec5901838866120d0c95f43329143622d181b45d`
+Origin: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
-Production: `ec5901838866120d0c95f43329143622d181b45d`
+Production: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
-Working tree: somente os dois arquivos da correção da foto estão modificados.
+Working tree: documentação final pendente de commit; após o commit documental, deve ficar limpa.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,7 +62,7 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Correção da foto da carteirinha após navegação
 
-Status: READY FOR PRODUCTION RELEASE
+Status: COMPLETED / PRODUCTION VALIDATED
 
 Cause: a implementação antiga sobrescrevia `photoPath` com Blob URL; ao recarregar `/api/member/me` durante a navegação, o caminho privado original voltava, mas o efeito dependente apenas de `member.id` não era reexecutado. O elemento de imagem tentava acessar mídia privada sem o fluxo autenticado correto.
 
@@ -75,7 +75,9 @@ Validated: build completo PASS, testes automatizados relevantes quase todos PASS
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
-Pending: publicação autorizada nesta execução após auditoria dos SHAs.
+Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`; deploy oficial concluído; titular PASS; Reservas → Início PASS; dependentes/modal PASS; refresh PASS; health PASS; nenhuma migration pendente; stash preservado.
+
+Pending: nenhuma pendência relacionada ao bug das fotos.
 
 ## Known Risks
 
@@ -88,4 +90,4 @@ Pending: publicação autorizada nesta execução após auditoria dos SHAs.
 
 ## Next Step
 
-Publicar a correção pelo processo oficial e validar produção.
+Retomar desenvolvimento normal do CISNE. Próximo módulo planejado: Espaços.

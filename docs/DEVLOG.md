@@ -152,3 +152,12 @@ Esse teste não deve ser considerado validação da correção.
 - O endpoint privado do dependente retornou HTTP 200 com `image/jpeg`.
 - Não foi executado teste visual, modal ou navegação nesta etapa.
 - Produção permaneceu intocada.
+
+## 2026-10-07 — Production member photo validation
+
+- O bloqueio inicial de login foi identificado como cache/service worker antigo; após sessão anônima limpa, o asset atual foi carregado.
+- RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1` publicado pelo fluxo oficial.
+- Deploy automático concluído com health check PASS e sem migration pendente.
+- Smoke de produção: titular PASS; Início → Reservas → Início PASS; dependentes PASS; modal/carteirinha PASS; refresh PASS.
+- Nenhuma alteração manual em produção, banco ou storage foi realizada.
+- Stash `stash@{0}` preservado.
