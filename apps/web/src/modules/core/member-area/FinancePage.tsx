@@ -1,4 +1,4 @@
-import { ArrowLeft, CreditCard, Copy, QrCode } from 'lucide-react'
+import { ArrowLeft, CalendarRange, CheckCircle, CreditCard, Copy, QrCode, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { apiRequest } from '../../../api/client'
 import { Feedback } from '../ui/Feedback'
@@ -10,11 +10,12 @@ export function FinancePage({ onBack }: { onBack: () => void }) {
   const [finance, setFinance] = useState<any>(null), [error, setError] = useState(''), [copied, setCopied] = useState(false)
   const [demo, setDemo] = useState<'pix' | 'card' | 'monthly' | null>(null)
   useEffect(() => { apiRequest('/api/member/me/finance', { headers: { Authorization: `Bearer ${sessionStorage.getItem('cisne.accessToken') || ''}` } }).then(setFinance).catch(e => setError(e.message)) }, [])
-  const next = finance?.nextCharge, amount = Number(next?.balance ?? next?.amount ?? 0)
+  const next = finance?.nextCharge, amount = Number(next?.balance ?? next?.amount ?? 0); const annualities = finance?.history?.filter((charge: any) => charge.type === 'ANNUAL_FEE') || []; const annualTotal = annualities.reduce((sum: number, charge: any) => sum + Number(charge.amount || 0), 0); const annualPaid = annualities.reduce((sum: number, charge: any) => sum + Number(charge.paidAmount || 0), 0); const annualProgress = annualTotal ? Math.min(100, Math.round((annualPaid / annualTotal) * 100)) : 0; const season = annualities[0]?.referenceYear ? `Temporada ${annualities[0].referenceYear}` : 'Temporada não informada'
   return <main className="finance-page">
     <button className="finance-back" onClick={onBack}><ArrowLeft size={18} /> Início</button><span className="eyebrow">Área do Sócio</span><h1>Meu Financeiro</h1><Feedback error={error} />
     {!finance ? !error && <p role="status">Carregando financeiro…</p> : <>
       <div className="finance-status"><span>Situação financeira</span><strong>{financialStatus[finance.status] || 'Não informado'}</strong></div>
+      <section className="annuality-member-card"><div className="annuality-member-card__heading"><div><span className="eyebrow"><CalendarRange size={15} /> Minha anuidade</span><h2>{season}</h2></div><span className="phase-badge">CONTA FAMILIAR</span></div><p><Users size={16} /> A situação financeira é compartilhada pelo titular e pelos dependentes vinculados ao mesmo grupo.</p><div className="annuality-member-card__values"><span>Valor contratado<strong>{money(annualTotal)}</strong></span><span>Valor pago<strong>{money(annualPaid)}</strong></span><span>Saldo<strong>{money(Math.max(0, annualTotal - annualPaid))}</strong></span></div><div className="annuality-progress"><div><span>Progresso de quitação</span><strong>{annualProgress}%</strong></div><div className="annuality-progress__track"><span style={{ width: `${annualProgress}%` }} /></div></div>{!annualities.length && <small className="demo-note"><CheckCircle size={14} /> Nenhuma anuidade foi lançada para este grupo nesta fase.</small>}</section>
       <section className="next-charge"><span>PRÓXIMA COBRANÇA</span><h2>{next?.description || 'Nenhuma pendência'}</h2>{next && <><strong>{money(amount)}</strong><p>Vencimento: {dateLabel(next.dueDate)}</p>
         <div className="finance-actions"><button onClick={() => { setCopied(false); setDemo('pix') }}><QrCode /> Pagar com Pix <small>SIMULAÇÃO</small></button><button onClick={() => setDemo('card')}><CreditCard /> Pagar com cartão <small>SIMULAÇÃO</small></button></div><button className="monthly-demo" onClick={() => { setCopied(false); setDemo('monthly') }}>Ver Pix mensal · 12x de {money(amount / 12)}</button>
       </>}</section>

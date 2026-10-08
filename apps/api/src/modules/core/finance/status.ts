@@ -10,3 +10,18 @@ export function effectiveFinancialStatus(charge: any, now = Date.now()) {
   if (charge.status !== 'PENDING') return charge.status
   return 'PENDING'
 }
+
+export function summarizeFinancialPortfolio(charges: any[]) {
+  const active = charges.filter((charge) => charge.status !== 'CANCELLED')
+  const annualities = active.filter((charge) => charge.type === 'ANNUAL_FEE')
+  const groupIds = new Set(annualities.map((charge) => charge.responsibleMemberId).filter(Boolean))
+  const overdueGroupIds = new Set(annualities.filter((charge) => charge.status === 'OVERDUE').map((charge) => charge.responsibleMemberId).filter(Boolean))
+  return {
+    annualityCount: annualities.length,
+    annualitiesPaid: annualities.filter((charge) => charge.status === 'PAID').length,
+    annualitiesOverdue: annualities.filter((charge) => charge.status === 'OVERDUE').length,
+    financialGroupCount: groupIds.size,
+    groupsInDefault: overdueGroupIds.size,
+    groupsInGoodStanding: Math.max(0, groupIds.size - overdueGroupIds.size),
+  }
+}

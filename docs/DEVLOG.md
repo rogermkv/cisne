@@ -303,3 +303,16 @@ Esse teste não deve ser considerado validação da correção.
 - `npm run test:club-modules --workspace @cisne/api`: PASS.
 - Inspeção visual local: PASS; o fixture tinha 0 eventos próximos e 1 aviso, validando também o estado vazio de eventos.
 - Produção não foi alterada; publicação permanece pendente.
+
+## 2026-10-08 — Anuidades e gestão financeira familiar — Fase 1
+
+- Diagnóstico confirmou a reutilização do módulo financeiro existente: `FinancialCharge`, `FinancialPayment`, `responsibleMemberId` e `resolveFinancialResponsibleMemberId()`.
+- Nenhuma migration, alteração de banco, gateway, cobrança real ou bloqueio financeiro novo foi implementado.
+- Criada interface demonstrativa de “Temporadas e anuidades” na administração, claramente marcada como Fase 1.
+- Dashboard financeiro passou a expor métricas de anuidades e grupos financeiros sem contar dependentes como dívidas independentes.
+- Área do Sócio ganhou “Minha anuidade”, com situação compartilhada, valor, saldo e progresso calculados das cobranças existentes.
+- Ficha do associado e serviços existentes continuam sendo reutilizados; o documento arquitetural foi registrado em `docs/financial-module-phase-1.md`.
+- `npm run build`: PASS.
+- `npx tsx test/finance.rules.ts`: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Produção não foi alterada; publicação permanece pendente de autorização.

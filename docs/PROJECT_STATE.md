@@ -60,13 +60,13 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Melhorias da tela inicial da Área do Sócio
+Título: Módulo de anuidades e gestão financeira familiar — Fase 1
 
-Status: VALIDATED LOCALLY — PENDING RELEASE
+Status: PHASE 1 VALIDATED LOCALLY — PENDING RELEASE
 
-Cause: melhorar a leitura da situação financeira e trazer eventos próximos e avisos para a tela inicial, sem exigir navegação adicional.
+Cause: preparar interfaces e contratos arquiteturais para temporadas, anuidades, parcelas e situação financeira familiar compartilhada, sem ativar cobranças ou bloqueios novos.
 
-Files currently modified: `apps/web/src/modules/core/member-area/MemberHome.tsx`, `apps/web/src/modules/core/member-area/badge.css`.
+Files currently modified: alterações de finanças/API, navegação administrativa, telas de anuidades, área financeira do sócio, estilos e documentação da Fase 1.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +76,7 @@ Production validation: release `59153c2` publicado pelo push oficial; página HT
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: publicar as melhorias da tela inicial e validar o resultado em produção; o release anterior continua ativo.
+Pending: revisar e autorizar a publicação da Fase 1; produção não foi alterada e o release `59153c2` continua ativo.
 
 ## Known Risks
 
@@ -139,7 +139,13 @@ Pending: publicar as melhorias da tela inicial e validar o resultado em produç�
 - A home passou a buscar avisos e eventos autenticados e exibir até dois de cada diretamente, com estado vazio e ação “Ver todos”.
 - Build após as melhorias da home: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
 - Inspeção visual local: cards de eventos e avisos confirmados; fixture local tinha 0 eventos próximos e 1 aviso.
+- Diagnóstico financeiro concluído: cobranças e pagamentos existentes reutilizados; `responsibleMemberId` permanece a fonte compartilhada por família.
+- Criada a interface administrativa demonstrativa “Temporadas e anuidades”, sem persistência ou cobrança real.
+- Painel financeiro passou a exibir anuidades quitadas e grupos em dia/inadimplentes por responsável financeiro único.
+- Área do Sócio passou a exibir “Minha anuidade”, progresso real das cobranças de anuidade e aviso explícito de conta familiar compartilhada.
+- Documento técnico da Fase 1 criado em `docs/financial-module-phase-1.md`, com limites e plano recomendado para a Fase 2.
+- Build completo após a Fase 1: PASS; `npx tsx test/finance.rules.ts`: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
 
 ## Next Step
 
-Publicar as melhorias da tela inicial pelo processo oficial e confirmar cores, eventos e avisos em produção.
+Revisar a Fase 1 e, mediante autorização específica, publicar pelo processo oficial; depois validar as telas administrativas e do associado em produção.

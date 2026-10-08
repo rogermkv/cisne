@@ -100,6 +100,9 @@ export function AdminFinancePage({ onBack }: { onBack: () => void }) {
       <div><span>Recebido em {periodLabel}</span><strong>{money(dashboard?.totalReceived)}</strong><small>{dashboard?.receivedCount ?? 0} pagamentos</small></div>
       <div><span>Em atraso</span><strong>{money(dashboard?.totalOverdue)}</strong><small>{dashboard?.overdueCount ?? 0} cobranças</small></div>
       <div><span>Vencendo em 30 dias</span><strong>{money(dashboard?.dueSoon)}</strong><small>{dashboard?.dueSoonCount ?? 0} cobranças</small></div>
+      <div><span>Anuidades</span><strong>{dashboard?.annualityCount ?? 0}</strong><small>{dashboard?.annualitiesPaid ?? 0} quitadas</small></div>
+      <div><span>Grupos em dia</span><strong>{dashboard?.groupsInGoodStanding ?? 0}</strong><small>{dashboard?.financialGroupCount ?? 0} grupos financeiros</small></div>
+      <div><span>Grupos inadimplentes</span><strong>{dashboard?.groupsInDefault ?? 0}</strong><small>Dependentes não são duplicados</small></div>
     </div>
     <div className="section-heading"><div><span className="eyebrow">Central de trabalho</span><h2>Cobranças e pagamentos</h2></div>{canManage && <button className="btn btn-primary" onClick={() => { setError(''); setEditor({ form: { ...emptyCharge, referenceYear: period.slice(0, 4), dueDate: `${period}-01` } }) }}><Plus size={18} /> Nova cobrança</button>}</div>
     <div className="finance-quick-filters"><button className={!status && !dueFilter ? 'active' : ''} onClick={() => { setStatus(''); setDueFilter('') }}>Todas</button><button className={dueFilter === 'overdue' ? 'active' : ''} onClick={() => { setStatus(''); setDueFilter('overdue') }}>Em atraso</button><button className={dueFilter === 'next30' ? 'active' : ''} onClick={() => { setStatus(''); setDueFilter('next30') }}>Vencendo em 30 dias</button><button className={dueFilter === 'paidMonth' ? 'active' : ''} onClick={() => { setStatus('PAID'); setDueFilter('paidMonth') }}>Pagas no mês</button></div>
