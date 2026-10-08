@@ -180,3 +180,13 @@ Esse teste não deve ser considerado validação da correção.
 - Frontend DEV em `5178`: processo Vite iniciado por override de processo; o código ainda mantém defaults históricos `5173`/`3333` em sua configuração, sem alteração desses defaults nesta tarefa.
 - Build completo: PASS.
 - A página inicial autenticada de produção carregou e mostrou header e bottom navigation. O terminal não conseguiu consultar produção por bloqueio de proxy, e a automação do navegador expirou ao acionar Reservas; smoke interno, health HTTP e estado do auto-deploy permanecem `UNKNOWN`, não declarados como PASS.
+
+## 2026-10-08 — Production navigation smoke completed
+
+- Smoke visual autenticado concluído manualmente em produção: Início → Reservas → Eventos → Avisos → Mais → Início.
+- Reservas exibiu header, bottom nav, tabs, cards e fotos; o botão redundante `← Início` não apareceu.
+- Eventos e Avisos exibiram conteúdo com a navegação persistente; o item correspondente ficou ativo.
+- Mais abriu o overlay esperado e Início retornou corretamente.
+- Fotos de dependentes e modal/carteirinha foram confirmados visualmente; o retorno ao Início preservou header, fotos e bottom nav.
+- A implementação funcional validada corresponde ao commit `eac3babace6548c814a85228e76835b20968e921`.
+- Health HTTP independente e estado do auto-deploy documental permanecem `UNKNOWN` por bloqueio de rede/cliente; não foram declarados como PASS.
