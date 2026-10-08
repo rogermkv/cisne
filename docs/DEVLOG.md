@@ -246,3 +246,11 @@ Esse teste não deve ser considerado validação da correção.
 - A migration foi aplicada no banco local e confirmou 8 espaços ativos, 0 reservas e 0 fotos.
 - `prisma generate` foi tentado após a migration, mas o engine Windows estava bloqueado pelo processo local e retornou `EPERM`; não houve mudança de schema.
 - Produção ainda não foi alterada nesta etapa; backup, deploy, health check e confirmação do SHA de produção permanecem pendentes.
+
+## 2026-10-08 — Production deploy verification pending
+
+- Migration e seed publicados em `origin/main` no commit `5b81ba7` pelo fluxo oficial de push.
+- Após aproximadamente 75 segundos, o frontend de produção passou a servir o asset `index-B57TrqWB.js` correspondente ao build novo.
+- A sessão autenticada expirou durante a verificação; o cliente também bloqueou a abertura direta do endpoint `/api/health`.
+- Execução da migration, backup de produção, SHA efetivo do release, health check e catálogo de dados em produção permanecem `UNKNOWN`.
+- Nenhuma edição manual foi feita no servidor e nenhum status de produção foi declarado como PASS sem evidência.

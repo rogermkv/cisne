@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `d54b376` (`docs: record pix message refinement`)
+Base HEAD: `5b81ba7` (`feat: deploy reservable spaces catalog`)
 
-Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
+Origin: `5b81ba7`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: migration de substituição do catálogo pendente de commit/push; banco local já foi reconfigurado; commits locais publicados em `origin/main` até `ac3f365`.
+Working tree: limpa; migration publicada em `origin/main` no commit `5b81ba7`; confirmação da execução da migration e dos dados em produção permanece `UNKNOWN`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,7 +62,7 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Reconfiguração dos espaços reserváveis
 
-Status: READY FOR PRODUCTION DEPLOY
+Status: PRODUCTION FRONTEND DEPLOYED — DATA VALIDATION PENDING
 
 Cause: substituir o catálogo inicial de espaços pelos oito espaços informados pelo usuário, com os novos preços e descrição genérica.
 
@@ -78,7 +78,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: commit/push da migration, deploy oficial com backup de produção, validação do SHA, health check e confirmação dos dados em produção; produção não foi alterada.
+Pending: confirmar backup de produção, SHA do release, health check e catálogo de dados em produção; não houve edição manual no servidor.
 
 ## Known Risks
 
@@ -119,8 +119,10 @@ Pending: commit/push da migration, deploy oficial com backup de produção, vali
 - Commit do catálogo: `b1ddc7d` (`feat: replace reservable spaces catalog`).
 - Migration de substituição criada para reproduzir a exclusão/criação no deploy oficial; aplicada localmente com sucesso.
 - A regeneração do Prisma Client encontrou `EPERM` porque o engine Windows estava em uso pelo processo local; não houve alteração de schema e a validação de dados local permaneceu correta.
+- Commit `5b81ba7` publicado em `origin/main`; após aproximadamente 75 segundos, produção passou a servir o asset frontend `index-B57TrqWB.js` correspondente ao build publicado.
+- Health HTTP independente e execução da migration em produção permanecem `UNKNOWN`: a sessão autenticada expirou durante a verificação e o cliente bloqueou a abertura direta de `/api/health`.
 - Produção não foi alterada.
 
 ## Next Step
 
-Fazer commit/push da migration, aguardar o deploy oficial e confirmar backup, SHA, health check e catálogo em produção.
+Retomar a sessão autenticada de produção e confirmar backup, SHA, health check e os 8 espaços; não declarar a replicação de dados como PASS antes dessa confirmação.
