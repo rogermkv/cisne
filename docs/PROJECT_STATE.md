@@ -12,7 +12,7 @@ Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: atualização do seed dos espaços pendente de commit; banco local já foi reconfigurado; commits locais ainda estão 3 commits à frente de `origin/main`.
+Working tree: limpa após o commit local `b1ddc7d`; banco local já foi reconfigurado; commits locais ainda estão 4 commits à frente de `origin/main`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,13 +62,11 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Reconfiguração dos espaços reserváveis
 
-Status: LOCAL DATABASE UPDATED — PENDING RELEASE DECISION
+Status: COMMITTED LOCALLY — PENDING RELEASE DECISION
 
 Cause: substituir o catálogo inicial de espaços pelos oito espaços informados pelo usuário, com os novos preços e descrição genérica.
 
-Files currently modified:
-
-- `apps/api/prisma/seed.ts`
+Files currently modified: nenhum.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -78,7 +76,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: commit do seed, decisão sobre publicação dos commits locais, e eventual atualização de produção pelo processo oficial; produção não foi alterada.
+Pending: decisão sobre publicação dos commits locais e eventual atualização de produção pelo processo oficial; produção não foi alterada.
 
 ## Known Risks
 
@@ -116,6 +114,7 @@ Pending: commit do seed, decisão sobre publicação dos commits locais, e event
 - Backup antes da exclusão: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-reservable-spaces-before-replace.dump`.
 - Seed atualizado em `apps/api/prisma/seed.ts` para refletir o novo catálogo e o valor atualizado do Salão Principal.
 - Verificação pós-alteração: 8 espaços ativos, 0 reservas e 0 fotos; API DEV `3338` HTTP 200; frontend DEV `5178` HTTP 200; build completo PASS.
+- Commit do catálogo: `b1ddc7d` (`feat: replace reservable spaces catalog`).
 - Produção não foi alterada.
 
 ## Next Step
