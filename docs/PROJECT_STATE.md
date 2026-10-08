@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `c4d32cc` (`feat: show family cards to dependent members`)
+Base HEAD: `f8cfc6b` (`docs: record family card visibility change`)
 
-Origin: `b45398d`
+Origin: `f8cfc6b`
 
-Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
+Production functional release: `f8cfc6b` publicado pelo fluxo oficial; asset frontend `index-UxEdPleQ.js` e health HTTP confirmados.
 
-Working tree: alteração de carteirinhas familiares commitada localmente em `c4d32cc`; ainda não publicada em `origin/main`.
+Working tree: limpa; alteração de carteirinhas familiares publicada em `origin/main` e validada em produção.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,7 +62,7 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Carteirinhas do grupo familiar para dependentes
 
-Status: COMMITTED LOCALLY — PENDING RELEASE
+Status: PRODUCTION DEPLOYED — VALIDATED
 
 Cause: dependentes autenticados recebiam apenas sua própria relação vazia de dependentes e não conseguiam acessar as carteirinhas do titular ou dos demais dependentes.
 
@@ -72,11 +72,11 @@ Validated: build completo PASS, testes automatizados relevantes quase todos PASS
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
-Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`; deploy oficial concluído; titular PASS; Reservas → Início PASS; dependentes/modal PASS; refresh PASS; health PASS; nenhuma migration pendente; stash preservado.
+Production validation: release `f8cfc6b` publicado pelo push oficial; página HTTP 200; `/api/health` HTTP 200 com `status: OK`; asset `index-UxEdPleQ.js`; dependente visualizou “Carteirinhas da família” com titular e outro dependente; nenhuma migration pendente; stash preservado.
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: publicar o commit `c4d32cc` pelo processo oficial e validar titular, dependente, fotos familiares e modal em produção; não houve alteração de produção nesta tarefa.
+Pending: validar em produção a abertura do modal e o carregamento das fotos, pois o clique automatizado expirou; não há pendência de publicação.
 
 ## Known Risks
 
@@ -126,7 +126,11 @@ Pending: publicar o commit `c4d32cc` pelo processo oficial e validar titular, de
 - `member-photo.smoke.ts`: bloqueado antes da asserção de família porque o ambiente local não possui `MEDIA_STORAGE_ROOT`; classificado como limitação de fixture/infraestrutura.
 - Build completo após a alteração: PASS.
 - Commit local: `c4d32cc` (`feat: show family cards to dependent members`).
+- Push oficial `b45398d..f8cfc6b` concluído em `origin/main`; auto-deploy concluído.
+- Produção HTTP 200; `/api/health` retornou `{"status":"OK"}`.
+- Produção serviu `index-UxEdPleQ.js`; dependente visualizou “Carteirinhas da família” com Roger Herpich (Titular) e Róbson Herpich (Irmão).
+- Abertura automatizada do modal expirou após a lista familiar estar visível; essa interação permanece `UNKNOWN`.
 
 ## Next Step
 
-Aguardar autorização para publicar `c4d32cc`; depois validar o fluxo de carteirinhas em produção com titular e dependente.
+Se necessário, repetir manualmente a abertura do modal/fotos em produção; o release já está publicado e o health check está PASS.

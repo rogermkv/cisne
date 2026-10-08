@@ -265,3 +265,12 @@ Esse teste não deve ser considerado validação da correção.
 - Build completo: PASS.
 - Smoke de fotos não reproduzido por ausência de `MEDIA_STORAGE_ROOT` no ambiente local; nenhum PASS foi declarado para essa parte.
 - Commit local `c4d32cc` criado; produção não foi alterada e o push permanece pendente.
+
+## 2026-10-08 — Production deploy of family card visibility
+
+- Push oficial concluído em `origin/main`: `b45398d..f8cfc6b`.
+- Auto-deploy concluído; a página de produção passou a servir o asset `index-UxEdPleQ.js`.
+- Health check de produção: `GET /api/health` HTTP 200 com `{"status":"OK"}`.
+- Smoke visual autenticado: dependente visualizou “Carteirinhas da família”, incluindo Roger Herpich como Titular e Róbson Herpich como Irmão.
+- Nenhuma migration foi necessária ou executada.
+- A abertura automatizada do modal expirou após a lista familiar estar visível; modal/fotos permanecem `UNKNOWN`, sem declarar PASS indevido.
