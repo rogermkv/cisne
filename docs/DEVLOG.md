@@ -1,5 +1,12 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Publicação da quota sazonal
+
+- Push oficial `35f3dd0..e58a943` concluído em `origin/main`.
+- A aplicação autenticada de produção permaneceu acessível após a publicação.
+- O endpoint `/api/health` foi bloqueado pelo cliente Chrome desta sessão (`ERR_BLOCKED_BY_CLIENT`); o SHA efetivo do release e o health check de produção permanecem `UNKNOWN`.
+- Nenhuma alteração manual foi feita em produção.
+
 ## 2026-10-08 — Quota de entradas de visitantes por temporada
 
 ### Regra implementada

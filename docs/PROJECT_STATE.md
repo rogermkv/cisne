@@ -8,11 +8,11 @@ Branch: `main`
 
 Base HEAD: commit local mais recente `fix: refine member invitation screen`.
 
-Origin: `35f3dd0` (commit local pendente de revisão/publicação)
+Origin: `e58a943` (quota sazonal publicada pelo push oficial)
 
 Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
-Working tree: limpa após o commit local mais recente; produção não alterada.
+Working tree: alteração documental desta confirmação de deploy, pendente de commit; produção recebeu o push oficial, mas a ativação do auto-deploy ainda não foi confirmada.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: validar visualmente os fluxos autenticados de associado/secretaria e o check-in com fixture integrada; publicar o commit local somente após revisão explícita. Nenhuma alteração de produção foi feita nesta tarefa.
+Pending: confirmar o SHA efetivo do release, health check e smoke do fluxo de quota na produção. O código foi publicado em `origin/main`; nenhuma edição manual foi feita no servidor.
 
 ## Known Risks
 
@@ -161,6 +161,8 @@ Pending: validar visualmente os fluxos autenticados de associado/secretaria e o 
 - Migration local `20261008150000_visitor_season_quota` aplicada com sucesso; configuração local confirmada como `7|SEASON_NOV_OCT`.
 - Backup pré-migration: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-before-visitor-season-quota.dump`.
 - Build após a quota de temporada: PASS; `npm run test:visitor-invitations --workspace @cisne/api`: PASS; produção não foi alterada.
+- Deploy da quota sazonal: push oficial `35f3dd0..e58a943` concluído em `origin/main`.
+- A aplicação autenticada de produção continuou acessível após o push; o endpoint `/api/health` foi bloqueado pelo cliente Chrome desta sessão (`ERR_BLOCKED_BY_CLIENT`), portanto health check e SHA efetivo do release permanecem `UNKNOWN`.
 
 ## Next Step
 
