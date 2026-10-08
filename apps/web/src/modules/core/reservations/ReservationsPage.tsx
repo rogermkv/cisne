@@ -72,7 +72,13 @@ function SpaceDetail({ space, reservation, date, setDate, startTime, setStartTim
 
 function PixPaymentPage({ reservation, memberName, onBack }: { reservation: any; memberName: string; onBack: () => void }) {
   const [copied, setCopied] = useState(false)
-  const message = `Olá, meu nome é ${reservation.memberName || memberName || '________'}, acabei de efetuar uma reserva do espaço ${reservation.spaceName}, segue comprovante de pagamento.`
+  const reservationDate = reservation.date ? dateLabel(reservation.date) : 'não informada'
+  const reservationTime = reservation.startTime && reservation.endTime ? `${reservation.startTime} às ${reservation.endTime}` : 'Dia inteiro'
+  const message = `Olá, meu nome é ${reservation.memberName || memberName || '________'}.
+Acabei de efetuar uma reserva do espaço ${reservation.spaceName}.
+Data: ${reservationDate}
+Horário: ${reservationTime}
+Segue comprovante de pagamento.`
   const whatsappUrl = `https://wa.me/55${PIX_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
   const copyPix = async () => { try { await navigator.clipboard.writeText(PIX_KEY); setCopied(true); window.setTimeout(() => setCopied(false), 2200) } catch { setCopied(false) } }
   return <section className="reservation-payment-page" aria-labelledby="reservation-payment-heading"><span className="reservation-kicker">Pagamento da reserva</span><h1 id="reservation-payment-heading">Finalize sua reserva</h1><p className="reservation-payment-intro">Faça o Pix e envie o comprovante para a secretaria.</p><div className="reservation-payment-details"><div><span>Espaço</span><strong>{reservation.spaceName}</strong></div><div><span>Data</span><strong>{dateLabel(reservation.date)}{reservation.startTime && reservation.endTime ? ` · ${reservation.startTime} às ${reservation.endTime}` : reservation.date ? ' · Dia inteiro' : ''}</strong></div><div><span>Valor</span><strong>{money(reservation.amount)}</strong></div></div><div className="reservation-pix-key"><span>Chave Pix</span><div><code>{PIX_KEY}</code><button type="button" onClick={() => void copyPix()}>{copied ? <Check size={16} /> : <Copy size={16} />} {copied ? 'Copiada' : 'Copiar chave'}</button></div></div><a className="reservation-whatsapp-button" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Enviar comprovante pelo WhatsApp</a><button type="button" className="reservation-payment-back" onClick={onBack}><ChevronLeft size={16} /> Voltar para minhas reservas</button></section>

@@ -111,6 +111,7 @@ Pending: push deste fluxo, auto-deploy e smoke de produção; produção ainda e
 - API DEV em `3338`: HTTP 200 em `/api/health`; frontend DEV em `5178`.
 - Inspeção visual do fluxo Pix ainda não foi concluída porque a automação do navegador expirou ao clicar na navegação; nenhuma reserva de teste foi criada e o WhatsApp não foi aberto.
 - Commit local: `9083014` (`feat: add pix reservation payment flow`); push ainda não executado.
+- Ajuste solicitado: a mensagem do WhatsApp agora inclui espaço, data formatada e horário da reserva, ou “Dia inteiro” quando aplicável.
 - Nenhuma alteração em backend, banco ou storage; produção não foi alterada.
 
 ## Next Step

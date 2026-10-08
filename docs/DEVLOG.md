@@ -226,4 +226,5 @@ Esse teste não deve ser considerado validação da correção.
 - Nenhuma alteração em backend, banco ou storage. Nenhuma reserva de teste foi criada e nenhuma mensagem foi enviada.
 - Inspeção visual da nova tela Pix ficou pendente porque o clique automatizado no navegador expirou; o link externo não foi aberto.
 - Commit local `9083014` criado com a mensagem `feat: add pix reservation payment flow`.
+- Ajuste posterior: a mensagem do WhatsApp passou a incluir data e horário da reserva em linhas separadas; reservas sem horário exibem “Dia inteiro”.
 - Produção não foi alterada; push e validação de auto-deploy permanecem pendentes.
