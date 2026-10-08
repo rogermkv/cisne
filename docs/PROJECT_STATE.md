@@ -12,7 +12,7 @@ Origin: `eac3babace6548c814a85228e76835b20968e921`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: segundo ajuste visual local pendente na tela de detalhe de Reservas; navegação persistente publicada em `eac3bab`.
+Working tree: simplificação final da tela de detalhe de Reservas pendente de commit/push; navegação persistente publicada em `eac3bab`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -80,7 +80,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: revisar/commit/push do achatamento do resumo de reserva, caso aprovado; produção ainda está no release funcional anterior.
+Pending: commit/push da simplificação final da tela de detalhe de Reservas e validação do auto-deploy; produção ainda está no release funcional anterior.
 
 ## Known Risks
 
@@ -103,6 +103,8 @@ Pending: revisar/commit/push do achatamento do resumo de reserva, caso aprovado;
 - Build após o ajuste visual: PASS. Nenhuma alteração em backend, banco ou storage.
 - Segundo ajuste visual local: o resumo deixou de ser uma caixa interna e passou a compartilhar o mesmo plano do formulário, separado apenas por uma linha.
 - Build após o segundo ajuste: PASS. Nenhuma alteração em backend, banco ou storage.
+- Simplificação final local: removido o bloco “Resumo da reserva”, criado o valor simples “Valor da reserva” e transformada a ação “Escolher outro espaço” em link textual com seta.
+- Inspeção visual mobile: PASS; header, bottom nav, Reservas ativo, scroll e nova hierarquia visual confirmados. Nenhuma alteração em backend, banco ou storage.
 
 ## Next Step
 

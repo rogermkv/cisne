@@ -205,3 +205,13 @@ Esse teste não deve ser considerado validação da correção.
 - Alteração restrita ao CSS de Reservas; nenhuma lógica de reserva foi modificada.
 - Build completo após o segundo ajuste: PASS.
 - Nenhuma alteração em backend, banco, storage ou produção; publicação permanece pendente de aprovação.
+
+## 2026-10-08 — Member reservation detail layout simplified
+
+- Removido do JSX o bloco “Resumo da reserva”.
+- O preço passou a aparecer como “Valor da reserva” em uma linha simples.
+- “Escolher outro espaço” passou a ser uma ação textual discreta com seta, preservando o comportamento.
+- O painel de reserva deixou de ter cartão externo, borda, sombra e fundo próprios; o formulário ficou integrado ao conteúdo da tela.
+- Inspeção visual mobile: PASS; header, bottom nav, item Reservas ativo e scroll confirmados.
+- Build completo: PASS.
+- Nenhuma alteração em backend, banco ou storage.

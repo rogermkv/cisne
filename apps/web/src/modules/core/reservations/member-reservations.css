@@ -26,3 +26,14 @@
 
 /* Mantém o resumo no mesmo plano do formulário, sem um cartão dentro do cartão. */
 .reservation-summary{padding:16px 0 0;border-top:1px solid #dbe8f2;border-radius:0;background:transparent}
+
+/* O detalhe usa o espaço como conteúdo de tela, sem um cartão externo envolvendo o formulário. */
+.reservation-booking-card{position:sticky;top:20px;padding:6px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.reservation-value{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-top:24px;padding-top:16px;border-top:1px solid #dbe8f2}
+.reservation-value span{color:#60758e;font-size:.82rem}
+.reservation-value strong{color:#123f75;font-size:1.2rem;white-space:nowrap}
+.reservation-value small{color:#60758e;font-size:.7rem;font-weight:600}
+.reservation-secondary-action{display:inline-flex;align-items:center;gap:4px;width:auto;margin-top:16px;padding:4px 0;border:0;background:transparent;color:#123f75;font:inherit;font-weight:800;cursor:pointer}
+.reservation-secondary-action:hover{background:transparent;color:#006ccb;text-decoration:underline}
+
+@media(max-width:800px){.reservation-booking-card{position:static;padding:6px 0 0}}
