@@ -351,7 +351,7 @@ model VisitorInvitation {
   visitorId String
   sponsorMemberId String
   quotaOwnerMemberId String
-  scheduledDate DateTime
+  scheduledDate DateTime?
   status VisitorInvitationStatus @default(SCHEDULED)
   usedAt DateTime?
   notes String?
@@ -361,7 +361,7 @@ model VisitorInvitation {
   sponsorMember Member @relation(fields: [sponsorMemberId], references: [id])
   quotaOwnerMember Member @relation("InvitationQuotaOwner", fields: [quotaOwnerMemberId], references: [id])
   accessEvents AccessEvent[]
-  @@index([quotaOwnerMemberId, scheduledDate, status])
+  @@index([quotaOwnerMemberId, createdAt, status])
   @@map("visitor_invitations")
 }
 model ClubSetting {

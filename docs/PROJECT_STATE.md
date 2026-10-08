@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: commit local mais recente `fix: refine member invitation screen`.
+Base HEAD: commit local mais recente `ec37054` (`docs: record finance layout deployment`).
 
-Origin: `874010a` (layout financeiro publicado pelo push oficial)
+Origin: `ec37054` (layout financeiro publicado pelo push oficial)
 
-Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
+Production functional release: `ec37054d9a6233336f99c8e0a5c887db2c1cce29`, publicado pelo processo oficial.
 
-Working tree: alteração documental desta confirmação de deploy, pendente de commit; produção recebeu o push oficial, mas a ativação do auto-deploy ainda não foi confirmada.
+Working tree: alterações documentais desta confirmação, pendentes de commit.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -72,11 +72,11 @@ Validated: build completo PASS após o novo layout financeiro; testes e schema d
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
-Production validation: release `4d426f7` publicado pelo push oficial; a tela autenticada mostrou “Carteirinhas da família”, Roger Herpich como titular, dois próximos eventos e o card de avisos. `/api/health` ficou `UNKNOWN` durante o reinício; nenhuma migration foi executada; stash preservado.
+Production validation: release `ec37054d9a6233336f99c8e0a5c887db2c1cce29` publicado pelo processo oficial. O deploy executou build, aplicou as duas migrations pendentes após backup PostgreSQL e concluiu com health check OK. Stash preservado.
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: confirmar o SHA efetivo do release, health check e inspeção visual da tela financeira em produção. O código foi publicado em `origin/main`; nenhuma edição manual foi feita no servidor.
+Pending: revisar e publicar a alteração que remove a data obrigatória dos convites. A produção permanece no release `ec37054d9a6233336f99c8e0a5c887db2c1cce29` até autorização explícita de deploy.
 
 ## Known Risks
 
@@ -89,8 +89,8 @@ Pending: confirmar o SHA efetivo do release, health check e inspeção visual da
 
 ## Latest Verification
 
-- `HEAD`: `4aa36d5`; `origin/main`: `35f3dd0`; commit local de convites ainda não publicado.
-- `git status -sb`: limpo; `stash@{0}` preservado e não aplicado.
+- `HEAD`: `ec37054d9a6233336f99c8e0a5c887db2c1cce29`; `origin/main`: `ec37054d9a6233336f99c8e0a5c887db2c1cce29`.
+- `git status -sb`: documentação desta confirmação pendente; `stash@{0}` preservado e não aplicado.
 - API DEV iniciada em `http://localhost:3338/api/health`, HTTP 200.
 - Frontend DEV iniciado em `http://localhost:5178`; o repositório ainda contém defaults históricos em `vite.config.ts`/configuração da API para `5173`/`3333`, então as portas solicitadas foram usadas por override de processo, sem alterar o código de configuração nesta tarefa.
 - Build completo: PASS.
@@ -166,6 +166,11 @@ Pending: confirmar o SHA efetivo do release, health check e inspeção visual da
 - Tela financeira local: resumo anual, próxima cobrança e histórico aberto substituídos por lista compacta de temporadas; detalhes expandem valores, pagamentos e cobranças mensais por vencimento.
 - Build após o layout financeiro: PASS; produção não foi alterada.
 - Deploy do layout financeiro: push oficial `7aaa33d..874010a` concluído em `origin/main`; auto-deploy e health check permanecem `UNKNOWN` nesta sessão.
+- Correção operacional do deploy: o parser de status do Prisma foi ajustado no script oficial para reconhecer migrations pendentes pelo nome, com backup do script antes da alteração. O auto-deploy aplicou as 2 migrations pendentes, publicou `ec37054d9a6233336f99c8e0a5c887db2c1cce29` e confirmou health check OK.
+- Convites sem data de visita: novos convites passam a usar `createdAt` para a cota mensal e `usedAt`/`AccessEvent.occurredAt` para registrar a entrada real; convites antigos preservam `scheduledDate` histórico.
+- Build completo: PASS; `npm run test:visitor-invitations --workspace @cisne/api`: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Ficha administrativa do sócio: endpoint `/api/members/:id/activity` e abas de Convites, Reservas e Acessos implementados com agrupamento pelo titular do grupo, sem duplicação para dependentes.
+- `prisma validate`/`prisma generate`: bloqueados pela indisponibilidade de rede para baixar o engine Prisma no ambiente local; migration SQL revisada e produção ainda não alterada.
 
 ## Next Step
 

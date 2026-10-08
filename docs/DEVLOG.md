@@ -1,5 +1,39 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Convites sem data planejada de visita
+
+- Removida a obrigatoriedade de informar a data da visita ao emitir um convite.
+- Novos convites são válidos dentro do ciclo mensal de emissão e são consumidos no primeiro check-in válido.
+- A cota mensal passa a contar `createdAt`; a entrada real fica registrada em `AccessEvent.occurredAt` e `VisitorInvitation.usedAt`.
+- Convites pendentes de meses anteriores são expirados automaticamente quando o sistema consulta o módulo; convites antigos com `scheduledDate` permanecem preservados para histórico.
+- O controle de acesso deixou de exigir que o check-in ocorra na data planejada.
+- Migration criada: `20261008170000_invitations_without_visit_date`.
+- `npm run build`: PASS.
+- `npm run test:visitor-invitations --workspace @cisne/api`: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS.
+- `prisma validate` e `prisma generate`: não concluídos por indisponibilidade de rede para baixar o engine Prisma no ambiente local.
+- Produção: não alterada.
+
+## 2026-10-08 — Histórico consolidado na ficha administrativa do sócio
+
+- A ficha administrativa passou a carregar as atividades do grupo familiar em um único endpoint protegido por `members.view`.
+- Foram criadas abas de **Convites**, **Reservas** e **Acessos**, com contadores, estados vazios e layout responsivo.
+- Ao abrir um titular ou qualquer dependente, o sistema resolve o titular do grupo e reutiliza os mesmos históricos compartilhados.
+- Convites exibem visitante, emissor, emissão, situação e eventual entrada; reservas exibem espaço, data, solicitante, situação e valor; acessos exibem pessoa, horário, ponto e origem do convite quando aplicável.
+- `npm run build`: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Produção: não alterada.
+
+## 2026-10-08 — Estabilização e conclusão do deploy do layout financeiro
+
+- O auto-deploy inicialmente interrompia a publicação porque o parser do script não reconhecia a saída de migrations pendentes do Prisma.
+- O script oficial foi corrigido em produção com backup prévio; nenhuma edição foi feita no código da aplicação em produção.
+- Build da release `ec37054d9a6233336f99c8e0a5c887db2c1cce29`: PASS.
+- Foram detectadas e aplicadas as migrations `20261008120000_family_invitation_quota` e `20261008150000_visitor_season_quota`.
+- Backup PostgreSQL pré-migration: `/opt/deploy/backups/cisne-pre-migration-20261008T222240Z.dump`.
+- Release publicada e API reiniciada; health check final: PASS.
+- Rollback disponível em `/opt/apps/cisne/releases/20261008T222253Z-35f3dd0ddd47`.
+
 ## 2026-10-08 — Publicação do layout financeiro
 
 - Push oficial `7aaa33d..874010a` concluído em `origin/main`.

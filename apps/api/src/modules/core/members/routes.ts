@@ -174,6 +174,21 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
     if (!row) return reply.code(404).send({ message: 'Associado não encontrado.' })
     return view(row)
   })
+  app.get('/members/:id/activity', { preHandler: app.requirePermission('members.view') }, async (request: any, reply) => {
+    const member = await prisma.member.findUnique({ where: { id: request.params.id }, select: { id: true, titularMemberId: true } })
+    if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
+    const holderId = member.titularMemberId || member.id
+    const family = await prisma.member.findUnique({ where: { id: holderId }, select: { id: true, person: { select: { fullName: true } }, dependentes: { where: { status: { not: 'TERMINATED' } }, select: { id: true, person: { select: { fullName: true } } } } } })
+    if (!family) return reply.code(404).send({ message: 'Titular do grupo não encontrado.' })
+    const memberIds = [family.id, ...family.dependentes.map((item: any) => item.id)]
+    const personIds = await prisma.member.findMany({ where: { id: { in: memberIds } }, select: { id: true, personId: true, person: { select: { fullName: true } } } })
+    const [invitations, reservations, accessEvents] = await Promise.all([
+      prisma.visitorInvitation.findMany({ where: { quotaOwnerMemberId: family.id }, include: { visitor: { include: { person: true } }, sponsorMember: { include: { person: true } }, accessEvents: { where: { type: 'ENTRY' }, orderBy: { occurredAt: 'desc' }, take: 1 } }, orderBy: { createdAt: 'desc' }, take: 250 }),
+      prisma.reservation.findMany({ where: { memberId: { in: memberIds } }, include: { space: true, member: { include: { person: true } } }, orderBy: [{ reservationDate: 'desc' }, { createdAt: 'desc' }], take: 250 }),
+      prisma.accessEvent.findMany({ where: { personId: { in: personIds.map((item: any) => item.personId) }, type: 'ENTRY' }, include: { person: true, accessPoint: true, registeredBy: { include: { person: true } }, invitation: { include: { sponsorMember: { include: { person: true } }, visitor: { include: { person: true } } } } }, orderBy: { occurredAt: 'desc' }, take: 500 }),
+    ])
+    return { titular: { id: family.id, fullName: family.person.fullName }, members: personIds.map((item: any) => ({ id: item.id, fullName: item.person.fullName, isTitular: item.id === family.id })), invitations, reservations, accessEvents }
+  })
   app.post('/members', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
     const b = request.body ?? {}
     if (!b.fullName?.trim()) return reply.code(400).send(errorFor('fullName', 'Informe o nome completo.'))

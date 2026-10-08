@@ -45,13 +45,13 @@ export async function getMemberInvitationQuota(memberId: string, date: Date, db:
 
   if (!isInvitationEligible(member) || !quotaOwnerMemberId) return { memberId, quotaOwnerMemberId, eligible: false, limit: 0, used: 0, available: 0, month: bounds.month, year: bounds.year }
 
-  const used = await db.visitorInvitation.count({ where: { quotaOwnerMemberId, scheduledDate: { gte: bounds.start, lt: bounds.end }, status: { in: countedInvitationStatuses } } })
+  const used = await db.visitorInvitation.count({ where: { quotaOwnerMemberId, createdAt: { gte: bounds.start, lt: bounds.end }, status: { in: countedInvitationStatuses } } })
   return { memberId, quotaOwnerMemberId, eligible: true, limit, used, available: Math.max(0, limit - used), month: bounds.month, year: bounds.year }
 }
 
 export async function expirePastInvitations(db: any = prisma, now = new Date()) {
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  return db.visitorInvitation.updateMany({ where: { status: 'SCHEDULED', scheduledDate: { lt: today } }, data: { status: 'EXPIRED' } })
+  const currentMonth = monthBounds(now)
+  return db.visitorInvitation.updateMany({ where: { status: 'SCHEDULED', createdAt: { lt: currentMonth.start } }, data: { status: 'EXPIRED' } })
 }
 
 export async function getVisitorSeasonQuota(visitorId: string, date = new Date(), db: any = prisma, excludeInvitationId: string | null = null) {
@@ -62,7 +62,7 @@ export async function getVisitorSeasonQuota(visitorId: string, date = new Date()
   if (!visitor) return { visitorId, eligible: false, limit, used: 0, reserved: 0, available: 0, season: bounds.label, seasonStart: bounds.start, seasonEnd: bounds.end }
   const [used, reserved] = await Promise.all([
     db.accessEvent.count({ where: { personId: visitor.personId, type: 'ENTRY', occurredAt: { gte: bounds.start, lt: bounds.end } } }),
-    db.visitorInvitation.count({ where: { visitorId, status: 'SCHEDULED', scheduledDate: { gte: bounds.start, lt: bounds.end }, ...(excludeInvitationId ? { id: { not: excludeInvitationId } } : {}) } }),
+    db.visitorInvitation.count({ where: { visitorId, status: 'SCHEDULED', ...(excludeInvitationId ? { id: { not: excludeInvitationId } } : {}) } }),
   ])
   return { visitorId, eligible: true, limit, used, reserved, available: Math.max(0, limit - used - reserved), season: bounds.label, seasonStart: bounds.start, seasonEnd: bounds.end }
 }
