@@ -12,7 +12,7 @@ Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpa após o commit local `9083014`; push/publicação do fluxo Pix ainda pendentes; simplificação da tela de detalhe publicada em `ab7c1cb`.
+Working tree: limpa após o commit local `9095cfd`; push/publicação do fluxo Pix ainda pendentes; simplificação da tela de detalhe publicada em `ab7c1cb`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -110,7 +110,7 @@ Pending: push deste fluxo, auto-deploy e smoke de produção; produção ainda e
 - Build completo após o fluxo Pix: PASS (`npm run build`, API TypeScript e Vite).
 - API DEV em `3338`: HTTP 200 em `/api/health`; frontend DEV em `5178`.
 - Inspeção visual do fluxo Pix ainda não foi concluída porque a automação do navegador expirou ao clicar na navegação; nenhuma reserva de teste foi criada e o WhatsApp não foi aberto.
-- Commit local: `9083014` (`feat: add pix reservation payment flow`); push ainda não executado.
+- Commits locais: `8179c4c` (`feat: add pix reservation payment flow`) e `9095cfd` (`fix: include reservation details in pix message`); push ainda não executado.
 - Ajuste solicitado: a mensagem do WhatsApp agora inclui espaço, data formatada e horário da reserva, ou “Dia inteiro” quando aplicável.
 - Nenhuma alteração em backend, banco ou storage; produção não foi alterada.
 
