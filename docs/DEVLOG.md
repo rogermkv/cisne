@@ -239,3 +239,10 @@ Esse teste não deve ser considerado validação da correção.
 - Capacidade ficou não informada e fotos ficaram vazias para posterior cadastro; descrição genérica aplicada a todos.
 - Seed atualizado para refletir o novo catálogo; nenhum arquivo de produção ou storage de produção foi alterado.
 - Verificação pós-alteração: 8 espaços ativos, 0 reservas, 0 fotos; API/frontend locais HTTP 200; build completo PASS.
+
+## 2026-10-08 — Production catalog migration preparation
+
+- Criada a migration `20261008020000_replace_reservable_spaces_catalog` para executar a substituição do catálogo pelo processo oficial de deploy.
+- A migration foi aplicada no banco local e confirmou 8 espaços ativos, 0 reservas e 0 fotos.
+- `prisma generate` foi tentado após a migration, mas o engine Windows estava bloqueado pelo processo local e retornou `EPERM`; não houve mudança de schema.
+- Produção ainda não foi alterada nesta etapa; backup, deploy, health check e confirmação do SHA de produção permanecem pendentes.

@@ -12,7 +12,7 @@ Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpa após o commit local `b1ddc7d`; banco local já foi reconfigurado; commits locais ainda estão 4 commits à frente de `origin/main`.
+Working tree: migration de substituição do catálogo pendente de commit/push; banco local já foi reconfigurado; commits locais publicados em `origin/main` até `ac3f365`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -62,11 +62,13 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Reconfiguração dos espaços reserváveis
 
-Status: COMMITTED LOCALLY — PENDING RELEASE DECISION
+Status: READY FOR PRODUCTION DEPLOY
 
 Cause: substituir o catálogo inicial de espaços pelos oito espaços informados pelo usuário, com os novos preços e descrição genérica.
 
-Files currently modified: nenhum.
+Files currently modified:
+
+- `apps/api/prisma/migrations/20261008020000_replace_reservable_spaces_catalog/migration.sql`
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +78,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: decisão sobre publicação dos commits locais e eventual atualização de produção pelo processo oficial; produção não foi alterada.
+Pending: commit/push da migration, deploy oficial com backup de produção, validação do SHA, health check e confirmação dos dados em produção; produção não foi alterada.
 
 ## Known Risks
 
@@ -115,8 +117,10 @@ Pending: decisão sobre publicação dos commits locais e eventual atualização
 - Seed atualizado em `apps/api/prisma/seed.ts` para refletir o novo catálogo e o valor atualizado do Salão Principal.
 - Verificação pós-alteração: 8 espaços ativos, 0 reservas e 0 fotos; API DEV `3338` HTTP 200; frontend DEV `5178` HTTP 200; build completo PASS.
 - Commit do catálogo: `b1ddc7d` (`feat: replace reservable spaces catalog`).
+- Migration de substituição criada para reproduzir a exclusão/criação no deploy oficial; aplicada localmente com sucesso.
+- A regeneração do Prisma Client encontrou `EPERM` porque o engine Windows estava em uso pelo processo local; não houve alteração de schema e a validação de dados local permaneceu correta.
 - Produção não foi alterada.
 
 ## Next Step
 
-Fazer commit do seed e decidir se os commits locais devem ser publicados pelo processo oficial; depois, se aplicável, validar produção.
+Fazer commit/push da migration, aguardar o deploy oficial e confirmar backup, SHA, health check e catálogo em produção.
