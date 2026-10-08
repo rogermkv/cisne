@@ -316,3 +316,12 @@ Esse teste não deve ser considerado validação da correção.
 - `npx tsx test/finance.rules.ts`: PASS.
 - `npm run test:club-modules --workspace @cisne/api`: PASS.
 - Produção não foi alterada; publicação permanece pendente de autorização.
+
+## 2026-10-08 — Production deploy of accumulated changes
+
+- Push oficial concluído em `origin/main`: `59153c2..4d426f7`.
+- O intervalo incluiu as melhorias anteriores da home, correção da carteirinha familiar e a Fase 1 de anuidades/gestão financeira.
+- Nenhuma migration, cobrança real ou bloqueio financeiro novo foi executado.
+- A produção autenticada confirmou “Carteirinhas da família”, Roger Herpich como titular, dois próximos eventos e o card de avisos.
+- O endpoint `/api/health` recusou conexão durante a janela de reinício e ficou `UNKNOWN` nesta sessão; não foi declarado PASS sem resposta HTTP.
+- Validações locais: build completo, regras financeiras e smoke dos módulos do clube — todos PASS.

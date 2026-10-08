@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `59153c2` (`fix: show family titular in dependent card modal`)
+Base HEAD: `4d426f7` (`feat: prepare phase one annuality finance module`)
 
-Origin: `59153c2`
+Origin: `4d426f7`
 
-Production functional release: `59153c2` publicado pelo fluxo oficial; asset frontend `index-BZPoi-dR.js` e health HTTP confirmados.
+Production functional release: `4d426f7` publicado pelo fluxo oficial; página de produção respondeu no navegador com os eventos, avisos e carteira familiar atualizados. O health HTTP independente ficou temporariamente indisponível durante o reinício e permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpa; correção do modal publicada em `origin/main` e validada em produção.
+Working tree: limpa antes do registro desta atualização; commits `1ba6d5b`, `ae85cb0` e `4d426f7` publicados em `origin/main`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -72,11 +72,11 @@ Validated: build completo PASS, testes automatizados relevantes quase todos PASS
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
-Production validation: release `59153c2` publicado pelo push oficial; página HTTP 200; `/api/health` HTTP 200 com `status: OK`; asset `index-BZPoi-dR.js`; dependente visualizou “Carteirinhas da família” com Roger Herpich como titular; nenhuma migration pendente; stash preservado.
+Production validation: release `4d426f7` publicado pelo push oficial; a tela autenticada mostrou “Carteirinhas da família”, Roger Herpich como titular, dois próximos eventos e o card de avisos. `/api/health` ficou `UNKNOWN` durante o reinício; nenhuma migration foi executada; stash preservado.
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: revisar e autorizar a publicação da Fase 1; produção não foi alterada e o release `59153c2` continua ativo.
+Pending: confirmar o health check independente após a janela de reinício, se necessário; não há publicação de código pendente.
 
 ## Known Risks
 
@@ -94,7 +94,7 @@ Pending: revisar e autorizar a publicação da Fase 1; produção não foi alter
 - API DEV iniciada em `http://localhost:3338/api/health`, HTTP 200.
 - Frontend DEV iniciado em `http://localhost:5178`; o repositório ainda contém defaults históricos em `vite.config.ts`/configuração da API para `5173`/`3333`, então as portas solicitadas foram usadas por override de processo, sem alterar o código de configuração nesta tarefa.
 - Build completo: PASS.
-- Produção: smoke visual autenticado concluído manualmente: Início → Reservas → Eventos → Avisos → Mais → Início; header, bottom nav, item ativo, cards/fotos, modal de carteirinha e retorno ao Início foram confirmados. Health HTTP independente permanece `UNKNOWN` por bloqueio do proxy/cliente.
+- Produção: push `59153c2..4d426f7` concluído; a tela autenticada confirmou o bundle novo com “Carteirinhas da família”, Roger Herpich como titular, dois próximos eventos e o card de avisos. Health HTTP independente ficou `UNKNOWN` porque o endpoint recusou conexão durante o reinício do deploy.
 - Ajuste visual local: o resumo da reserva deixou de repetir visualmente o nome do espaço; a data passou a aparecer como linha rotulada e o nome continua no título principal.
 - Build após o ajuste visual: PASS. Nenhuma alteração em backend, banco ou storage.
 - Segundo ajuste visual local: o resumo deixou de ser uma caixa interna e passou a compartilhar o mesmo plano do formulário, separado apenas por uma linha.
@@ -145,7 +145,8 @@ Pending: revisar e autorizar a publicação da Fase 1; produção não foi alter
 - Área do Sócio passou a exibir “Minha anuidade”, progresso real das cobranças de anuidade e aviso explícito de conta familiar compartilhada.
 - Documento técnico da Fase 1 criado em `docs/financial-module-phase-1.md`, com limites e plano recomendado para a Fase 2.
 - Build completo após a Fase 1: PASS; `npx tsx test/finance.rules.ts`: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Deploy da Fase 1 e alterações anteriores: push oficial `59153c2..4d426f7` concluído; nenhuma migration foi executada.
 
 ## Next Step
 
-Revisar a Fase 1 e, mediante autorização específica, publicar pelo processo oficial; depois validar as telas administrativas e do associado em produção.
+Após a estabilização do deploy, repetir o health check independente e, se necessário, fazer validação visual autenticada das telas administrativas e de “Minha anuidade” em produção.
