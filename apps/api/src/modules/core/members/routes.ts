@@ -44,8 +44,10 @@ export async function canViewMemberPhoto(authUser: any, member: any): Promise<bo
   if (!authUser) return false
   if (authUser.permissions?.includes('members.view')) return true
   if (authUser.personId === member.personId) return true
-  const viewer = await prisma.member.findUnique({ where: { personId: authUser.personId }, select: { id: true } })
-  return Boolean(viewer && member.titularMemberId === viewer.id)
+  const viewer = await prisma.member.findUnique({ where: { personId: authUser.personId }, select: { id: true, titularMemberId: true } })
+  if (!viewer) return false
+  const familyTitularId = viewer.titularMemberId || viewer.id
+  return member.id === familyTitularId || member.titularMemberId === familyTitularId
 }
 async function hierarchy(categoryId: string, holderId: string | null, relationship: string | null, currentId?: string) {
   const category = await prisma.memberCategory.findUnique({ where: { id: categoryId } })

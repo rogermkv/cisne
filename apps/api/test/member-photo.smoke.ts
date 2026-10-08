@@ -102,6 +102,14 @@ const main = async () => {
     assert.equal(dependentEdited.person.email, `dependente-edit-${seed}@example.test`)
     const dependentReplaced = await upload(tokens.secretaria, dependent.id, png3x4(5), 'dependent-second.png')
     assert.notEqual(dependentReplaced.person.photoPath, dependentPhoto.person.photoPath)
+    const dependentUser = await prisma.user.findUniqueOrThrow({ where: { personId: dependent.person.id } })
+    const dependentToken = createAccessToken(dependentUser.id, env.jwtSecret)
+    const dependentArea = await app.inject({ method: 'GET', url: '/api/member/me', headers: { authorization: `Bearer ${dependentToken}` } })
+    assert.equal(dependentArea.statusCode, 200)
+    assert.equal(dependentArea.json<any>().isDependent, true)
+    assert.ok(dependentArea.json<any>().dependents.some((item: any) => item.id === holderFromSecretaria.id && item.isTitular))
+    const titularPhotoAsDependent = await app.inject({ method: 'GET', url: `/api/members/${holderFromSecretaria.id}/photo`, headers: { authorization: `Bearer ${dependentToken}` } })
+    assert.equal(titularPhotoAsDependent.statusCode, 200)
 
     const existing = await prisma.member.findFirst({ where: { titularMemberId: { not: null }, id: { notIn: members } } })
     if (existing) { const response = await app.inject({ method: 'GET', url: `/api/members/${existing.id}`, headers: { authorization: `Bearer ${tokens.admin}` } }); assert.equal(response.statusCode, 200) }

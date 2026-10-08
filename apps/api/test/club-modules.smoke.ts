@@ -37,6 +37,13 @@ const main = async () => {
     const dependent = dependentResponse.json<any>(); createdIds.dependent = dependent.id; createdIds.dependentPerson = dependent.person.id
     assert.equal(dependent.financialResponsible.id, holder.id)
     assert.equal(await resolveFinancialResponsibleMemberId(dependent.id), holder.id)
+    const dependentLogin = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { cpf: dependentCpf, password: '04032015' } })
+    assert.equal(dependentLogin.statusCode, 200)
+    const dependentArea = await app.inject({ method: 'GET', url: '/api/member/me', headers: { authorization: `Bearer ${dependentLogin.json<any>().token}` } })
+    assert.equal(dependentArea.statusCode, 200)
+    assert.equal(dependentArea.json<any>().isDependent, true)
+    assert.deepEqual(dependentArea.json<any>().dependents.map((item: any) => item.id), [holder.id])
+    assert.equal(dependentArea.json<any>().dependents[0].isTitular, true)
 
     const missingHolder = await app.inject({ method: 'POST', url: '/api/members', ...json({ fullName: 'Invalid Dependent', cpf: cpf('111222333'), birthDate: '2015-03-04', admissionDate: '2026-01-01', categoryId: dependentCategory.id }, adminToken) })
     assert.equal(missingHolder.statusCode, 400)
