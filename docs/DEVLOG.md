@@ -161,3 +161,13 @@ Esse teste não deve ser considerado validação da correção.
 - Smoke de produção: titular PASS; Início → Reservas → Início PASS; dependentes PASS; modal/carteirinha PASS; refresh PASS.
 - Nenhuma alteração manual em produção, banco ou storage foi realizada.
 - Stash `stash@{0}` preservado.
+
+## 2026-10-08 — Persistent member-area navigation
+
+- Implementado shell compartilhado da Área do Sócio com cabeçalho sticky e barra inferior persistente.
+- Início, Reservas, Eventos, Avisos e Mais agora usam a mesma estrutura; o item ativo acompanha a view.
+- O botão redundante `← Início` foi removido da tela de Reservas; o fluxo interno de detalhes foi preservado.
+- Adicionado espaçamento inferior e suporte a safe-area para evitar conteúdo oculto atrás da navegação.
+- Build completo PASS e validação visual local PASS em `http://localhost:5173`.
+- Nenhuma alteração em backend, banco, storage ou produção.
+- Pendente: commit, push, auto-deploy e smoke de produção.

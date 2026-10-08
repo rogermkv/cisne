@@ -1,0 +1,19 @@
+.member-app {
+  min-height: 100dvh;
+  padding-bottom: calc(74px + env(safe-area-inset-bottom));
+}
+
+.member-top {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}
+
+.member-content,
+.member-reservations-page {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+.member-bottom {
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}

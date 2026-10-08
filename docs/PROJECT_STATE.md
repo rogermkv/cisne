@@ -1,6 +1,6 @@
 # CISNE — Project State
 
-Last updated: 2026-10-07
+Last updated: 2026-10-08
 
 ## Current Git State
 
@@ -12,7 +12,7 @@ Origin: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Production: `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
-Working tree: documentação final pendente de commit; após o commit documental, deve ficar limpa.
+Working tree: correção da navegação persistente da Área do Sócio aguardando commit.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -60,16 +60,17 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Correção da foto da carteirinha após navegação
+Título: Navegação persistente da Área do Sócio
 
-Status: COMPLETED / PRODUCTION VALIDATED
+Status: READY FOR PRODUCTION RELEASE
 
-Cause: a implementação antiga sobrescrevia `photoPath` com Blob URL; ao recarregar `/api/member/me` durante a navegação, o caminho privado original voltava, mas o efeito dependente apenas de `member.id` não era reexecutado. O elemento de imagem tentava acessar mídia privada sem o fluxo autenticado correto.
+Cause: as telas internas eram renderizadas diretamente por `MemberHome`, sem o shell compartilhado que contém o cabeçalho e a barra inferior.
 
 Files currently modified:
 
-- `apps/web/src/components/PrivateMemberPhoto.tsx`
+- `apps/web/src/modules/core/member-area/member-shell.css`
 - `apps/web/src/modules/core/member-area/MemberHome.tsx`
+- `apps/web/src/modules/core/reservations/ReservationsPage.tsx`
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -77,7 +78,9 @@ Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, r
 
 Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`; deploy oficial concluído; titular PASS; Reservas → Início PASS; dependentes/modal PASS; refresh PASS; health PASS; nenhuma migration pendente; stash preservado.
 
-Pending: nenhuma pendência relacionada ao bug das fotos.
+Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
+
+Pending: commit, push, auto-deploy e smoke de produção da navegação persistente.
 
 ## Known Risks
 
@@ -90,4 +93,4 @@ Pending: nenhuma pendência relacionada ao bug das fotos.
 
 ## Next Step
 
-Retomar desenvolvimento normal do CISNE. Próximo módulo planejado: Espaços.
+Publicar a navegação persistente pelo processo oficial e validar produção.
