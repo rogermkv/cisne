@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `40e690d` (`fix: remove redundant member shortcuts`)
+Base HEAD: `4aa36d5` (`feat: align family invitations with access control`)
 
-Origin: `40e690d`
+Origin: `35f3dd0` (commit local pendente de revisão/publicação)
 
 Production functional release: `4d426f7` permanece como último release confirmado; o commit `40e690d` foi publicado em `origin/main`, mas o auto-deploy ainda não disponibilizou o bundle novo nesta sessão.
 
-Working tree: alterações da correção visual publicadas em `origin/main`; documentação desta sessão será registrada no próximo commit.
+Working tree: limpa; commit local `4aa36d5` preservado e não publicado.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -60,13 +60,13 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Módulo de anuidades e gestão financeira familiar — Fase 1
+Título: Auditoria e reestruturação do módulo de convites e visitantes
 
-Status: PHASE 1 VALIDATED LOCALLY — PENDING RELEASE
+Status: IMPLEMENTED LOCALLY — PENDING REVIEW/RELEASE
 
-Cause: preparar interfaces e contratos arquiteturais para temporadas, anuidades, parcelas e situação financeira familiar compartilhada, sem ativar cobranças ou bloqueios novos.
+Cause: quota mensal de 8 convites por grupo titular, emissão por titular ou dependente, cadastro global para secretaria e integração auditável com controle de acesso.
 
-Files currently modified: alterações de finanças/API, navegação administrativa, telas de anuidades, área financeira do sócio, estilos e documentação da Fase 1.
+Files currently modified: schema/migration de quota familiar, regras e rotas de convites, controle de acesso, área do sócio, tela administrativa de visitantes e testes.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: aguardar a ativação do commit `40e690d` pelo auto-deploy e confirmar visualmente a remoção da faixa de atalhos; health check também permanece `UNKNOWN`.
+Pending: revisar o módulo de convites em ambiente local, validar a tela da secretaria e o fluxo de check-in com fixture integrada; nenhuma alteração de produção foi feita nesta tarefa.
 
 ## Known Risks
 
@@ -89,7 +89,7 @@ Pending: aguardar a ativação do commit `40e690d` pelo auto-deploy e confirmar 
 
 ## Latest Verification
 
-- `HEAD` e `origin/main`: `eac3babace6548c814a85228e76835b20968e921`.
+- `HEAD`: `4aa36d5`; `origin/main`: `35f3dd0`; commit local de convites ainda não publicado.
 - `git status -sb`: limpo; `stash@{0}` preservado e não aplicado.
 - API DEV iniciada em `http://localhost:3338/api/health`, HTTP 200.
 - Frontend DEV iniciado em `http://localhost:5178`; o repositório ainda contém defaults históricos em `vite.config.ts`/configuração da API para `5173`/`3333`, então as portas solicitadas foram usadas por override de processo, sem alterar o código de configuração nesta tarefa.
@@ -149,6 +149,12 @@ Pending: aguardar a ativação do commit `40e690d` pelo auto-deploy e confirmar 
 - Correção visual: removida a faixa de atalhos redundante da home; navegação inferior e ações contextuais foram preservadas.
 - Build após a correção: PASS; inspeção visual local confirmou a ausência da faixa.
 - Push oficial `a9c3d20..40e690d` concluído. Produção ainda servia a versão anterior durante as verificações; ativação do auto-deploy permanece `UNKNOWN`.
+- Auditoria de convites: quota passou a ser compartilhada pelo grupo titular; dependentes podem emitir; limite configurado em 8; datas futuras são rejeitadas.
+- Migration local `20261008120000_family_invitation_quota` aplicada e registrada; `quotaOwnerMemberId` preenchido nos 2 convites existentes; limite local confirmado em 8.
+- Backup pré-migration: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-before-family-invitation-quota.dump`.
+- Secretaria: visitantes agora expõem histórico de convites, quem convidou e entradas reais vinculadas ao convite; associados continuam com visão restrita ao grupo familiar.
+- Controle de acesso: convites passados são expirados; check-in válido continua alterando `SCHEDULED` para `USED` e gravando `usedAt`/`invitationId` atomicamente.
+- Validações: schema Prisma PASS, build completo PASS, regras de convites PASS, smoke de módulos do clube PASS.
 
 ## Next Step
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../../../lib/prisma.js'
-import { monthBounds } from '../visitors/quotas.js'
+import { expirePastInvitations, monthBounds } from '../visitors/quotas.js'
 
 const point = () => prisma.accessPoint.findFirstOrThrow({ where: { active: true } })
 const memberInclude = { category: true, titular: { include: { person: true } } }
@@ -16,11 +16,13 @@ export const accessRoutes: FastifyPluginAsync = async app => {
   })
   app.get('/access/visitor/search', { preHandler: app.requirePermission('access.view') }, async (request: any) => { const q = String(request.query?.q || '').trim(); const digits = q.replace(/\D/g, ''); if (!q) return []; return prisma.visitor.findMany({ where: { OR: [{ person: { fullName: { contains: q, mode: 'insensitive' } } }, ...(digits ? [{ person: { cpf: { contains: digits } } }] : [])] }, include: { person: true }, take: 20, orderBy: { person: { fullName: 'asc' } } }) })
   app.get('/access/visitor/:cpf', { preHandler: app.requirePermission('access.view') }, async (request: any, reply) => {
+    await expirePastInvitations()
     const cpf = String(request.params.cpf).replace(/\D/g, ''); const visitor = await prisma.visitor.findFirst({ where: { person: { cpf } }, include: { person: true, invitations: { include: { sponsorMember: { include: { person: true, category: true } } }, orderBy: { scheduledDate: 'desc' } } } })
     if (!visitor) return reply.code(404).send({ message: 'Visitante não cadastrado.' }); const { start, end } = todayRange(); const valid = visitor.invitations.find(i => i.status === 'SCHEDULED' && new Date(i.scheduledDate) >= start && new Date(i.scheduledDate) < end); const settings = await prisma.clubSetting.findFirstOrThrow()
     return { visitor: { id: visitor.id, person: { fullName: visitor.person.fullName, cpf: `${cpf.slice(0, 3)}.***.***-**`, phone: visitor.person.phone, city: visitor.person.city }, blocked: visitor.blocked, active: visitor.active }, invitations: valid ? [valid] : [], history: visitor.invitations, annualLimit: settings.visitorAnnualLimit, sponsor: valid?.sponsorMember?.person?.fullName, authorized: Boolean(valid && !visitor.blocked && visitor.active) }
   })
   app.post('/access/check-in', { preHandler: app.requirePermission('access.manage') }, async (request: any, reply) => {
+    await expirePastInvitations()
     const body = request.body || {}; const accessPoint = await point(); let person: any; let invitation: any
     if (body.credentialToken) { person = await prisma.person.findUnique({ where: { credentialToken: body.credentialToken }, include: { member: true } }); if (!person) return reply.code(404).send({ message: 'Credencial não encontrada.' }); if (person.member?.status !== 'ACTIVE') return reply.code(403).send({ message: 'Pessoa não autorizada.' }) }
     else { const cpf = String(body.cpf || '').replace(/\D/g, ''); const visitor = await prisma.visitor.findFirst({ where: { person: { cpf } }, include: { person: true } }); if (!visitor) return reply.code(404).send({ message: 'Visitante não cadastrado.' }); if (visitor.blocked) return reply.code(403).send({ message: 'Visitante bloqueado.' }); if (!visitor.active) return reply.code(403).send({ message: 'Visitante inativo.' }); person = visitor.person; const { start, end } = todayRange(); invitation = await prisma.visitorInvitation.findFirst({ where: { visitorId: visitor.id, status: 'SCHEDULED', scheduledDate: { gte: start, lt: end } }, orderBy: { createdAt: 'asc' } }); if (!invitation) return reply.code(403).send({ message: 'Sem convite válido para hoje.' }) }

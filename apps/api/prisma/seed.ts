@@ -103,7 +103,7 @@ async function main() {
   for (const name of ['Patrimonial', 'Efetivo', 'Temporário', 'Correspondente', 'Veterano', 'Remido']) {
     await prisma.memberCategory.upsert({ where: { name }, update: { active: true }, create: { name } })
   }
-  await prisma.clubSetting.upsert({ where: { id: 'club-default' }, update: {}, create: { id: 'club-default' } })
+  await prisma.clubSetting.upsert({ where: { id: 'club-default' }, update: { memberMonthlyInvitationLimit: 8 }, create: { id: 'club-default', memberMonthlyInvitationLimit: 8 } })
   const secretariaRole = await prisma.role.findUniqueOrThrow({ where: { name: 'SECRETARIA' } })
   const socioRole = await prisma.role.findUniqueOrThrow({ where: { name: 'SOCIO' } })
   const makePerson = (data: any) => prisma.person.upsert({ where: { cpf: data.cpf }, update: data, create: data })

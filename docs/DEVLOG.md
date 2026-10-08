@@ -334,3 +334,19 @@ Esse teste não deve ser considerado validação da correção.
 - Inspeção visual local: PASS; a faixa redundante não aparece mais.
 - Push oficial `a9c3d20..40e690d` concluído.
 - Durante as verificações, produção ainda servia o bundle anterior e o endpoint HTTP recusava conexão; ativação do auto-deploy e health check ficam `UNKNOWN` até nova confirmação.
+
+## 2026-10-08 — Auditoria e reestruturação de convites e visitantes
+
+- Quota alterada para 8 convites mensais por grupo titular, compartilhada entre titular e dependentes.
+- Cada convite preserva quem emitiu (`sponsorMemberId`) e o titular responsável pela quota (`quotaOwnerMemberId`).
+- Convites futuros foram bloqueados; cancelamento de convite não utilizado libera a vaga; convites passados são marcados como expirados.
+- Cadastro de visitante permanece baseado em `Person + Visitor`, com telefone, cidade e UF obrigatórios no fluxo do associado.
+- Secretaria ganhou histórico completo do visitante: convites, convidantes e entradas reais do clube.
+- Associados visualizam somente a quota e os convites do próprio grupo familiar.
+- Integração com acesso preservada e reforçada: entrada válida vincula `invitationId`, altera o status para `USED` e grava `usedAt` em transação.
+- Migration local aplicada: `20261008120000_family_invitation_quota`; backup preservado fora do repositório.
+- `npx prisma validate`: PASS.
+- `npm run build`: PASS.
+- `npm run test:visitor-invitations --workspace @cisne/api`: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS com `DATABASE_URL` local explicitamente carregada; o wrapper dotenvx original carregou ambiente incompatível.
+- Produção não foi alterada.

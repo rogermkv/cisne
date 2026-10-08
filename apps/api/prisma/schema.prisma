@@ -95,6 +95,7 @@ model Member {
   titular             Member?           @relation("MemberTitular", fields: [titularMemberId], references: [id])
   dependentes         Member[]          @relation("MemberTitular")
   invitations        VisitorInvitation[]
+  quotaOwnerInvitations VisitorInvitation[] @relation("InvitationQuotaOwner")
   charges            FinancialCharge[]
   responsibleCharges FinancialCharge[] @relation("FinancialResponsible")
   reservations       Reservation[]
@@ -349,6 +350,7 @@ model VisitorInvitation {
   id String @id @default(cuid())
   visitorId String
   sponsorMemberId String
+  quotaOwnerMemberId String
   scheduledDate DateTime
   status VisitorInvitationStatus @default(SCHEDULED)
   usedAt DateTime?
@@ -357,13 +359,15 @@ model VisitorInvitation {
   updatedAt DateTime @updatedAt
   visitor Visitor @relation(fields: [visitorId], references: [id])
   sponsorMember Member @relation(fields: [sponsorMemberId], references: [id])
+  quotaOwnerMember Member @relation("InvitationQuotaOwner", fields: [quotaOwnerMemberId], references: [id])
   accessEvents AccessEvent[]
+  @@index([quotaOwnerMemberId, scheduledDate, status])
   @@map("visitor_invitations")
 }
 model ClubSetting {
   id String @id @default(cuid())
   visitorAnnualLimit Int @default(6)
-  memberMonthlyInvitationLimit Int @default(10)
+  memberMonthlyInvitationLimit Int @default(8)
   annualLimitMode String @default("CALENDAR_YEAR")
   invitationConsumptionMode String @default("CHECK_IN")
   annualFeeAmount Decimal @default(1600)
