@@ -66,9 +66,9 @@ Status: IMPLEMENTED LOCALLY — PENDING REVIEW/RELEASE
 
 Cause: quota mensal de 8 convites por grupo titular, emissão por titular ou dependente, cadastro global para secretaria e integração auditável com controle de acesso.
 
-Files currently modified: quota de entradas de visitantes por temporada novembro–outubro, validação no cadastro/check-in, indicação visual para associado e secretaria, migration e testes; os commits anteriores contêm o refinamento visual e a quota mensal familiar.
+Files currently modified: refinamento da tela financeira para lista expansível de temporadas e detalhes de cobranças; os commits anteriores contêm quota de entradas de visitantes, validação no cadastro/check-in, indicação visual para associado e secretaria, migration e testes.
 
-Validated: build completo PASS, teste de regras de convites PASS, schema Prisma PASS e migration local aplicada com sucesso.
+Validated: build completo PASS após o novo layout financeiro; testes e schema das alterações anteriores permanecem PASS.
 
 Final local validation: titular PASS, dependente PASS, modal/carteirinha PASS, refresh PASS, Reservas após refresh PASS, cinco ciclos PASS, Eventos/Avisos/Mais PASS, build PASS e testes relevantes PASS. A integração de mídia permanece pendente somente por fixture de credenciais locais incompatível.
 
@@ -76,7 +76,7 @@ Production validation: release `4d426f7` publicado pelo push oficial; a tela aut
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: confirmar o SHA efetivo do release, health check e smoke do fluxo de quota na produção. O código foi publicado em `origin/main`; nenhuma edição manual foi feita no servidor.
+Pending: revisar visualmente a tela financeira em viewport mobile e publicar somente após aprovação explícita. Produção não foi alterada nesta tarefa.
 
 ## Known Risks
 
@@ -163,6 +163,8 @@ Pending: confirmar o SHA efetivo do release, health check e smoke do fluxo de qu
 - Build após a quota de temporada: PASS; `npm run test:visitor-invitations --workspace @cisne/api`: PASS; produção não foi alterada.
 - Deploy da quota sazonal: push oficial `35f3dd0..e58a943` concluído em `origin/main`.
 - A aplicação autenticada de produção continuou acessível após o push; o endpoint `/api/health` foi bloqueado pelo cliente Chrome desta sessão (`ERR_BLOCKED_BY_CLIENT`), portanto health check e SHA efetivo do release permanecem `UNKNOWN`.
+- Tela financeira local: resumo anual, próxima cobrança e histórico aberto substituídos por lista compacta de temporadas; detalhes expandem valores, pagamentos e cobranças mensais por vencimento.
+- Build após o layout financeiro: PASS; produção não foi alterada.
 
 ## Next Step
 

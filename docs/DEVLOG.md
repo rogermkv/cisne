@@ -1,5 +1,14 @@
 # CISNE — Development Log
 
+## 2026-10-08 — Simplificação do layout financeiro
+
+- A área financeira deixou de exibir simultaneamente o cartão detalhado da anuidade, a próxima cobrança e todo o histórico.
+- O associado agora vê uma lista compacta de temporadas/anualidades, com valor de saldo e situação.
+- Ao abrir uma temporada, são exibidos total, valor pago, saldo, pagamentos registrados e cobranças mensais quando houver mais de uma cobrança no período.
+- Ações demonstrativas de Pix, cartão e parcelamento permanecem disponíveis somente dentro dos detalhes da temporada selecionada.
+- `npm run build`: PASS.
+- Produção: não alterada.
+
 ## 2026-10-08 — Publicação da quota sazonal
 
 - Push oficial `35f3dd0..e58a943` concluído em `origin/main`.
