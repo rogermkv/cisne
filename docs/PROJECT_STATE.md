@@ -62,11 +62,11 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 Título: Carteirinhas do grupo familiar para dependentes
 
-Status: PRODUCTION DEPLOYED — VALIDATED
+Status: PATCH VALIDATED LOCALLY — PENDING RELEASE
 
 Cause: dependentes autenticados recebiam apenas sua própria relação vazia de dependentes e não conseguiam acessar as carteirinhas do titular ou dos demais dependentes.
 
-Files currently modified: nenhum.
+Files currently modified: `apps/web/src/modules/core/member-area/MemberHome.tsx`.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -76,7 +76,7 @@ Production validation: release `f8cfc6b` publicado pelo push oficial; página HT
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: validar em produção a abertura do modal e o carregamento das fotos, pois o clique automatizado expirou; não há pendência de publicação.
+Pending: publicar a correção do nome do titular no modal e validar novamente em produção; o release anterior continua ativo.
 
 ## Known Risks
 
@@ -130,7 +130,9 @@ Pending: validar em produção a abertura do modal e o carregamento das fotos, p
 - Produção HTTP 200; `/api/health` retornou `{"status":"OK"}`.
 - Produção serviu `index-UxEdPleQ.js`; dependente visualizou “Carteirinhas da família” com Roger Herpich (Titular) e Róbson Herpich (Irmão).
 - Abertura automatizada do modal expirou após a lista familiar estar visível; essa interação permanece `UNKNOWN`.
+- Correção local: o modal de dependente agora usa o membro marcado como titular na lista familiar, exibindo “Dependente de [titular]” em vez do dependente logado.
+- Build após a correção: PASS; `npm run test:club-modules --workspace @cisne/api`: PASS.
 
 ## Next Step
 
-Se necessário, repetir manualmente a abertura do modal/fotos em produção; o release já está publicado e o health check está PASS.
+Publicar o patch do modal pelo processo oficial e confirmar a frase “Dependente de Roger Herpich” em produção.

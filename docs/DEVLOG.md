@@ -274,3 +274,12 @@ Esse teste não deve ser considerado validação da correção.
 - Smoke visual autenticado: dependente visualizou “Carteirinhas da família”, incluindo Roger Herpich como Titular e Róbson Herpich como Irmão.
 - Nenhuma migration foi necessária ou executada.
 - A abertura automatizada do modal expirou após a lista familiar estar visível; modal/fotos permanecem `UNKNOWN`, sem declarar PASS indevido.
+
+## 2026-10-08 — Family card modal titular name correction
+
+- Corrigido o modal da carteirinha para usar o membro marcado como titular na lista familiar.
+- Dependentes passam a ver “Dependente de [nome do titular]”; titulares continuam vendo “Titular do grupo familiar”.
+- Alteração restrita a `apps/web/src/modules/core/member-area/MemberHome.tsx`.
+- Build completo: PASS.
+- `npm run test:club-modules --workspace @cisne/api`: PASS.
+- Produção não foi alterada nesta correção; publicação e validação visual permanecem pendentes.
