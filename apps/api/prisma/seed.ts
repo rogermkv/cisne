@@ -127,17 +127,20 @@ async function main() {
   const visitor = await prisma.visitor.upsert({ where: { personId: visitorPerson.id }, update: { active: true, blocked: false }, create: { personId: visitorPerson.id } })
   await prisma.visitorInvitation.upsert({ where: { id: 'invitation-visitante-teste-hoje' }, update: { status: 'SCHEDULED', scheduledDate: new Date() }, create: { id: 'invitation-visitante-teste-hoje', visitorId: visitor.id, sponsorMemberId: socioMember.id, scheduledDate: new Date(), status: 'SCHEDULED' } })
   const spaces = [
-    { id: 'space-quiosque-1', name: 'Quiosque 1', description: 'Espaço externo com churrasqueira.', capacity: 20, price: 80 },
-    { id: 'space-quiosque-2', name: 'Quiosque 2', description: 'Quiosque familiar para confraternizações.', capacity: 25, price: 100 },
-    { id: 'space-salao-principal', name: 'Salão Principal', description: 'Salão amplo para eventos do clube.', capacity: 150, price: 300 },
-    { id: 'space-tenis-1', name: 'Quadra de Tênis 1', description: 'Quadra esportiva do clube.', capacity: 4, price: 0 },
-    { id: 'space-tenis-2', name: 'Quadra de Tênis 2', description: 'Quadra esportiva do clube.', capacity: 4, price: 0 },
+    { id: 'space-quiosque-1', name: 'Quiosque 1', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 80 },
+    { id: 'space-quiosque-2', name: 'Quiosque 2', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 80 },
+    { id: 'space-quiosque-3', name: 'Quiosque 3', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 80 },
+    { id: 'space-quiosque-4', name: 'Quiosque 4', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 80 },
+    { id: 'space-choupana-1', name: 'Choupana 1', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 120 },
+    { id: 'space-choupana-2', name: 'Choupana 2', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 120 },
+    { id: 'space-salao-principal', name: 'Salão Principal', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 1000 },
+    { id: 'space-salao-festas', name: 'Salão de Festas', description: 'Espaço disponível para eventos do Clube Ser Cisne.', capacity: null, price: 700 },
   ]
   for (const s of spaces) await prisma.reservableSpace.upsert({ where: { id: s.id }, update: { ...s, active: true }, create: { ...s, active: true, requiresApproval: true } })
   const future = new Date(); future.setDate(future.getDate() + 7); future.setHours(0, 0, 0, 0)
   const later = new Date(); later.setDate(later.getDate() + 14); later.setHours(0, 0, 0, 0)
   await prisma.reservation.upsert({ where: { id: 'reservation-socio-aprovada' }, update: { memberId: socioMember.id, spaceId: 'space-quiosque-1', reservationDate: future, status: 'APPROVED', totalAmount: 80 }, create: { id: 'reservation-socio-aprovada', memberId: socioMember.id, spaceId: 'space-quiosque-1', reservationDate: future, status: 'APPROVED', totalAmount: 80, approvedAt: new Date() } })
-  await prisma.reservation.upsert({ where: { id: 'reservation-socio-solicitada' }, update: { memberId: socioMember.id, spaceId: 'space-salao-principal', reservationDate: later, status: 'REQUESTED', totalAmount: 300 }, create: { id: 'reservation-socio-solicitada', memberId: socioMember.id, spaceId: 'space-salao-principal', reservationDate: later, status: 'REQUESTED', totalAmount: 300 } })
+  await prisma.reservation.upsert({ where: { id: 'reservation-socio-solicitada' }, update: { memberId: socioMember.id, spaceId: 'space-salao-principal', reservationDate: later, status: 'REQUESTED', totalAmount: 1000 }, create: { id: 'reservation-socio-solicitada', memberId: socioMember.id, spaceId: 'space-salao-principal', reservationDate: later, status: 'REQUESTED', totalAmount: 1000 } })
   const now = new Date(); const tomorrow = new Date(now.getTime()+86400000); const nextMonth = new Date(now.getTime()+14*86400000)
   const announcements = [
     { id:'announcement-piscina', title:'Manutenção da piscina', content:'Aviso demonstrativo: a piscina receberá manutenção programada.', startDate:new Date(now.getTime()-86400000), endDate:new Date(now.getTime()+7*86400000), audience:'ALL_MEMBERS' },

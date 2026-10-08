@@ -229,3 +229,13 @@ Esse teste não deve ser considerado validação da correção.
 - Ajuste posterior: a mensagem do WhatsApp passou a incluir data e horário da reserva em linhas separadas; reservas sem horário exibem “Dia inteiro”.
 - Commit local `9095cfd` criado com a mensagem `fix: include reservation details in pix message`.
 - Produção não foi alterada; push e validação de auto-deploy permanecem pendentes.
+
+## 2026-10-08 — Reservable spaces catalog replacement
+
+- Backup local criado antes da alteração: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-reservable-spaces-before-replace.dump`.
+- Por solicitação explícita, foram removidos 4 reservas e os 5 espaços existentes no banco local.
+- Foram criados 8 espaços ativos: Quiosque 1, Quiosque 2, Quiosque 3, Quiosque 4, Choupana 1, Choupana 2, Salão Principal e Salão de Festas.
+- Preços configurados: R$ 80 para os quiosques, R$ 120 para as choupanas, R$ 1.000 para o Salão Principal e R$ 700 para o Salão de Festas.
+- Capacidade ficou não informada e fotos ficaram vazias para posterior cadastro; descrição genérica aplicada a todos.
+- Seed atualizado para refletir o novo catálogo; nenhum arquivo de produção ou storage de produção foi alterado.
+- Verificação pós-alteração: 8 espaços ativos, 0 reservas, 0 fotos; API/frontend locais HTTP 200; build completo PASS.

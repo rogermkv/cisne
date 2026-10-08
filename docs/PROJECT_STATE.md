@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
+Base HEAD: `d54b376` (`docs: record pix message refinement`)
 
 Origin: `ab7c1cb6a361ea0e648dae8b1b5f0347a70055f3`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpa após o commit local `9095cfd`; push/publicação do fluxo Pix ainda pendentes; simplificação da tela de detalhe publicada em `ab7c1cb`.
+Working tree: atualização do seed dos espaços pendente de commit; banco local já foi reconfigurado; commits locais ainda estão 3 commits à frente de `origin/main`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -60,17 +60,15 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Fluxo Pix e envio de comprovante para reservas
+Título: Reconfiguração dos espaços reserváveis
 
-Status: COMMITTED LOCALLY — PENDING RELEASE
+Status: LOCAL DATABASE UPDATED — PENDING RELEASE DECISION
 
-Cause: após solicitar ou pagar uma reserva, o associado precisa receber instruções objetivas para copiar a chave Pix e enviar o comprovante à secretaria.
+Cause: substituir o catálogo inicial de espaços pelos oito espaços informados pelo usuário, com os novos preços e descrição genérica.
 
 Files currently modified:
 
-- `apps/web/src/modules/core/member-area/MemberHome.tsx`
-- `apps/web/src/modules/core/reservations/ReservationsPage.tsx`
-- `apps/web/src/modules/core/reservations/member-reservations.css`
+- `apps/api/prisma/seed.ts`
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -80,7 +78,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: push deste fluxo, auto-deploy e smoke de produção; produção ainda está no release funcional anterior.
+Pending: commit do seed, decisão sobre publicação dos commits locais, e eventual atualização de produção pelo processo oficial; produção não foi alterada.
 
 ## Known Risks
 
@@ -113,7 +111,13 @@ Pending: push deste fluxo, auto-deploy e smoke de produção; produção ainda e
 - Commits locais: `8179c4c` (`feat: add pix reservation payment flow`) e `9095cfd` (`fix: include reservation details in pix message`); push ainda não executado.
 - Ajuste solicitado: a mensagem do WhatsApp agora inclui espaço, data formatada e horário da reserva, ou “Dia inteiro” quando aplicável.
 - Nenhuma alteração em backend, banco ou storage; produção não foi alterada.
+- Banco local: removidos 4 registros de reserva e 5 espaços existentes, após backup, e criados 8 espaços ativos: Quiosque 1–4 (R$ 80), Choupana 1–2 (R$ 120), Salão Principal (R$ 1.000) e Salão de Festas (R$ 700).
+- Os novos espaços estão sem capacidade informada e sem fotos, conforme solicitado; todos usam descrição genérica.
+- Backup antes da exclusão: `C:\Users\herpich.LOCAL\Projetos\_backup_cisne_db\cisne-local-20261008-reservable-spaces-before-replace.dump`.
+- Seed atualizado em `apps/api/prisma/seed.ts` para refletir o novo catálogo e o valor atualizado do Salão Principal.
+- Verificação pós-alteração: 8 espaços ativos, 0 reservas e 0 fotos; API DEV `3338` HTTP 200; frontend DEV `5178` HTTP 200; build completo PASS.
+- Produção não foi alterada.
 
 ## Next Step
 
-Revisar/confirmar a tela Pix no navegador com uma reserva existente, depois fazer push e validar o auto-deploy conforme autorização.
+Fazer commit do seed e decidir se os commits locais devem ser publicados pelo processo oficial; depois, se aplicável, validar produção.
