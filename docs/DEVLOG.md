@@ -254,3 +254,14 @@ Esse teste não deve ser considerado validação da correção.
 - A sessão autenticada expirou durante a verificação; o cliente também bloqueou a abertura direta do endpoint `/api/health`.
 - Execução da migration, backup de produção, SHA efetivo do release, health check e catálogo de dados em produção permanecem `UNKNOWN`.
 - Nenhuma edição manual foi feita no servidor e nenhum status de produção foi declarado como PASS sem evidência.
+
+## 2026-10-08 — Family card visibility for dependents
+
+- Corrigido `/api/member/me` para montar a lista de pessoas vinculadas pelo titular da família.
+- Titulares continuam vendo seus dependentes; dependentes passam a ver a carteirinha do titular e dos demais dependentes vinculados.
+- Atualizado o frontend para usar o título “Carteirinhas da família” quando o usuário é dependente.
+- Atualizada a autorização de fotos privadas para permitir titular ↔ dependentes e dependente ↔ irmãos, mantendo o bloqueio para famílias diferentes.
+- Teste integrado `test:club-modules`: PASS.
+- Build completo: PASS.
+- Smoke de fotos não reproduzido por ausência de `MEDIA_STORAGE_ROOT` no ambiente local; nenhum PASS foi declarado para essa parte.
+- Commit local `c4d32cc` criado; produção não foi alterada e o push permanece pendente.

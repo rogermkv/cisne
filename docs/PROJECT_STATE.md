@@ -6,13 +6,13 @@ Last updated: 2026-10-08
 
 Branch: `main`
 
-Base HEAD: `5b81ba7` (`feat: deploy reservable spaces catalog`)
+Base HEAD: `c4d32cc` (`feat: show family cards to dependent members`)
 
-Origin: `5b81ba7`
+Origin: `b45398d`
 
 Production functional release: `eac3babace6548c814a85228e76835b20968e921` confirmado visualmente; health HTTP independente permanece `UNKNOWN` nesta sessão.
 
-Working tree: limpa; migration publicada em `origin/main` no commit `5b81ba7`; confirmação da execução da migration e dos dados em produção permanece `UNKNOWN`.
+Working tree: alteração de carteirinhas familiares commitada localmente em `c4d32cc`; ainda não publicada em `origin/main`.
 
 Stash: `stash@{0}` preservado; não aplicar automaticamente.
 
@@ -60,15 +60,13 @@ Local testing caveats: antes de testar fotos, confirmar que a mídia local exist
 
 ## Current Task
 
-Título: Reconfiguração dos espaços reserváveis
+Título: Carteirinhas do grupo familiar para dependentes
 
-Status: PRODUCTION FRONTEND DEPLOYED — DATA VALIDATION PENDING
+Status: COMMITTED LOCALLY — PENDING RELEASE
 
-Cause: substituir o catálogo inicial de espaços pelos oito espaços informados pelo usuário, com os novos preços e descrição genérica.
+Cause: dependentes autenticados recebiam apenas sua própria relação vazia de dependentes e não conseguiam acessar as carteirinhas do titular ou dos demais dependentes.
 
-Files currently modified:
-
-- `apps/api/prisma/migrations/20261008020000_replace_reservable_spaces_catalog/migration.sql`
+Files currently modified: nenhum.
 
 Validated: build completo PASS, testes automatizados relevantes quase todos PASS, primeira carga da foto PASS, cinco ciclos Início → Reservas → Início PASS, Eventos → Início PASS, Avisos → Início PASS e Mais → Início PASS.
 
@@ -78,7 +76,7 @@ Production validation: RELEASE_COMMIT `693eb90bfb55020265ff04836a79f38ed66b2ed1`
 
 Navigation validation: shell compartilhado com header persistente, bottom navigation persistente, item ativo por view, suporte a safe-area e remoção do botão redundante de Reservas. Build PASS e validação visual local PASS em viewport mobile.
 
-Pending: confirmar backup de produção, SHA do release, health check e catálogo de dados em produção; não houve edição manual no servidor.
+Pending: publicar o commit `c4d32cc` pelo processo oficial e validar titular, dependente, fotos familiares e modal em produção; não houve alteração de produção nesta tarefa.
 
 ## Known Risks
 
@@ -122,7 +120,13 @@ Pending: confirmar backup de produção, SHA do release, health check e catálog
 - Commit `5b81ba7` publicado em `origin/main`; após aproximadamente 75 segundos, produção passou a servir o asset frontend `index-B57TrqWB.js` correspondente ao build publicado.
 - Health HTTP independente e execução da migration em produção permanecem `UNKNOWN`: a sessão autenticada expirou durante a verificação e o cliente bloqueou a abertura direta de `/api/health`.
 - Produção não foi alterada.
+- A API `/api/member/me` agora monta a família a partir do titular; dependentes recebem o titular e os demais dependentes vinculados, enquanto titulares mantêm a lista de dependentes.
+- A autorização de fotos privadas passou a permitir acesso entre titular, dependentes e irmãos do mesmo grupo familiar, sem liberar membros de outras famílias.
+- `npm run test:club-modules --workspace @cisne/api`: PASS, incluindo login de dependente e retorno da carteirinha do titular.
+- `member-photo.smoke.ts`: bloqueado antes da asserção de família porque o ambiente local não possui `MEDIA_STORAGE_ROOT`; classificado como limitação de fixture/infraestrutura.
+- Build completo após a alteração: PASS.
+- Commit local: `c4d32cc` (`feat: show family cards to dependent members`).
 
 ## Next Step
 
-Retomar a sessão autenticada de produção e confirmar backup, SHA, health check e os 8 espaços; não declarar a replicação de dados como PASS antes dessa confirmação.
+Aguardar autorização para publicar `c4d32cc`; depois validar o fluxo de carteirinhas em produção com titular e dependente.
