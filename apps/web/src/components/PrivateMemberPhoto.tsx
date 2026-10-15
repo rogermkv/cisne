@@ -3,7 +3,7 @@ import { apiUrl, mediaUrl } from '../api/client'
 
 const auth = () => ({ Authorization: `Bearer ${sessionStorage.getItem('cisne.accessToken') || ''}` })
 
-export function usePrivateMemberPhoto(memberId?: string | null) {
+export function usePrivateMemberPhoto(memberId?: string | null, version?: string | null) {
   const [url, setUrl] = useState<string | null>(null)
   useEffect(() => {
     let disposed = false
@@ -21,7 +21,7 @@ export function usePrivateMemberPhoto(memberId?: string | null) {
       controller.abort()
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [memberId])
+  }, [memberId, version])
   return url
 }
 
