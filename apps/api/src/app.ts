@@ -1,3 +1,4 @@
+import { installActivityAuditing } from './modules/core/activity/auditing.js'
 import cors from '@fastify/cors'
 import Fastify, { type FastifyInstance } from 'fastify'
 
@@ -19,13 +20,24 @@ async function authenticateRootPhotoRequest(request: any, reply: any) {
   if (!payload) return reply.code(401).send({ message: 'Autenticação necessária.' })
   const user = await prisma.user.findUnique({ where: { id: payload.sub }, select: { id: true, active: true, mustChangePassword: true, person: { select: { id: true, fullName: true, cpf: true, birthDate: true, email: true, phone: true } }, roles: { select: { role: { select: { name: true, permissions: { select: { permission: { select: { key: true } } } } } } } } } })
   if (!user?.active) return reply.code(401).send({ message: 'Autenticação necessária.' })
-  request.authUser = { id: user.id, personId: user.person.id, name: user.person.fullName, cpf: user.person.cpf, birthDate: user.person.birthDate?.toISOString() ?? null, email: user.person.email, phone: user.person.phone, mustChangePassword: user.mustChangePassword, roles: user.roles.map((item: any) => item.role.name), permissions: [...new Set(user.roles.flatMap((item: any) => item.role.permissions.map((permission: any) => permission.permission.key)))] }
+  const assignedRoles = user.roles.map((item: any) => item.role.name)
+  const activeRole = payload.activeRole ? assignedRoles.includes(payload.activeRole) ? payload.activeRole : null : assignedRoles.length === 1 ? assignedRoles[0] : null
+  if (user.mustChangePassword || !activeRole) return reply.code(403).send({ message: 'Conclua o primeiro acesso e selecione um papel.' })
+  const effectiveRoles = user.roles.filter((item: any) => item.role.name === activeRole)
+  request.authUser = { id: user.id, personId: user.person.id, name: user.person.fullName, cpf: user.person.cpf, birthDate: user.person.birthDate?.toISOString() ?? null, email: user.person.email, phone: user.person.phone, mustChangePassword: user.mustChangePassword, assignedRoles, activeRole, roles: [activeRole], permissions: [...new Set(effectiveRoles.flatMap((item: any) => item.role.permissions.map((permission: any) => permission.permission.key)))] }
 }
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
   })
+
+  app.setErrorHandler((error, request, reply) => {
+    if (error instanceof Error && error.message.includes('Mantenha pelo menos um administrador ativo.')) return reply.code(409).send({ message: 'Mantenha pelo menos um administrador ativo.' })
+    return reply.send(error)
+  })
+
+  installActivityAuditing(app)
 
   await app.register(cors, {
     origin: env.webOrigin,

@@ -8,6 +8,8 @@ export type AuthUser = {
   email: string | null
   phone: string | null
   mustChangePassword: boolean
+  assignedRoles: string[]
+  activeRole: string | null
   roles: string[]
   permissions: string[]
 }
@@ -36,4 +38,8 @@ export async function getMe(token: string, signal?: AbortSignal): Promise<AuthUs
     signal,
   })
   return response.user
+}
+
+export function selectRole(token: string, role: string): Promise<LoginResponse> {
+  return apiRequest('/api/auth/role', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ role }) })
 }

@@ -7,6 +7,8 @@ export type AuthenticatedUser = {
   email: string | null
   phone: string | null
   mustChangePassword: boolean
+  assignedRoles: string[]
+  activeRole: string | null
   roles: string[]
   permissions: string[]
 }

@@ -1,3 +1,4 @@
+import { afterTransactionCommit, onTransactionRollback } from '../../lib/request-transaction.js'
 import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -55,6 +56,7 @@ export class LocalMediaStorage implements MediaStorage {
       // unlike rename(2), it never replaces an existing destination.
       await this.fileSystem.link(temporary, destination)
       await this.fileSystem.unlink(temporary)
+      onTransactionRollback(() => fs.rm(destination, { force: true }))
     } catch (error) {
       await this.fileSystem.unlink(temporary).catch(() => undefined)
       throw error
@@ -82,8 +84,10 @@ export class LocalMediaStorage implements MediaStorage {
 
   async delete(storageKey: string): Promise<void> {
     const destination = this.resolve(storageKey)
-    await this.assertDirectoryInsideRoot(path.dirname(destination))
-    if (await fs.stat(destination).then(() => true).catch(() => false)) await this.assertFileInsideRoot(destination)
-    await fs.rm(destination, { force: true })
+    await afterTransactionCommit(async () => {
+      await this.assertDirectoryInsideRoot(path.dirname(destination))
+      if (await fs.stat(destination).then(() => true).catch(() => false)) await this.assertFileInsideRoot(destination)
+      await fs.rm(destination, { force: true })
+    })
   }
 }

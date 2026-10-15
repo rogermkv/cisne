@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 type JwtPayload = {
+  activeRole?: string
   sub: string
   iat: number
   exp: number
@@ -11,10 +12,11 @@ const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toStrin
 const sign = (value: string, secret: string): string =>
   createHmac('sha256', secret).update(value).digest('base64url')
 
-export function createAccessToken(userId: string, secret: string): string {
+export function createAccessToken(userId: string, secret: string, activeRole?: string): string {
   const issuedAt = Math.floor(Date.now() / 1000)
   const payload: JwtPayload = {
     sub: userId,
+    ...(activeRole ? { activeRole } : {}),
     iat: issuedAt,
     exp: issuedAt + 8 * 60 * 60,
   }
@@ -47,6 +49,7 @@ export function verifyAccessToken(token: string, secret: string): JwtPayload | n
     const now = Math.floor(Date.now() / 1000)
 
     if (
+      (payload.activeRole !== undefined && typeof payload.activeRole !== 'string') ||
       typeof payload.sub !== 'string' ||
       !payload.sub ||
       typeof payload.iat !== 'number' ||

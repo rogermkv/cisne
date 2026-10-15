@@ -13,4 +13,4 @@ export const financialStatus: Record<string, string> = { PAID: 'Em dia', PENDING
 export const reservationStatus: Record<string, string> = { REQUESTED: 'Pendente', APPROVED: 'Confirmada', REJECTED: 'Recusada', CANCELLED: 'Cancelada', COMPLETED: 'Concluída', PENDING: 'Pendente', CONFIRMED: 'Confirmada' }
 export const invitationStatus: Record<string, string> = { SCHEDULED: 'Agendado', USED: 'Utilizado', CANCELLED: 'Cancelado', EXPIRED: 'Expirado' }
 export const roleLabel: Record<string, string> = { ADMIN: 'Administrador', SECRETARIA: 'Secretaria', SOCIO: 'Sócio', FUNCIONARIO: 'Funcionário' }
-export const paymentMethod: Record<string, string> = { PIX: 'Pix', CASH: 'Dinheiro', CREDIT_CARD: 'Cartão de crédito', DEBIT_CARD: 'Cartão de débito', BANK_TRANSFER: 'Transferência bancária', OTHER: 'Outro' }
+export const paymentMethod: Record<string, string> = { PIX: 'Pix', BOLETO: 'Boleto', CASH: 'Dinheiro', CREDIT_CARD: 'Cartão de crédito', DEBIT_CARD: 'Cartão de débito', BANK_TRANSFER: 'Transferência bancária', OTHER: 'Outro' }

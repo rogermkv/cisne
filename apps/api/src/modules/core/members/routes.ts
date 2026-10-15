@@ -132,17 +132,26 @@ export async function serveModernOrLegacyMemberPhoto(request: any, reply: any, m
 export const memberRoutes: FastifyPluginAsync = async (app) => {
   app.get('/members/categories', { preHandler: app.requirePermission('members.view') }, async () => prisma.memberCategory.findMany({ where: { active: true }, orderBy: { name: 'asc' } }))
   app.get('/member-categories', { preHandler: app.requirePermission('members.view') }, async () => prisma.memberCategory.findMany({ orderBy: { name: 'asc' } }))
-  app.post('/member-categories', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
-    const b = request.body ?? {}
-    if (!b.name?.trim()) return reply.code(400).send(errorFor('name', 'Informe o nome do tipo de sócio.'))
-    try { return reply.code(201).send(await prisma.memberCategory.create({ data: { name: b.name.trim(), description: b.description?.trim() || null, active: b.active !== false, isDependent: Boolean(b.isDependent), requiresHolder: Boolean(b.requiresHolder ?? b.isDependent), annualFeeAmount: b.annualFeeAmount ?? null } })) }
-    catch (e: any) { if (e.code === 'P2002') return reply.code(409).send(errorFor('name', 'Este tipo de sócio já está cadastrado.')); throw e }
+  const categoryData = (body: any) => {
+    if (typeof body?.name !== 'string' || !body.name.trim() || body.name.trim().length > 100) return null
+    if (body.description != null && (typeof body.description !== 'string' || body.description.length > 1000)) return null
+    const annualFeeAmount = body.annualFeeAmount == null || body.annualFeeAmount === '' ? null : Number(body.annualFeeAmount)
+    if (annualFeeAmount !== null && (!Number.isFinite(annualFeeAmount) || annualFeeAmount < 0)) return null
+    return { name: body.name.trim(), description: body.description?.trim() || null, annualFeeAmount, active: body.active !== false, isDependent: Boolean(body.isDependent), requiresHolder: Boolean(body.isDependent || body.requiresHolder) }
+  }
+  app.post('/member-categories', { preHandler: app.requirePermission('users.manage') }, async (request: any, reply) => {
+    const data = categoryData(request.body)
+    if (!data) return reply.code(400).send({ message: 'Informe nome, descrição e valor anual válidos.' })
+    try { return reply.code(201).send(await prisma.memberCategory.create({ data })) }
+    catch (e: any) { if (e.code === 'P2002') return reply.code(409).send(errorFor('name','Este tipo de sócio já está cadastrado.')); throw e }
   })
-  app.put('/member-categories/:id', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
-    try { return await prisma.memberCategory.update({ where: { id: request.params.id }, data: { name: request.body?.name?.trim(), description: request.body?.description?.trim() || null, active: request.body?.active !== false, isDependent: Boolean(request.body?.isDependent), requiresHolder: Boolean(request.body?.requiresHolder ?? request.body?.isDependent), annualFeeAmount: request.body?.annualFeeAmount ?? null } }) }
-    catch { return reply.code(404).send({ message: 'Tipo de sócio não encontrado.' }) }
+  app.put('/member-categories/:id', { preHandler: app.requirePermission('users.manage') }, async (request: any, reply) => {
+    const data = categoryData(request.body)
+    if (!data) return reply.code(400).send({ message: 'Informe nome, descrição e valor anual válidos.' })
+    try { return await prisma.memberCategory.update({ where: { id: request.params.id }, data }) }
+    catch (e: any) { if (e.code === 'P2002') return reply.code(409).send(errorFor('name','Este tipo de sócio já está cadastrado.')); if(e.code==='P2025')return reply.code(404).send({message:'Tipo de sócio não encontrado.'}); throw e }
   })
-  app.delete('/member-categories/:id', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
+  app.delete('/member-categories/:id', { preHandler: app.requirePermission('users.manage') }, async (request: any, reply) => {
     if (await prisma.member.count({ where: { categoryId: request.params.id } })) return reply.code(409).send({ message: 'Tipo de sócio utilizado; desative-o em vez de excluir.' })
     try { await prisma.memberCategory.delete({ where: { id: request.params.id } }); return { ok: true } } catch { return reply.code(404).send({ message: 'Tipo de sócio não encontrado.' }) }
   })
@@ -276,7 +285,7 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
     const member = await prisma.member.findUnique({ where: { id: request.params.id }, include: { person: true } })
     if (!member) return reply.code(404).send({ message: 'Associado não encontrado.' })
     const user = await ensureUser(member.personId, member.person.birthDate!)
-    return prisma.user.update({ where: { id: user.id }, data: { active: request.body?.active !== false } })
+    return prisma.user.update({ where: { id: user.id }, data: { active: request.body?.active !== false }, select: { id: true, active: true } })
   })
   app.post('/members/:id/access/reset-password', { preHandler: app.requirePermission('members.manage') }, async (request: any, reply) => {
     const member = await prisma.member.findUnique({ where: { id: request.params.id }, include: { person: true } })

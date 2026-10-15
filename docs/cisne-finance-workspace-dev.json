@@ -1,0 +1,104 @@
+{
+  "published_at_utc": "2026-10-15T13:23:55.959996+00:00",
+  "environment": "DEV 192.168.0.98:8084",
+  "source_sha": "f705b50b87139e266a588e44f126f55b440ef2d7",
+  "base_dev_sha": "aea433a54d1d5262b506d3b19495e74b61cbcb69",
+  "branch": "codex/finance-responsible-workspace",
+  "origin_main": "ceb739da7953ecc272a62d93dc0e777e684e8f74",
+  "production_changed": false,
+  "production_accessed": false,
+  "production_current_sha": "UNKNOWN (not accessed; DEV-only scope)",
+  "push_or_merge": false,
+  "files": [
+    "apps/web/src/modules/core/finance/AdminFinancePage.tsx",
+    "apps/web/src/modules/core/finance/FinanceWorkspace.tsx",
+    "apps/web/src/modules/core/finance/finance-workspace.css",
+    "apps/web/src/modules/core/finance/portfolio.ts",
+    "apps/web/test/finance-portfolio.mjs"
+  ],
+  "build": "PASS web TypeScript/Vite/PWA",
+  "unit_test": "PASS node apps/web/test/finance-portfolio.mjs",
+  "integrated_qa": {
+    "result": "PASS",
+    "browser": {
+      "result": "PASS",
+      "checks": [
+        "pagination-2000-charges-26-responsibles",
+        "default-all-seasons",
+        "family-grouping",
+        "partial-and-full-payment",
+        "receipts",
+        "legacy-history",
+        "season-scope",
+        "create-edit-cancel",
+        "mobile-no-overflow",
+        "member-record-finance-regression",
+        "zero-js-errors"
+      ]
+    },
+    "real_api_postgres_clone": true,
+    "backup_restore_all_fields_verified": true,
+    "payment_audit_verified": true,
+    "legacy_unchanged": true,
+    "family_endpoint_verified": true,
+    "scale_fixture_charges": 2000,
+    "scale_fixture_responsibles": 26
+  },
+  "live_readonly_qa": {
+    "result": {
+      "result": "PASS",
+      "checks": [
+        {
+          "role": "ADMIN",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "legacy",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "SOCIO",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "SECRETARIA",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "anonymous",
+          "result": "PASS",
+          "mutations": 0
+        }
+      ]
+    },
+    "active_rows_unchanged": true,
+    "env_storage_unchanged": true,
+    "real_accounts_diagnostic_tokens": true,
+    "password_login_exercised": false
+  },
+  "health": {
+    "/": 200,
+    "/manifest.webmanifest": 200,
+    "/sw.js": 200,
+    "/api/health": 200
+  },
+  "backup": "/opt/apps/cisne/backups/before-finance-workspace-20261015T132107Z",
+  "backup_sha256": "a40d763719fdbbbde576111e4edf75605037102c40624b0d5d968bb865d00a60",
+  "previous_release": "/opt/apps/cisne/releases/before-finance-workspace-20261015T132204Z",
+  "migrations": 0,
+  "api_artifacts_unchanged": true,
+  "database_unchanged": true,
+  "storage_and_env_unchanged": true,
+  "other_apps_pids_unchanged": true,
+  "limits": [
+    "Pagination is client-side at 25 responsible accounts; the existing API still loads all charges.",
+    "Received means individual recorded payments for charges in the selected season, irrespective of payment calendar date.",
+    "Legacy settlements without complete receipts remain in history and are not fabricated as new receipts.",
+    "No real payment or password login performed against active DEV; mutations exercised in restored PostgreSQL16 clone only.",
+    "Full rollback was not exercised."
+  ]
+}

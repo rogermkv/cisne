@@ -13,19 +13,30 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     const { cpf: rawCpf, password } = request.body ?? {}
     const cpf = normalizeCpf(rawCpf)
     if (!cpf || typeof password !== 'string' || !password) return reply.code(400).send({ message: 'CPF e senha são obrigatórios.' })
-    const person = await prisma.person.findUnique({ where: { cpf }, include: { user: true } })
+    const person = await prisma.person.findUnique({ where: { cpf }, include: { user: { include: { roles: { include: { role: true } } } } } })
     const user = person?.user
     const passwordMatches = await verifyPassword(password, user?.passwordHash ?? (await dummyPasswordHash))
     if (!user?.active || !passwordMatches) return reply.code(401).send({ message: 'CPF ou senha inválidos.' })
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })
-    return { token: createAccessToken(user.id, env.jwtSecret), expiresIn: 8 * 60 * 60 }
+    return { token: createAccessToken(user.id, env.jwtSecret, user.roles.length === 1 ? user.roles[0].role.name : undefined), expiresIn: 8 * 60 * 60 }
   })
+
+  app.post('/auth/logout', { preHandler: app.authenticate }, async () => ({ ok: true }))
 
   app.get('/auth/me', { preHandler: app.authenticate }, async (request) => ({ user: request.authUser }))
 
+  app.post<{ Body: { role?: unknown } }>('/auth/role', { preHandler: app.authenticate }, async (request, reply) => {
+    const role = request.body?.role
+    const user = request.authUser!
+    if (user.mustChangePassword) return reply.code(403).send({ message: 'Altere sua senha antes de continuar.' })
+    if (typeof role !== 'string' || !user.assignedRoles.includes(role)) return reply.code(403).send({ message: 'Este papel não está atribuído à sua conta.' })
+    await prisma.accessAudit.create({ data: { actorId: user.id, targetUserId: user.id, action: 'ROLE_SELECTED', before: { activeRole: user.activeRole }, after: { activeRole: role } } })
+    return { token: createAccessToken(user.id, env.jwtSecret, role), expiresIn: 8 * 60 * 60 }
+  })
+
   app.post<{ Body: ChangePasswordBody }>('/auth/password', { preHandler: app.authenticate }, async (request, reply) => {
     const { currentPassword, newPassword } = request.body ?? {}
-    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 12) return reply.code(400).send({ message: 'Informe a senha atual e uma nova senha com pelo menos 12 caracteres.' })
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 6) return reply.code(400).send({ message: 'Informe a senha atual e uma nova senha com pelo menos 6 caracteres.' })
     const user = await prisma.user.findUnique({ where: { id: request.authUser!.id } })
     if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) return reply.code(401).send({ message: 'Senha atual inválida.' })
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword(newPassword), mustChangePassword: false } })
