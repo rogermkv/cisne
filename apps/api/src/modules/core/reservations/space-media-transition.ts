@@ -1,3 +1,4 @@
+import { afterTransactionCommit, onTransactionRollback } from '../../../lib/request-transaction.js'
 // Modern write routes for space media. Legacy filesystem behavior remains isolated to read compatibility routes.
 import type { FastifyInstance } from 'fastify'
 import { promises as fs } from 'node:fs'
@@ -37,7 +38,7 @@ export function installSpaceMediaTransition(app: FastifyInstance) {
         asset = await runtime.service.create({ bytes: prepared.bytes, mimeType: prepared.mimeType, visibility: 'PUBLIC', purpose: 'SPACE_PHOTO', ownerId: space.id, originalName: part.filename || null, createdByUserId: request.authUser?.id || null, width: prepared.width, height: prepared.height })
         legacyFile = crypto.randomUUID() + '.' + prepared.extension
         const pathValue = legacyPath(legacyFile)
-        if (configuredSpacePhotosDirectory) { await fs.mkdir(configuredSpacePhotosDirectory, { recursive: true }); await fs.writeFile(path.join(configuredSpacePhotosDirectory, legacyFile), prepared.bytes, { flag: 'wx' }); legacyWritten = true }
+        if (configuredSpacePhotosDirectory) { await fs.mkdir(configuredSpacePhotosDirectory, { recursive: true }); await fs.writeFile(path.join(configuredSpacePhotosDirectory, legacyFile), prepared.bytes, { flag: 'wx' }); legacyWritten = true; const writtenPath = path.join(configuredSpacePhotosDirectory, legacyFile); onTransactionRollback(() => fs.rm(writtenPath, { force: true })) }
         const count = await prisma.spacePhoto.count({ where: { spaceId: space.id } })
         const isPrimary = primaryRequested || count === 0
         const photo = await prisma.$transaction(async tx => {
@@ -61,7 +62,7 @@ export function installSpaceMediaTransition(app: FastifyInstance) {
       if (!photo) return reply.code(404).send({ message: 'Foto nÃ£o encontrada.' })
       if (photo.isPrimary && await prisma.spacePhoto.count({ where: { spaceId: photo.spaceId, id: { not: photo.id } } })) return reply.code(409).send({ message: 'Defina outra foto como principal antes de remover esta foto.' })
       await prisma.$transaction(async tx => { await tx.spacePhoto.delete({ where: { id: photo.id } }); if (photo.isPrimary) await tx.reservableSpace.update({ where: { id: photo.spaceId }, data: { imagePath: null } }); if (photo.mediaAssetId) await tx.mediaAsset.update({ where: { id: photo.mediaAssetId }, data: { deletedAt: new Date() } }) })
-      if (!photo.mediaAssetId) { const { spacePhotoPath } = await import('../../../config/storage.js'); await fs.rm(spacePhotoPath(path.basename(photo.path)), { force: true }) }
+      if (!photo.mediaAssetId) { const { spacePhotoPath } = await import('../../../config/storage.js'); await afterTransactionCommit(() => fs.rm(spacePhotoPath(path.basename(photo.path)), { force: true })) }
       return reply.send({ ok: true })
     }
 

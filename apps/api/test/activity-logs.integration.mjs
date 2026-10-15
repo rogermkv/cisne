@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';import fs from 'node:fs'
+const cfg=JSON.parse(fs.readFileSync(0,'utf8'));assert.ok(cfg.cloneVerified&&cfg.base==='http://127.0.0.1:3339'&&cfg.database.startsWith('cisne_activity_'))
+const api=async(path,{token,method='GET',body,status=200}={})=>{const r=await fetch(cfg.base+'/api'+path,{method,headers:{...(token?{Authorization:'Bearer '+token}:{}),...(body!==undefined?{'Content-Type':'application/json'}:{})},body:body===undefined?undefined:JSON.stringify(body)});assert.equal(r.status,status,`${method} ${path}`);return r.json()}
+const login=async a=>(await api('/auth/login',{method:'POST',body:{cpf:a.cpf,password:a.password}})).token
+const select=async(token,role)=>(await api('/auth/role',{token,method:'POST',body:{role}})).token
+const admin=await select(await login(cfg.admin),'ADMIN');const secretary=await login(cfg.secretary)
+await api('/administration/users/'+cfg.member.id,{token:admin,method:'PUT',body:{roles:['SOCIO','FUNCIONARIO'],active:true}})
+const employee=await select(await login(cfg.member),'FUNCIONARIO');const member=await select(employee,'SOCIO')
+await api('/activity-logs',{token:secretary,status:403});await api('/activity-logs',{token:employee,status:403});await api('/activity-logs',{token:member,status:403});await api('/activity-logs',{status:401})
+const name='QA categoria auditada '+Date.now();const category=await api('/member-categories',{token:admin,method:'POST',status:201,body:{name,description:'Descrição inicial',annualFeeAmount:25,isDependent:true,requiresHolder:false,active:true}});assert.equal(category.requiresHolder,true)
+await api('/member-categories/'+category.id,{token:admin,method:'PUT',body:{...category,description:'Descrição alterada',annualFeeAmount:50}})
+await api('/member-categories',{token:admin,method:'POST',status:409,body:{name}})
+await api('/member-categories',{token:admin,method:'POST',status:400,body:{name:'Valor inválido',annualFeeAmount:-1}})
+await api('/member-categories',{token:secretary,method:'POST',status:403,body:{name:'Operação bloqueada'}})
+await api('/members/'+cfg.member.memberId+'/status',{token:admin,method:'POST',body:{status:'ACTIVE'}})
+const charge=await api('/finance/charges',{token:secretary,method:'POST',status:201,body:{memberId:cfg.member.memberId,description:'QA cobrança auditada',amount:20,dueDate:'2039-01-10',referenceYear:2039,type:'OTHER'}})
+await api('/finance/charges/'+charge.id+'/payments',{token:secretary,method:'POST',body:{amount:20,method:'CASH',paidAt:'2039-01-10'}})
+const spaces=await api('/spaces',{token:employee});const space=spaces.find(s=>s.active);assert.ok(space)
+await api('/reservations',{token:employee,method:'POST',status:201,body:{memberId:cfg.member.memberId,spaceId:space.id,reservationDate:'2039-06-20',startTime:'08:00',endTime:'10:00'}})
+const imageResponse=await fetch(cfg.base+cfg.legacyPhoto.path);assert.equal(imageResponse.status,200);const imageBytes=new Uint8Array(await imageResponse.arrayBuffer());const multipart=new FormData();multipart.append('file',new Blob([imageBytes],{type:cfg.legacyPhoto.mime}),'audit-photo.'+cfg.legacyPhoto.extension)
+const upload=await fetch(cfg.base+'/api/spaces/'+cfg.legacyPhoto.spaceId+'/photo',{method:'POST',headers:{Authorization:'Bearer '+employee},body:multipart});assert.equal(upload.status,201)
+await api('/spaces/'+cfg.legacyPhoto.spaceId+'/photos/'+cfg.legacyPhoto.id,{token:employee,method:'DELETE',status:500})
+const retained=await api('/spaces',{token:employee});assert.ok(retained.some(s=>s.photos.some(p=>p.id===cfg.legacyPhoto.id)))
+const preserved=await fetch(cfg.base+cfg.legacyPhoto.path);assert.equal(preserved.status,200);assert.ok(Buffer.from(await preserved.arrayBuffer()).equals(Buffer.from(imageBytes)),'Legacy photo bytes preserved after audit rollback')
+await api('/announcements',{token:secretary,method:'POST',status:201,body:{title:'QA aviso auditado',content:'Conteúdo de teste',startDate:'2039-01-01'}})
+await api('/member-categories/'+category.id,{token:admin,method:'DELETE'})
+await api('/auth/password',{token:admin,method:'POST',body:{currentPassword:cfg.admin.password,newPassword:cfg.nextPassword}})
+await api('/auth/logout',{token:admin,method:'POST'})
+await api('/auth/login',{method:'POST',status:401,body:{cpf:cfg.admin.cpf,password:cfg.admin.password}})
+// Fault injection is a real PostgreSQL trigger in the isolated clone, installed by the fixture runner.
+await api('/member-categories',{token:admin,method:'POST',status:500,body:{name:'QA AUDIT ROLLBACK'}})
+assert.ok(!(await api('/member-categories',{token:admin})).some(c=>c.name==='QA AUDIT ROLLBACK'))
+const all=await api('/activity-logs',{token:admin});assert.ok(all.total>25);assert.equal(all.records.length,25)
+for(const [module,action,role] of [['CATEGORIES','CREATE','ADMIN'],['FINANCE','PAYMENT','SECRETARIA'],['RESERVATIONS','CREATE','FUNCIONARIO'],['AUTH','LOGIN','ADMIN'],['AUTH','LOGOUT','ADMIN']]){const list=await api('/activity-logs?'+new URLSearchParams({module,action,role}),{token:admin});assert.ok(list.total>0,`${module}/${action}/${role}`)}
+const blocked=await api('/activity-logs?status=BLOCKED&role=SECRETARIA',{token:admin});assert.ok(blocked.total>0)
+const failed=await api('/activity-logs?status=FAILED&module=CATEGORIES',{token:admin});assert.ok(failed.total>0)
+const edits=await api('/activity-logs?module=CATEGORIES&action=UPDATE',{token:admin});const event=edits.records.find(r=>r.targetId===category.id);assert.ok(event)
+const details=await api('/activity-logs/'+event.id+'/changes',{token:admin});assert.ok(details.changes.some(c=>c.before.description==='Descrição inicial'&&c.after.description==='Descrição alterada'))
+const search=await api('/activity-logs?q='+encodeURIComponent(cfg.secretary.name),{token:admin});assert.ok(search.total>0&&search.records.every(r=>r.actorName===cfg.secretary.name))
+await api('/activity-logs?from=invalid',{token:admin,status:400})
+const changes=[];for(let page=1;page<=Math.ceil(all.total/25);page++){const logs=await api('/activity-logs?page='+page,{token:admin});for(const log of logs.records){const d=await api('/activity-logs/'+log.id+'/changes',{token:admin});changes.push(...d.changes)}}
+const safeKeys=v=>v===null||typeof v!=='object'?true:Array.isArray(v)?v.every(safeKeys):Object.entries(v).every(([k,val])=>!/(password|token|secret|credential|authorization|cookie|hash)/i.test(k)&&safeKeys(val));const serialized=JSON.stringify(changes);assert.ok(safeKeys(changes),'No sensitive authentication fields persisted');assert.ok(!serialized.includes(cfg.admin.password)&&!serialized.includes(cfg.nextPassword))
+console.log(JSON.stringify({result:'PASS',checks:['ADMIN-only logs','ADMIN/SECRETARIA/FUNCIONARIO mutations captured across categories, members, payments, reservations and announcements','login, failed login, logout and role selection','blocked operations','paginated filters and before/after details','credential redaction','audit failure rolls back the business mutation','legacy media preHandler rollback preserves the photo and file bytes'],nextAdminPasswordChangedOnlyInClone:true}))

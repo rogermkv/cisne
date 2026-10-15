@@ -20,6 +20,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
     throw new ApiError('Não foi possível conectar ao sistema. Tente novamente.', 0)
   })
   if (!response.ok) {
+    if ((response.status === 401 || response.status === 403) && !path.startsWith('/api/auth/')) window.dispatchEvent(new Event('cisne:refresh-auth'))
     const body = (await response.json().catch(() => null)) as { message?: string; field?: string } | null
     const message = response.status >= 500 ? 'O sistema não conseguiu concluir a solicitação. Tente novamente.' : body?.message ?? 'Não foi possível concluir a solicitação.'
     throw new ApiError(message, response.status, body?.field)

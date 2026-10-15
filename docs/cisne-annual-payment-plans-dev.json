@@ -1,0 +1,251 @@
+{
+  "completed_utc": "2026-10-15T17:29:46.272124+00:00",
+  "dev_source_sha": "90db0c5177b8c460dfc0da7fb76aa4bf3f4c8a23",
+  "previous_dev_sha": "f705b50b87139e266a588e44f126f55b440ef2d7",
+  "branch": "codex/annual-payment-plans",
+  "dev_published": true,
+  "production_requested": true,
+  "production_published": false,
+  "origin_main_sha": "ceb739da7953ecc272a62d93dc0e777e684e8f74",
+  "production_sha": "ceb739da7953ecc272a62d93dc0e777e684e8f74",
+  "production_service": "active",
+  "production_blocker": null,
+  "push_executed": false,
+  "production_metadata": {
+    "ieclb": {
+      "published_sha": "c233b8e60777a759f98b62642d87b256b36a93f1",
+      "service": "ieclb.service",
+      "active": "active"
+    },
+    "sigec": {
+      "published_sha": "cc4e613628ac90a130595ea90dc3d8e8cb6ba1bd",
+      "service": "sigec-api.service",
+      "active": "active"
+    },
+    "ipacol": {
+      "published_sha": "b13f6b9bb8f5fbf5828426db57bc3ef1dcd9d3a8",
+      "service": "ipacol-api.service",
+      "active": "active"
+    },
+    "carteira": {
+      "published_sha": "1b38f16aaa49e5825cfe4b1726e7437f18014c22",
+      "service": "carteira.service",
+      "active": "active"
+    },
+    "cisne": {
+      "published_sha": "ceb739da7953ecc272a62d93dc0e777e684e8f74",
+      "service": "cisne-api.service",
+      "active": "active"
+    }
+  },
+  "dev_qa": {
+    "result": "PASS",
+    "source": "dev",
+    "backup": "/opt/apps/cisne/backups/before-annual-dev-20261015T171750Z",
+    "backup_sha256": "dbf29286d5f78f28d9b9dbdac57dd12b4dd576e60ffe55e1ed95e3f037c18277",
+    "migration_count_before": 26,
+    "migration_count_after": 27,
+    "existing_business_rows_preserved": true,
+    "api": {
+      "result": "PASS",
+      "seasonId": "cmv9sym300007omgr3oby3zrt",
+      "faultChargeId": "cmv9sym9z000romgrn49v7mxu",
+      "documentId": "cmv9syn6q0027omgrs6n2dtt9",
+      "checks": [
+        "four-plan-calendars-and-cents",
+        "idempotent-concurrent-enrollment",
+        "fixed-season-price-after-choice",
+        "deadline-and-closure",
+        "no-duplicate-legacy-debt",
+        "paid-legacy-preserved",
+        "private-proof-and-boleto-files",
+        "cross-family-and-role-denial",
+        "invalid-and-oversized-files",
+        "proof-not-payment",
+        "secretary-only-settlement",
+        "partial-full-payments",
+        "concurrent-approval-and-payment",
+        "reject-and-resubmit",
+        "boleto-replacement-history",
+        "settings-edit-and-member-refresh",
+        "financial-audit"
+      ]
+    },
+    "browser": {
+      "result": "PASS",
+      "checks": [
+        "member-plan-choice-and-calendar-preview",
+        "four-real-installments",
+        "proof-upload-not-settlement",
+        "secretary-boleto-upload",
+        "proof-review-partial-payment",
+        "direct-final-settlement",
+        "member-refresh-paid-and-private-boleto",
+        "editable-secretary-settings",
+        "admin-cannot-edit-receiving-instructions",
+        "card-whatsapp-identification-no-external-send",
+        "desktop-and-mobile-no-overflow",
+        "zero-js-errors"
+      ]
+    },
+    "private_asset_access_denied": true,
+    "failed_upload_database_and_bytes_rollback": true,
+    "audit_coverage_all_tables": true,
+    "member_mutations_audited": true,
+    "active_dev_unchanged": true,
+    "env_storage_unchanged": true
+  },
+  "production_snapshot_qa": {
+    "result": "PASS",
+    "source": "prod",
+    "backup": "/opt/apps/cisne/backups/production-release-20261015T170708Z",
+    "backup_sha256": "5fc0438b647d25d11fdb6dfd62907381e85574145df7d397d7243af2ecf50511",
+    "migration_count_before": 24,
+    "migration_count_after": 27,
+    "existing_business_rows_preserved": true,
+    "api": {
+      "result": "PASS",
+      "seasonId": "cmv9t26700007omfs04ctzmju",
+      "faultChargeId": "cmv9t26e4000romfs3wyjcnnh",
+      "documentId": "cmv9t27bk0027omfsecbwb2n5",
+      "checks": [
+        "four-plan-calendars-and-cents",
+        "idempotent-concurrent-enrollment",
+        "fixed-season-price-after-choice",
+        "deadline-and-closure",
+        "no-duplicate-legacy-debt",
+        "paid-legacy-preserved",
+        "private-proof-and-boleto-files",
+        "cross-family-and-role-denial",
+        "invalid-and-oversized-files",
+        "proof-not-payment",
+        "secretary-only-settlement",
+        "partial-full-payments",
+        "concurrent-approval-and-payment",
+        "reject-and-resubmit",
+        "boleto-replacement-history",
+        "settings-edit-and-member-refresh",
+        "financial-audit"
+      ]
+    },
+    "browser": {
+      "result": "PASS",
+      "checks": [
+        "member-plan-choice-and-calendar-preview",
+        "four-real-installments",
+        "proof-upload-not-settlement",
+        "secretary-boleto-upload",
+        "proof-review-partial-payment",
+        "direct-final-settlement",
+        "member-refresh-paid-and-private-boleto",
+        "editable-secretary-settings",
+        "admin-cannot-edit-receiving-instructions",
+        "card-whatsapp-identification-no-external-send",
+        "desktop-and-mobile-no-overflow",
+        "zero-js-errors"
+      ]
+    },
+    "private_asset_access_denied": true,
+    "failed_upload_database_and_bytes_rollback": true,
+    "audit_coverage_all_tables": true,
+    "member_mutations_audited": true,
+    "active_dev_unchanged": true,
+    "env_storage_unchanged": true
+  },
+  "live_dev_readonly_qa": {
+    "result": {
+      "result": "PASS",
+      "checks": [
+        {
+          "role": "ADMIN",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "SOCIO",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "SECRETARIA",
+          "result": "PASS",
+          "mutations": 0
+        },
+        {
+          "role": "anonymous",
+          "result": "PASS",
+          "mutations": 0
+        }
+      ]
+    },
+    "active_rows_unchanged": true,
+    "env_storage_unchanged": true,
+    "real_accounts_diagnostic_tokens": true,
+    "password_login_exercised": false
+  },
+  "unit_tests": [
+    "PASS annual-payment-plans.rules.ts",
+    "PASS finance.rules.ts",
+    "PASS finance-portfolio.mjs"
+  ],
+  "build": "PASS API TypeScript and production web TypeScript/Vite/PWA",
+  "dev_health": {
+    "/": 200,
+    "/api/health": 200,
+    "/manifest.webmanifest": 200,
+    "/sw.js": 200
+  },
+  "dev_migration": "20261015170000_annual_payment_plans",
+  "dev_migrations_total": 27,
+  "dev_backup": "/opt/apps/cisne/backups/before-annual-dev-20261015T171750Z",
+  "dev_backup_sha256": "dbf29286d5f78f28d9b9dbdac57dd12b4dd576e60ffe55e1ed95e3f037c18277",
+  "production_backup": "/opt/apps/cisne/backups/production-release-20261015T170708Z",
+  "production_dump_sha256": "5fc0438b647d25d11fdb6dfd62907381e85574145df7d397d7243af2ecf50511",
+  "previous_dev_release": "/opt/apps/cisne/releases/before-annual-20261015T172505Z",
+  "existing_dev_business_data_preserved": true,
+  "dev_env_storage_preserved": true,
+  "other_dev_services_pids_preserved": true,
+  "new_real_enrollments_created_by_deployment": 0,
+  "new_real_payments_created_by_deployment": 0,
+  "new_real_documents_created_by_deployment": 0,
+  "limits": [
+    "Banking/card/boleto issuance is external; this implementation tracks confirmed receipts, uploads and requests only.",
+    "A single previous annual fee without payments, matching the selected season value, is cancelled and replaced atomically upon member confirmation. Other legacy conflicts require reconciliation.",
+    "Choosing the family plan is restricted to its responsible titular; dependents may consult the account and send proofs.",
+    "The chosen mode cannot be changed in self service; operator reconciliation workflow for changing contracts after enrollment is not included.",
+    "Initial 2026/2027 season uses the existing configured club fee; season creation does not generate charges for all members.",
+    "Real production password login, authenticated production writes and full live rollback were not performed."
+  ],
+  "implementation_files": [
+    "apps/api/prisma/migrations/20261015170000_annual_payment_plans/migration.sql",
+    "apps/api/prisma/schema.prisma",
+    "apps/api/src/modules/core/activity/auditing.ts",
+    "apps/api/src/modules/core/annualities/domain.ts",
+    "apps/api/src/modules/core/annualities/payments.ts",
+    "apps/api/src/modules/core/annualities/routes.ts",
+    "apps/api/src/modules/core/finance/routes.ts",
+    "apps/api/src/modules/core/finance/status.ts",
+    "apps/api/src/modules/core/index.ts",
+    "apps/api/test/annual-payment-plans.integration.mjs",
+    "apps/api/test/annual-payment-plans.rules.ts",
+    "apps/web/src/modules/core/finance/AdminFinancePage.tsx",
+    "apps/web/src/modules/core/finance/AnnualPlans.tsx",
+    "apps/web/src/modules/core/finance/AnnualitiesPage.tsx",
+    "apps/web/src/modules/core/finance/ChargeDocuments.tsx",
+    "apps/web/src/modules/core/finance/FinanceWorkspace.tsx",
+    "apps/web/src/modules/core/finance/annual-api.ts",
+    "apps/web/src/modules/core/finance/annual-payments.css",
+    "apps/web/src/modules/core/member-area/FinancePage.tsx",
+    "apps/web/src/modules/core/ui/format.ts"
+  ],
+  "documentation_files": [
+    "docs/PROJECT_STATE.md",
+    "docs/DEVLOG.md",
+    "docs/annual-payment-plans.md",
+    "docs/cisne-annual-payment-plans-dev.json"
+  ],
+  "production_publish_authorized": true,
+  "github_destination_explicitly_authorized": "https://github.com/rogermkv/cisne",
+  "previous_approval_block_resolved": true,
+  "production_publication_status": "AUTHORIZED; prepared, not yet merged at this documentation commit"
+}

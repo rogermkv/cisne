@@ -57,6 +57,12 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
 
     if (!user?.active) return unauthorized(reply)
 
+    const assignedRoles = user.roles.map(({ role }) => role.name)
+    // Legacy tokens with multiple roles must choose; never combine permissions.
+    const activeRole = payload.activeRole
+      ? assignedRoles.includes(payload.activeRole) ? payload.activeRole : null
+      : assignedRoles.length === 1 ? assignedRoles[0] : null
+    const effectiveRoles = user.roles.filter(({ role }) => role.name === activeRole)
     request.authUser = {
       id: user.id,
       personId: user.person.id,
@@ -66,14 +72,22 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
       email: user.person.email,
       phone: user.person.phone,
       mustChangePassword: user.mustChangePassword,
-      roles: user.roles.map(({ role }) => role.name),
+      assignedRoles,
+      activeRole,
+      roles: activeRole ? [activeRole] : [],
       permissions: [
         ...new Set(
-          user.roles.flatMap(({ role }) =>
+          effectiveRoles.flatMap(({ role }) =>
             role.permissions.map(({ permission }) => permission.key),
           ),
         ),
       ],
+    }
+    const path = request.url.split('?')[0]
+    if (!['/api/auth/me', '/api/auth/password', '/api/auth/role', '/api/auth/logout'].includes(path)) {
+      if (user.mustChangePassword) return reply.code(403).send({ message: 'Altere sua senha antes de continuar.' })
+      if (!activeRole) return reply.code(403).send({ message: 'Selecione um papel para continuar.' })
+      if (path.startsWith('/api/member/') && activeRole !== 'SOCIO') return reply.code(403).send({ message: 'Selecione o papel Sócio para acessar esta área.' })
     }
   })
 
@@ -86,7 +100,14 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
       return reply.code(403).send({ message: 'Altere sua senha antes de continuar.' })
     }
 
-    if (!request.authUser?.permissions.includes(permission)) {
+    if (permission === 'members.manage' && request.method !== 'GET' && request.authUser?.activeRole !== 'ADMIN') {
+      const id = (request.params as { id?: string })?.id
+      if (id && request.url.startsWith('/api/members/')) {
+        const managed = await prisma.member.findUnique({ where: { id }, select: { person: { select: { user: { select: { roles: { select: { role: { select: { name: true } } } } } } } } } })
+        if (managed?.person.user?.roles.some(r => r.role.name !== 'SOCIO')) return reply.code(403).send({ message: 'Somente o Administrador pode alterar uma conta com papel administrativo.' })
+      }
+    }
+    if (request.authUser?.activeRole === 'SOCIO' || !request.authUser?.permissions.includes(permission)) {
       return reply.code(403).send({ message: 'Você não tem permissão para esta operação.' })
     }
   })

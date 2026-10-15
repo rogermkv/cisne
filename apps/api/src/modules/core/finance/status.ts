@@ -13,7 +13,8 @@ export function effectiveFinancialStatus(charge: any, now = Date.now()) {
   if (charge.status === 'PAID' || balance <= 0) return 'PAID'
   const due = new Date(charge.dueDate)
   const overdueAt = Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate() + 1)
-  if (overdueAt <= now) return 'OVERDUE'
+  const dueBoundary = charge.annualEnrollmentId ? overdueAt + 3 * 60 * 60 * 1000 : overdueAt
+  if (dueBoundary <= now) return 'OVERDUE'
   if (paidAmount > 0) return 'PARTIAL'
   if (charge.status !== 'PENDING') return charge.status
   return 'PENDING'
