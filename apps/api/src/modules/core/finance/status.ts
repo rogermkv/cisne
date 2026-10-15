@@ -1,12 +1,20 @@
-export function effectiveFinancialStatus(charge: any, now = Date.now()) {
+/** Preserve an explicit recorded settlement even when older receipts are absent. */
+export function financialAmounts(charge: any) {
   const amount = Number(charge.amount)
-  const paid = charge.payments?.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0) || 0
-  const balance = Math.max(0, amount - paid)
-  if (charge.status === 'CANCELLED' || balance <= 0) return charge.status === 'CANCELLED' ? 'CANCELLED' : 'PAID'
+  const recordedPaymentsTotal = charge.payments?.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0) || 0
+  const paymentHistoryIncomplete = charge.status === 'PAID' && recordedPaymentsTotal < amount
+  const paidAmount = charge.status === 'PAID' ? Math.max(amount, recordedPaymentsTotal) : recordedPaymentsTotal
+  return { amount, paidAmount, recordedPaymentsTotal, balance: charge.status === 'CANCELLED' ? 0 : Math.max(0, amount - paidAmount), paymentHistoryIncomplete }
+}
+
+export function effectiveFinancialStatus(charge: any, now = Date.now()) {
+  const { balance, paidAmount } = financialAmounts(charge)
+  if (charge.status === 'CANCELLED') return 'CANCELLED'
+  if (charge.status === 'PAID' || balance <= 0) return 'PAID'
   const due = new Date(charge.dueDate)
   const overdueAt = Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate() + 1)
   if (overdueAt <= now) return 'OVERDUE'
-  if (paid > 0) return 'PARTIAL'
+  if (paidAmount > 0) return 'PARTIAL'
   if (charge.status !== 'PENDING') return charge.status
   return 'PENDING'
 }

@@ -205,7 +205,7 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
     try {
       const member = await prisma.$transaction(async (tx) => {
         const person = await tx.person.create({ data: { fullName: b.fullName.trim(), cpf, birthDate, phone: normalizePhone(b.phone), email: b.email?.trim().toLowerCase() || null, city: b.city?.trim() || null } })
-        return tx.member.create({ data: { personId: person.id, categoryId: b.categoryId, titularMemberId: b.titularMemberId || null, relationship: b.relationship?.trim() || null, registrationNumber: b.registrationNumber?.trim() || null, admissionDate, status: b.status || 'ACTIVE', notes: b.notes?.trim() || null } })
+        return tx.member.create({ data: { personId: person.id, categoryId: b.categoryId, titularMemberId: b.titularMemberId || null, relationship: b.relationship?.trim() || null, admissionDate, status: b.status || 'ACTIVE', notes: b.notes?.trim() || null } })
       })
       await ensureUser(member.personId, birthDate)
       return reply.code(201).send(view(await prisma.member.findUniqueOrThrow({ where: { id: member.id }, include })))
@@ -234,7 +234,7 @@ export const memberRoutes: FastifyPluginAsync = async (app) => {
     try {
       await prisma.$transaction([
         prisma.person.update({ where: { id: current.personId }, data: { fullName: b.fullName.trim(), cpf, birthDate, phone: normalizePhone(b.phone), email: b.email?.trim().toLowerCase() || null, city: b.city?.trim() || null } }),
-        prisma.member.update({ where: { id: current.id }, data: { categoryId: b.categoryId, titularMemberId: b.titularMemberId || null, relationship: b.relationship?.trim() || null, registrationNumber: b.registrationNumber?.trim() || null, admissionDate, status: b.status, notes: b.notes?.trim() || null } }),
+        prisma.member.update({ where: { id: current.id }, data: { categoryId: b.categoryId, titularMemberId: b.titularMemberId || null, relationship: b.relationship?.trim() || null, admissionDate, status: b.status, notes: b.notes?.trim() || null } }),
       ])
       await ensureUser(current.personId, birthDate)
       return view(await prisma.member.findUniqueOrThrow({ where: { id: current.id }, include }))

@@ -7,13 +7,16 @@
 @media(max-width:860px){.record-grid{grid-template-columns:1fr}.members-page{padding:18px}.record-card{padding:16px}}
 
 .member-photo-preview{display:flex;align-items:center;justify-content:center;min-height:160px}.member-photo-preview img{display:block;width:140px;height:160px;object-fit:cover;border-radius:12px}.photo-placeholder{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:.78rem}.photo-error{display:block;margin-top:8px;color:#b63e3e;font-weight:700}.holder-picker{position:relative}.holder-results{position:absolute;z-index:10;left:0;right:0;background:#fff;border:1px solid #cddce8;border-radius:8px;box-shadow:0 8px 18px #0a3d6220;overflow:hidden}.holder-results button{display:block;width:100%;padding:10px;text-align:left;border:0;border-bottom:1px solid #e8eef3;background:#fff;color:#12324a}.holder-results button:hover{background:#eaf4fb}
-.members-table td:nth-child(2)::before { content: "Categoria"; }
-.members-table td:nth-child(3)::before { content: "Situação"; }
-.members-table td:nth-child(4)::before { content: "Responsável financeiro"; }
-.members-table td:nth-child(5)::before { content: "Ações"; }
 .field-invalid input,.field-invalid select,.field-invalid textarea{border-color:#c83b3b!important;box-shadow:0 0 0 2px rgb(200 59 59 / 12%)}
 .field-error{display:block;margin-top:5px;color:#b42318;font-size:.75rem;font-weight:700}
 .member-delete-button{display:block;margin-top:14px;color:#b42318;border:0;background:none;padding:0}
 .members-table-page .members-toolbar{max-width:none;align-items:end;flex-wrap:wrap}.members-filters{display:flex;gap:12px}.members-filters>input{flex:1 1 320px}.members-filters>label{display:grid;gap:5px;min-width:170px;color:#5b6675;font-size:.75rem;font-weight:800}.members-filters select{min-width:155px}.members-result-count{margin-left:auto;padding:10px 4px;color:#0a3d62;white-space:nowrap}.members-table th button{padding:0}
 .dependents-admin-section{margin-top:18px}.dependents-admin-section .section-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}.dependents-admin-section h2{margin-bottom:4px}.dependent-table-wrap{overflow-x:auto}.dependent-table{min-width:760px}.dependent-admin-name{border:0;background:none;padding:0;text-align:left;color:#006ccb;font-weight:800;cursor:pointer}.row-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.member-context-link{margin:-8px 0 18px;color:#5b6675}.member-context-link .inline-link{font-size:inherit}.dependent-table td:last-child{min-width:210px}
 @media(max-width:760px){.members-filters{display:grid;grid-template-columns:1fr}.members-filters>input,.members-filters>label{min-width:0}.members-result-count{margin:0}.dependents-admin-section .section-heading{align-items:stretch;flex-direction:column}.dependent-table{min-width:0}.dependent-table thead{display:none}.dependent-table tbody,.dependent-table tr,.dependent-table td{display:block;width:100%;box-sizing:border-box}.dependent-table tbody{display:grid;gap:10px}.dependent-table tr{padding:12px;background:#fff;border:1px solid #d9e5f0;border-radius:12px}.dependent-table td{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border:0}.dependent-table td::before{content:attr(data-label);color:#7a8794;font-size:.68rem;font-weight:800;text-transform:uppercase}.dependent-table td:first-child{display:block}.dependent-table td:first-child::before{display:none}.dependent-table td:last-child{display:block}.dependent-table td:last-child::before{display:none}.row-actions{justify-content:flex-end}}
+
+.members-table-page td[data-label="Matrícula"]{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+/* Keep registration compact; the shared table style reserves 190px for column one. */
+.members-table-page .members-table td:first-child{min-width:88px;width:88px;display:table-cell}
+.members-table-page .members-table td[data-label="Nome"]{min-width:190px}
+.members-table-page .member-name-cell small{white-space:nowrap}
+.members-table-page .members-table th,.members-table-page .members-table td{padding:12px 10px}

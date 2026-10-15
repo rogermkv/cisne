@@ -84,7 +84,7 @@ model Member {
   id                 String            @id @default(cuid())
   personId           String            @unique
   categoryId         String
-  registrationNumber String?           @unique
+  registrationNumber String            @unique @default(dbgenerated("next_member_registration_number()"))
   admissionDate      DateTime
   status             MemberStatus      @default(ACTIVE)
   notes              String?
