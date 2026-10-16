@@ -1,0 +1,24 @@
+{
+  "result": "PUBLISHED_DEV",
+  "source_sha": "540fa650fb88264811b4d7932d9196ac026d04a0",
+  "previous_sha": "01d4769bcbb1255ce25beb688e06da8f6ff800a8",
+  "backup": "/opt/apps/cisne/shared/backups/before-plan-context-20261015T231501Z",
+  "previous_dist": "/opt/apps/cisne/app/apps/web/.before-context-dist-20261015T231501Z",
+  "api_bytes_and_pid_unchanged": true,
+  "env_storage_unchanged": true,
+  "database_migrations": false,
+  "index_assets_pwa_health": 200,
+  "production_changed": false,
+  "checked_utc": "2026-10-15T23:15:02.180282+00:00",
+  "browser": {
+    "result": "PASS",
+    "global_selector_removed": true,
+    "family_account_preselected": true,
+    "member_record_compact_button": true,
+    "four_modes_and_four_installment_preview": true,
+    "desktop_mobile_no_overflow": true,
+    "js_errors": 0,
+    "business_mutations": 0
+  },
+  "production_sha": "4c5bee0bcf94b8b45aef8a53cc0cf0796faf9df1"
+}

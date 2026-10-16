@@ -7,7 +7,7 @@ export function responsibleOf(row:any) {
   return {id:row.responsibleMemberId || responsible?.id || row.memberId || row.id,name:responsible?.person?.fullName || 'Responsável não informado',registration:responsible?.registrationNumber || '',phone:responsible?.person?.phone || '',person:responsible?.person}
 }
 export function receiptsOf(rows:any[]) {
-  return rows.flatMap(charge=>(charge.payments||[]).map((payment:any)=>({...payment,charge}))).sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt))||String(a.id).localeCompare(String(b.id)))
+  return rows.flatMap(charge=>(charge.payments||[]).filter((payment:any)=>!payment.reversedAt).map((payment:any)=>({...payment,charge}))).sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt))||String(a.id).localeCompare(String(b.id)))
 }
 export function summarizePortfolio(rows:any[]) {
   const pending=rows.filter(openCharge);const active=rows.filter(r=>r.status!=='CANCELLED');const ids=new Set(active.map(r=>responsibleOf(r).id));const overdueIds=new Set(pending.filter(r=>r.status==='OVERDUE').map(r=>responsibleOf(r).id));const receipts=receiptsOf(rows)

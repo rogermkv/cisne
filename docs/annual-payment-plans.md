@@ -2,7 +2,7 @@
 
 Implementação disponível no DEV; envio ao repositório oficial e publicação em produção explicitamente autorizados pelo usuário. Ver PROJECT_STATE.md e cisne-annual-payment-plans-dev.json para evidências e SHAs.
 
-Temporadas de1º de novembro a31 de outubro, identificadas pelos dois anos. Exemplo2026/2027:01/11/2026–31/10/2027.
+Temporadas vão de 1º de novembro a 31 de outubro e são identificadas pelo ano final. Exemplo: Anuidade 2027 corresponde a 01/11/2026–31/10/2027.
 
 | Modalidade | Calendário do exemplo | Controle |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ O titular escolhe diretamente pelo Meu Financeiro após conferir o calendário c
 
 Apenas a Secretaria confirma pagamentos das novas anuidades. Envio de comprovante não quita nem suspende atraso. No dia11, a parcela em aberto fica em atraso segundo o dia civil de Brasília. Pagamentos parciais mantêm saldo; aprovação e registro simultâneos são protegidos contra duplicidade. Comprovantes podem ser recusados com motivo e reenviados. PDFs e imagens de até5MB ficam em storage privado; downloads requerem acesso à família ou permissão financeira administrativa.
 
-Em Anuidades, Secretaria altera PIX, favorecido e WhatsApp. Os dados comerciais fornecidos pelo clube foram configurados. Administração cadastra valor/temporada e abre ou encerra escolhas; valor contratado fica congelado após primeira adesão. A temporada2026/2027 inicial usa a taxa já configurada no clube e não gera cobranças para todos os sócios automaticamente.
+Em Anuidades, Secretaria altera PIX, favorecido e WhatsApp. Os dados comerciais fornecidos pelo clube foram configurados. Administração cadastra valor/temporada e abre ou encerra escolhas; valor contratado fica congelado após primeira adesão. A Anuidade 2027 inicial usa a taxa já configurada no clube e não gera cobranças para todos os sócios automaticamente.
 
 Financeiro geral e ficha do sócio mostram anexos e conferência nas cobranças expandidas. Só a Secretaria anexa/substitui boletos do plano D; versões anteriores permanecem registradas. Emissão bancária é externa. PIX é transferência externa e cartão é operado externamente. Links WhatsApp apenas abrem a conversa com texto de identificação; não enviam mensagens automaticamente.
 

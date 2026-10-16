@@ -1,0 +1,29 @@
+{
+  "result": "PUBLISHED_DEV",
+  "source_sha": "46f1bbcafdff01952cd396b9590dec1f77f982b6",
+  "previous_sha": "db0c85121dd397665d8d1256eda2658a110bd776",
+  "backup": "/opt/apps/cisne/shared/backups/before-scroll-20261015T234157Z",
+  "previous_dist": "/opt/apps/cisne/app/apps/web/.before-scroll-dist-20261015T234157Z",
+  "api_bytes_and_pid_unchanged": true,
+  "env_storage_unchanged": true,
+  "database_migrations": false,
+  "index_assets_pwa_health": 200,
+  "production_changed": false,
+  "checked_utc": "2026-10-15T23:41:58.114362+00:00",
+  "cause": "Independent overflow restoration by nested modal effects could restore hidden after both dialogs unmounted",
+  "old_version_reproduction": "FAIL as expected: body overflow remained hidden after confirmed plan choice",
+  "isolated_four_installments": "PASS",
+  "isolated_twelve_installments": "PASS",
+  "live_browser": {
+    "result": "PASS",
+    "existing_twelve_installments": true,
+    "actual_mouse_wheel_scroll": true,
+    "keyboard_end_reaches_bottom": true,
+    "nested_cancel_unlocks_page": true,
+    "outer_dialog_lock_retained_until_closed": true,
+    "mobile_scroll": true,
+    "js_errors": 0,
+    "business_mutations": 0
+  },
+  "production_sha": "4c5bee0bcf94b8b45aef8a53cc0cf0796faf9df1"
+}

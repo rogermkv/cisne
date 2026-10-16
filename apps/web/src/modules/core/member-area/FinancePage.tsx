@@ -31,7 +31,7 @@ export function FinancePage({ onBack }: { onBack: () => void }) {
         <p className="finance-section-intro">Abra uma temporada para consultar vencimentos, pagamentos, boletos e comprovantes.</p>
         {seasons.length ? <div className="finance-season-list">{seasons.map(season => <div className={`finance-season ${selectedSeason === season.year ? 'is-open' : ''}`} key={season.year}>
           <button className="finance-season-trigger" onClick={() => setSelectedSeason(current => current === season.year ? null : season.year)} aria-expanded={selectedSeason === season.year}>
-            <span><strong>Temporada {Number(season.year) - 1}/{season.year}</strong><small>{seasonPeriod(Number(season.year))}</small></span>
+            <span><strong>Anuidade {season.year}</strong><small>{seasonPeriod(Number(season.year))}</small></span>
             <span className="finance-season-summary"><b>{money(season.balance)}</b><em className={`status-badge ${season.status}`}>{chargeStatus[season.status] || 'Não informado'}</em><ChevronDown size={18} /></span>
           </button>
           {selectedSeason === season.year && <div className="finance-season-detail">
@@ -40,7 +40,7 @@ export function FinancePage({ onBack }: { onBack: () => void }) {
               <div><strong>{charge.description}</strong><small>Vencimento: {dateLabel(charge.dueDate)}</small></div>
               <span>{money(charge.balance ?? charge.amount)}</span><em className={`status-badge ${charge.status}`}>{chargeStatus[charge.status] || 'Não informado'}</em>
               {charge.paymentHistoryIncomplete && <small className="finance-installment-payments">Quitação registrada{charge.paidAt ? ' em ' + dateLabel(charge.paidAt) : ''}. Sem detalhamento completo de recibos neste histórico.</small>}
-              {charge.payments?.length > 0 && <div className="finance-installment-payments">{charge.payments.map((payment: any) => <small key={payment.id}>Pagamento de {money(payment.amount)} em {dateTimeLabel(payment.paidAt)} · {paymentMethod[payment.method] || 'Não informado'}</small>)}</div>}
+              {charge.payments?.length > 0 && <div className="finance-installment-payments">{charge.payments.map((payment: any) => <small key={payment.id}>{payment.reversedAt ? 'Pagamento estornado de' : 'Pagamento de'} {money(payment.amount)} em {dateTimeLabel(payment.paidAt)} · {paymentMethod[payment.method] || 'Não informado'}</small>)}</div>}
               {annual && <ReceivingInstructions settings={annual.settings} row={charge} responsible={annual.responsible} />}
               <ChargeDocuments row={charge} member onChange={load} />
             </article>)}</div>
