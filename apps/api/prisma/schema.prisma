@@ -405,6 +405,9 @@ model FinancialCharge {
   member Member @relation(fields:[memberId], references:[id])
   responsibleMember Member @relation("FinancialResponsible", fields:[responsibleMemberId], references:[id])
   payments FinancialPayment[]
+  settlementReversedAt DateTime?
+  settlementReversedByUserId String?
+  settlementReversalReason String?
   annualEnrollmentId String?
   installmentNumber Int?
   annualEnrollment AnnualEnrollment? @relation(fields: [annualEnrollmentId], references: [id])
@@ -432,6 +435,9 @@ model FinancialPayment {
   paidAt DateTime @default(now())
   method FinancialPaymentMethod
   notes String?
+  reversedAt DateTime?
+  reversedByUserId String?
+  reversalReason String?
   registeredByUserId String?
   charge FinancialCharge @relation(fields:[chargeId], references:[id], onDelete: Cascade)
   registeredBy User? @relation("FinancialPaymentRegistrar", fields:[registeredByUserId], references:[id], onDelete: SetNull)

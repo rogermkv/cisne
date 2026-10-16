@@ -13,9 +13,10 @@ export async function lockCharge(id: string) {
 }
 export async function recordPayment(id: string, body: any, actor: any, proofId?: string) {
   const charge = await lockCharge(id)
-  if (charge.annualEnrollmentId && actor.activeRole !== 'SECRETARIA') fail(403, 'Somente a Secretaria pode confirmar o pagamento desta anuidade.')
+  if ((charge.type === 'ANNUAL_FEE' || charge.annualEnrollmentId) && actor.activeRole !== 'SECRETARIA') fail(403, 'Somente a Secretaria pode confirmar o pagamento desta anuidade.')
   if (charge.status === 'CANCELLED') fail(400, 'Esta cobrança foi cancelada e não pode receber pagamentos.')
   if (effectiveFinancialStatus(charge) === 'PAID') fail(400, 'Esta cobrança já está quitada. Atualize o financeiro para consultar o registro.')
+  if (charge.type === 'ANNUAL_FEE' && !charge.annualEnrollmentId) fail(409, 'Escolha primeiro a forma de pagamento da anuidade nesta temporada. As cobranças serão geradas antes da confirmação dos recebimentos.')
   const pending = await prisma.financialDocument.findFirst({ where: { chargeId: id, kind: 'PROOF', status: 'PENDING' } })
   if (pending && pending.id !== proofId) fail(409, 'Confira o comprovante pendente antes de registrar este pagamento.')
   const { paidAmount, balance } = financialAmounts(charge)

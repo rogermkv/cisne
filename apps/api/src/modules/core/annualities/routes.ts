@@ -24,6 +24,27 @@ async function authorizeCharge(user: any, charge: any) {
 }
 const seasonView = (season: any) => ({ ...season, plans: planModes.map(mode => ({ mode, description: mode === 'ADVANCE_12' ? 'PIX em 12 parcelas, de abril anterior ao início da temporada até março.' : mode === 'INSTALLMENTS_4' ? 'PIX ou boleto anexado pela secretaria, de novembro a fevereiro.' : mode === 'CREDIT_CARD' ? 'Link solicitado por WhatsApp. As parcelas ficam com a operadora do cartão.' : 'PIX integral, com vencimento até 10 de novembro.', available: season.enrollmentOpen && brasiliaDay() <= `${season.endYear}-10-31` && (!['CREDIT_CARD', 'PIX_ONCE'].includes(mode) || brasiliaDay() <= `${season.endYear - 1}-11-10`), schedule: installmentSchedule(season.endYear, mode, Number(season.amount)) })) })
 const cents = (amount: unknown) => Math.round(Number(amount) * 100)
+async function choosePlan(seasonId: string, responsibleId: string, mode: string, actor: any) {
+    await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`season:${seasonId}`}))`
+    const season = await prisma.annualSeason.findUnique({ where: { id: seasonId } })
+    if (!season) fail(404, 'Temporada não encontrada.')
+    if (!planModes.includes(mode)) fail(400, 'Selecione uma modalidade válida.')
+    await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`annual:${responsibleId}:${season.endYear}`}))`
+    const existing = await prisma.annualEnrollment.findUnique({ where: { seasonId_responsibleMemberId: { seasonId: season.id, responsibleMemberId: responsibleId } } })
+    if (existing) {
+      if (existing.mode !== mode) fail(409, 'Já existe uma modalidade escolhida. Entre em contato com a secretaria para uma alteração.')
+      return existing
+    }
+    if (!season.enrollmentOpen || brasiliaDay() > `${season.endYear}-10-31` || (['CREDIT_CARD', 'PIX_ONCE'].includes(mode) && brasiliaDay() > `${season.endYear - 1}-11-10`)) fail(409, 'O prazo de escolha desta modalidade está encerrado.')
+    const legacy = await prisma.financialCharge.findMany({ where: { responsibleMemberId: responsibleId, referenceYear: season.endYear, type: 'ANNUAL_FEE', status: { not: 'CANCELLED' } }, include: { payments: true } })
+    if (legacy.length && (legacy.length !== 1 || legacy[0].payments.some((payment: any) => !payment.reversedAt) || legacy[0].status === 'PAID' || legacy[0].annualEnrollmentId || cents(legacy[0].amount) !== cents(season.amount))) fail(409, 'Esta temporada possui cobranças ou pagamentos anteriores. A secretaria precisa conciliar os registros antes da escolha, para evitar duplicidade.')
+    const schedule = installmentSchedule(season.endYear, mode, Number(season.amount))
+    const enrollment = await prisma.annualEnrollment.create({ data: { seasonId: season.id, responsibleMemberId: responsibleId, mode, amount: season.amount, createdByUserId: actor.id } })
+    if (legacy.length) await prisma.financialCharge.update({ where: { id: legacy[0].id }, data: { status: 'CANCELLED' } })
+    await prisma.financialCharge.createMany({ data: schedule.map(item => ({ ...item, memberId: responsibleId, responsibleMemberId: responsibleId, type: 'ANNUAL_FEE', status: 'PENDING', referenceYear: season.endYear, annualEnrollmentId: enrollment.id, description: `Anuidade ${seasonLabel(season.endYear)} · ${planNames[mode]}${schedule.length > 1 ? ` · Parcela ${item.installmentNumber}/${schedule.length}` : ''}` })) })
+    return enrollment
+}
+
 export const annualityRoutes: FastifyPluginAsync = async app => {
   app.setErrorHandler((error: any, request, reply) => {
     if (error.code === 'P2002') return reply.code(409).send({ message: 'Este registro já existe. Atualize a tela antes de tentar novamente.' })
@@ -73,25 +94,21 @@ export const annualityRoutes: FastifyPluginAsync = async app => {
   app.post('/member/me/annualities/:id/choose', { preHandler: app.authenticate }, async (request: any) => prisma.$transaction(async () => {
     const { member, responsibleId } = await family(request.authUser)
     if (member.id !== responsibleId) fail(403, 'A escolha da modalidade é feita pelo titular responsável pela conta familiar.')
-    await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`season:${request.params.id}`}))`
-    const season = await prisma.annualSeason.findUnique({ where: { id: request.params.id } })
-    if (!season) fail(404, 'Temporada não encontrada.')
-    const mode = request.body?.mode
-    if (!planModes.includes(mode)) fail(400, 'Selecione uma modalidade válida.')
-    await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`annual:${responsibleId}:${season.endYear}`}))`
-    const existing = await prisma.annualEnrollment.findUnique({ where: { seasonId_responsibleMemberId: { seasonId: season.id, responsibleMemberId: responsibleId } } })
-    if (existing) {
-      if (existing.mode !== mode) fail(409, 'Já existe uma modalidade escolhida. Entre em contato com a secretaria para uma alteração.')
-      return existing
-    }
-    if (!season.enrollmentOpen || brasiliaDay() > `${season.endYear}-10-31` || (['CREDIT_CARD', 'PIX_ONCE'].includes(mode) && brasiliaDay() > `${season.endYear - 1}-11-10`)) fail(409, 'O prazo de escolha desta modalidade está encerrado.')
-    const legacy = await prisma.financialCharge.findMany({ where: { responsibleMemberId: responsibleId, referenceYear: season.endYear, type: 'ANNUAL_FEE', status: { not: 'CANCELLED' } }, include: { payments: true } })
-    if (legacy.length && (legacy.length !== 1 || legacy[0].payments.length || legacy[0].status === 'PAID' || legacy[0].annualEnrollmentId || cents(legacy[0].amount) !== cents(season.amount))) fail(409, 'Esta temporada possui cobranças ou pagamentos anteriores. A secretaria precisa conciliar os registros antes da escolha, para evitar duplicidade.')
-    const schedule = installmentSchedule(season.endYear, mode, Number(season.amount))
-    const enrollment = await prisma.annualEnrollment.create({ data: { seasonId: season.id, responsibleMemberId: responsibleId, mode, amount: season.amount, createdByUserId: request.authUser.id } })
-    if (legacy.length) await prisma.financialCharge.update({ where: { id: legacy[0].id }, data: { status: 'CANCELLED' } })
-    await prisma.financialCharge.createMany({ data: schedule.map(item => ({ ...item, memberId: responsibleId, responsibleMemberId: responsibleId, type: 'ANNUAL_FEE', status: 'PENDING', referenceYear: season.endYear, annualEnrollmentId: enrollment.id, description: `Anuidade ${seasonLabel(season.endYear)} · ${planNames[mode]}${schedule.length > 1 ? ` · Parcela ${item.installmentNumber}/${schedule.length}` : ''}` })) })
-    return enrollment
+    return choosePlan(request.params.id, responsibleId, request.body?.mode, request.authUser)
+  }))
+  app.get('/annualities/members/:id', { preHandler: secretary }, async (request: any) => {
+    const responsibleId = await resolveFinancialResponsibleMemberId(request.params.id)
+    if (!responsibleId) fail(404, 'Associado não encontrado.')
+    const enrollments = await prisma.annualEnrollment.findMany({ where: { responsibleMemberId: responsibleId } })
+    const seasons = await prisma.annualSeason.findMany({ orderBy: { endYear: 'desc' } })
+    return { responsibleId, canChoose: true, seasons: seasons.map(seasonView), enrollments }
+  })
+  app.post('/annualities/members/:id/seasons/:seasonId/choose', { preHandler: secretary }, async (request: any) => prisma.$transaction(async () => {
+    const responsibleId = await resolveFinancialResponsibleMemberId(request.params.id)
+    if (!responsibleId) fail(404, 'Associado não encontrado.')
+    const responsible = await prisma.member.findUnique({ where: { id: responsibleId } })
+    if (!responsible || responsible.status !== 'ACTIVE') fail(409, 'O responsável financeiro precisa estar ativo.')
+    return choosePlan(request.params.seasonId, responsibleId, request.body?.mode, request.authUser)
   }))
   app.get('/annualities/documents/:id/file', { preHandler: app.authenticate }, async (request: any, reply) => {
     const doc = await prisma.financialDocument.findUnique({ where: { id: request.params.id }, include: { asset: true, charge: true } })

@@ -1,0 +1,40 @@
+{
+  "result": "PUBLISHED_DEV",
+  "code_sha": "db0c85121dd397665d8d1256eda2658a110bd776",
+  "previous_dev_sha": "540fa650fb88264811b4d7932d9196ac026d04a0",
+  "backup": "/opt/apps/cisne/shared/backups/before-plan-first-20261015T232916Z",
+  "dump_sha256": "a63fa5e7556891d82f4949573f48dde2f804d0ad8a7975835c54a14839e0712f",
+  "restored_backup_validation": "PASS",
+  "database_migrations": false,
+  "all_business_rows_preserved": true,
+  "env_and_storage_preserved": true,
+  "other_service_pids_unchanged": true,
+  "health": 200,
+  "migration_count": 29,
+  "production_changed": false,
+  "legacy_root_state_marker_update": "PENDING_ADMIN; active SHA recorded in runtime-manifest.json, dev-source.commit and DEV_PLAN_FIRST_RELEASE.json",
+  "checked_utc": "2026-10-15T23:29:54.147140+00:00",
+  "isolated_integration": {
+    "result": "PASS",
+    "postgres": 16,
+    "fixture": "Fresh isolated schema with all migrations and synthetic identities, NOT restored production data",
+    "tests": [
+      "annual-payment-plans.integration.mjs",
+      "secretary-payments.integration.mjs",
+      "secretary-browser"
+    ],
+    "production_mutations": false,
+    "dev_mutations": false
+  },
+  "live_browser": {
+    "result": "PASS",
+    "season_scoped_choice": true,
+    "no_receipt_before_plan": true,
+    "four_modes_and_fixed_preview": true,
+    "general_finance_same_sequence": true,
+    "desktop_mobile_no_overflow": true,
+    "js_errors": 0,
+    "business_mutations": 0
+  },
+  "production_sha": "4c5bee0bcf94b8b45aef8a53cc0cf0796faf9df1"
+}

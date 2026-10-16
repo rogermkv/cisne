@@ -1,0 +1,13 @@
+.fw-overdue-panel{display:grid;gap:14px;padding:20px;background:#fff8f7;border:1px solid #f1c9c4;border-left:4px solid #d84d43;border-radius:12px}
+.fw-overdue-heading{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.fw-overdue-heading h2{margin:4px 0 5px;color:#7f211b;font-size:17px}
+.fw-overdue-heading p{margin:0;max-width:700px}
+.fw-overdue-heading>strong{white-space:nowrap;color:#b52e25;font-size:18px}
+.fw-overdue-list{display:grid;gap:8px}
+.fw-overdue-list article{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #efd8d4;border-radius:8px}
+.fw-overdue-list article>div{display:grid;gap:4px}
+.fw-overdue-list small{color:#7d6c6a;font-size:12px}
+.fw-overdue-list article>div:last-child{text-align:right}
+.fw-overdue-list b{color:#a52a22}
+.fw-overdue-empty{margin:0;color:#5c6e7b;font-size:13px}
+@media(max-width:700px){.fw-overdue-heading{flex-direction:column}.fw-overdue-list article{align-items:flex-start;flex-direction:column}.fw-overdue-list article>div:last-child{text-align:left}}

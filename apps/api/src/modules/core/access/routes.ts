@@ -2,16 +2,30 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '../../../lib/prisma.js'
 import { expirePastInvitations, getVisitorSeasonQuota } from '../visitors/quotas.js'
+import { resolveFinancialResponsibleMemberId } from '../members/domain.js'
+import { summarizeOverdueAnnualInstallments } from '../finance/status.js'
 
 const point = () => prisma.accessPoint.findFirstOrThrow({ where: { active: true } })
 const memberInclude = { category: true, titular: { include: { person: true } } }
+
+async function overdueInstallmentsFor(memberId: string) {
+  const responsibleMemberId = await resolveFinancialResponsibleMemberId(memberId)
+  if (!responsibleMemberId) return []
+  const charges = await prisma.financialCharge.findMany({
+    where: { responsibleMemberId, type: 'ANNUAL_FEE', annualEnrollmentId: { not: null }, installmentNumber: { not: null }, status: { not: 'CANCELLED' } },
+    include: { payments: true, responsibleMember: { include: { person: true } } },
+  })
+  return summarizeOverdueAnnualInstallments(charges).flatMap((account: any) => account.installments)
+}
 
 export const accessRoutes: FastifyPluginAsync = async app => {
   app.post('/access/validate-credential', { preHandler: app.requirePermission('access.view') }, async (request: any, reply) => {
     const person = await prisma.person.findUnique({ where: { credentialToken: request.body?.credentialToken }, include: { member: { include: memberInclude } } })
     if (!person) return reply.code(404).send({ message: 'Credencial não encontrada.' }); const member = person.member
     if (!member) return reply.code(403).send({ message: 'Pessoa não autorizada.' }); const dependent = member.category.isDependent || member.category.requiresHolder
-    return { person: { id: person.id, fullName: person.fullName, photoPath: person.photoPath, cpf: `${person.cpf.slice(0, 3)}.***.***-**` }, subject: { type: dependent ? 'Dependente' : 'Sócio', status: member.status, category: member.category.name, holderName: dependent ? member.titular?.person.fullName : undefined, memberId: member.id }, allowed: member.status === 'ACTIVE' }
+    const overdueInstallments = member.status === 'ACTIVE' ? await overdueInstallmentsFor(member.id) : []
+    const allowed = member.status === 'ACTIVE' && overdueInstallments.length === 0
+    return { person: { id: person.id, fullName: person.fullName, photoPath: person.photoPath, cpf: `${person.cpf.slice(0, 3)}.***.***-**` }, subject: { type: dependent ? 'Dependente' : 'Sócio', status: member.status, category: member.category.name, holderName: dependent ? member.titular?.person.fullName : undefined, memberId: member.id }, allowed, accessBlock: overdueInstallments.length ? { reason: 'OVERDUE_INSTALLMENTS', count: overdueInstallments.length, installments: overdueInstallments } : null }
   })
   app.get('/access/visitor/search', { preHandler: app.requirePermission('access.view') }, async (request: any) => { const q = String(request.query?.q || '').trim(); const digits = q.replace(/\D/g, ''); if (!q) return []; return prisma.visitor.findMany({ where: { OR: [{ person: { fullName: { contains: q, mode: 'insensitive' } } }, ...(digits ? [{ person: { cpf: { contains: digits } } }] : [])] }, include: { person: true }, take: 20, orderBy: { person: { fullName: 'asc' } } }) })
   app.get('/access/visitor/:cpf', { preHandler: app.requirePermission('access.view') }, async (request: any, reply) => {
@@ -24,7 +38,7 @@ export const accessRoutes: FastifyPluginAsync = async app => {
   app.post('/access/check-in', { preHandler: app.requirePermission('access.manage') }, async (request: any, reply) => {
     await expirePastInvitations()
     const body = request.body || {}; const accessPoint = await point(); let person: any; let invitation: any
-    if (body.credentialToken) { person = await prisma.person.findUnique({ where: { credentialToken: body.credentialToken }, include: { member: true } }); if (!person) return reply.code(404).send({ message: 'Credencial não encontrada.' }); if (person.member?.status !== 'ACTIVE') return reply.code(403).send({ message: 'Pessoa não autorizada.' }) }
+    if (body.credentialToken) { person = await prisma.person.findUnique({ where: { credentialToken: body.credentialToken }, include: { member: true } }); if (!person) return reply.code(404).send({ message: 'Credencial não encontrada.' }); if (person.member?.status !== 'ACTIVE') return reply.code(403).send({ message: 'Pessoa não autorizada.' }); const overdueInstallments = await overdueInstallmentsFor(person.member.id); if (overdueInstallments.length) return reply.code(403).send({ message: `Entrada bloqueada: ${overdueInstallments.length} parcela(s) de anuidade em atraso.`, code: 'OVERDUE_INSTALLMENTS', overdueInstallments }) }
     else { const cpf = String(body.cpf || '').replace(/\D/g, ''); const visitor = await prisma.visitor.findFirst({ where: { person: { cpf } }, include: { person: true } }); if (!visitor) return reply.code(404).send({ message: 'Visitante não cadastrado.' }); if (visitor.blocked) return reply.code(403).send({ message: 'Visitante bloqueado.' }); if (!visitor.active) return reply.code(403).send({ message: 'Visitante inativo.' }); person = visitor.person; invitation = await prisma.visitorInvitation.findFirst({ where: { visitorId: visitor.id, status: 'SCHEDULED' }, orderBy: { createdAt: 'asc' } }); if (!invitation) return reply.code(403).send({ message: 'Este visitante não possui convite válido.' }) }
     const recent = await prisma.accessEvent.findFirst({ where: { personId: person.id, type: 'ENTRY', occurredAt: { gte: new Date(Date.now() - 10000) } } }); if (recent) return reply.code(409).send({ message: 'Entrada já registrada recentemente.', event: recent }); const now = new Date()
     try { const event = await prisma.$transaction(async tx => { let locked: any = null; if (invitation) { await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${invitation.id}, 0))`; locked = await tx.visitorInvitation.findUnique({ where: { id: invitation.id } }); if (!locked || locked.status !== 'SCHEDULED') { const e: any = new Error('Este convite já foi utilizado.'); e.statusCode = 409; throw e } const seasonQuota = await getVisitorSeasonQuota(locked.visitorId, now, tx, locked.id); if (seasonQuota.available <= 0) { const e: any = new Error(`Este visitante atingiu a quota de ${seasonQuota.limit} entradas na temporada ${seasonQuota.season}.`); e.statusCode = 409; throw e } } const created = await tx.accessEvent.create({ data: { personId: person.id, accessPointId: accessPoint.id, type: 'ENTRY', method: body.credentialToken ? 'QR_CODE' : 'CPF_SEARCH', invitationId: locked?.id, registeredByUserId: request.authUser!.id }, include: { person: true, accessPoint: true } }); if (locked) await tx.visitorInvitation.update({ where: { id: locked.id }, data: { status: 'USED', usedAt: now } }); return created }); return { message: 'ENTRADA REGISTRADA', event } } catch (e: any) { return reply.code(e.statusCode || 500).send({ message: e.message || 'Não foi possível registrar a entrada.' }) }

@@ -10,7 +10,9 @@ export function installmentSchedule(endYear: number, mode: PlanMode, amount: num
   const firstMonth = mode === 'ADVANCE_12' ? 3 : 10
   return Array.from({ length: count }, (_, index) => ({ installmentNumber: index + 1, amount: (base + (index === count - 1 ? total - base * count : 0)) / 100, dueDate: new Date(Date.UTC(endYear - 1, firstMonth + index, 10)) }))
 }
-export const seasonLabel = (year: number) => `${year - 1}/${year}`
+/** Seasons are identified by the year in which they end: Anuidade 2027
+ * means 01/11/2026 through 31/10/2027. */
+export const seasonLabel = (year: number) => String(year)
 export function brasiliaDay(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now)
   const get = (key: string) => parts.find(part => part.type === key)!.value
