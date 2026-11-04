@@ -71,3 +71,71 @@ export function summarizeFinancialPortfolio(charges: any[]) {
     groupsInGoodStanding: Math.max(0, groupIds.size - overdueGroupIds.size),
   }
 }
+
+const originTypes = ['ANNUAL_FEE', 'RESERVATION', 'EVENT', 'OTHER']
+
+function monthKey(value: any) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+function shiftMonth(month: string, offset: number) {
+  const [year, value] = month.split('-').map(Number)
+  const date = new Date(Date.UTC(year, (value || 1) - 1 + offset, 1))
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+function originSummary(rows: any[]) {
+  return Object.fromEntries(originTypes.map(type => {
+    const items = rows.filter(row => row.type === type)
+    return [type, {
+      amount: items.reduce((sum, row) => sum + Number(row.balance || 0), 0),
+      count: items.length,
+      overdueAmount: items.filter(row => row.status === 'OVERDUE').reduce((sum, row) => sum + Number(row.balance || 0), 0),
+      overdueCount: items.filter(row => row.status === 'OVERDUE').length,
+      responsibleCount: new Set(items.map(row => row.responsibleMemberId).filter(Boolean)).size,
+    }]
+  }))
+}
+
+function forecastMonth(rows: any[], month: string) {
+  const dueInMonth = rows.filter(row => monthKey(row.dueDate) === month)
+  const overdue = dueInMonth.filter(row => row.status === 'OVERDUE')
+  const due = dueInMonth.filter(row => row.status !== 'OVERDUE')
+  return {
+    month,
+    amount: due.reduce((sum, row) => sum + Number(row.balance || 0), 0),
+    count: due.length,
+    responsibleCount: new Set(due.map(row => row.responsibleMemberId).filter(Boolean)).size,
+    overdueAmount: overdue.reduce((sum, row) => sum + Number(row.balance || 0), 0),
+    overdueCount: overdue.length,
+    byOrigin: originSummary(due),
+    overdueByOrigin: originSummary(overdue),
+  }
+}
+
+/** Aggregates receivables without treating overdue balances as probable future cash. */
+export function summarizeFinancialOverview(charges: any[], referenceMonth = monthKey(new Date())) {
+  const active = charges.filter(charge => charge.status !== 'CANCELLED')
+  const open = active.filter(charge => charge.status !== 'PAID' && Number(charge.balance || 0) > 0)
+  const overdue = open.filter(charge => charge.status === 'OVERDUE')
+  return {
+    receivableByOrigin: originSummary(open),
+    overdueByOrigin: originSummary(overdue),
+    forecast: {
+      current: forecastMonth(open, referenceMonth),
+      next: forecastMonth(open, shiftMonth(referenceMonth, 1)),
+    },
+  }
+}
+
+export function summarizeReceivedByOrigin(charges: any[], from: Date, to: Date) {
+  return Object.fromEntries(originTypes.map(type => {
+    const rows = charges.filter(charge => charge.type === type)
+    const payments = rows.flatMap(charge => charge.payments || []).filter((payment: any) => {
+      const paidAt = new Date(payment.paidAt)
+      return paidAt >= from && paidAt <= to
+    })
+    return [type, { amount: payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0), count: payments.length }]
+  }))
+}

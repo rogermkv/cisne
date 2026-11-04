@@ -16,7 +16,7 @@ const main = async () => {
   const { buildApp } = await import('../src/app.js')
   const app = await buildApp()
   const admin = await prisma.user.findFirstOrThrow({ where: { roles: { some: { role: { name: 'ADMIN' } } } }, include: { person: true } })
-  const adminToken = createAccessToken(admin.id, env.jwtSecret)
+  const adminToken = createAccessToken(admin.id, env.jwtSecret, 'ADMIN')
   const category = await prisma.memberCategory.findFirstOrThrow({ where: { active: true, isDependent: false, requiresHolder: false } })
   const dependentCategory = await prisma.memberCategory.findFirstOrThrow({ where: { active: true, isDependent: true } })
   const uniqueSeed = Number(String(Date.now()).slice(-9))
@@ -28,18 +28,29 @@ const main = async () => {
     const holderResponse = await app.inject({ method: 'POST', url: '/api/members', ...json({ fullName: 'Smoke Holder', cpf: holderCpf, birthDate: '1990-01-02', admissionDate: '2026-01-01', categoryId: category.id, status: 'ACTIVE' }, adminToken) })
     assert.equal(holderResponse.statusCode, 201)
     const holder = holderResponse.json<any>(); createdIds.member = holder.id; createdIds.person = holder.person.id
+    assert.match(holder.registrationNumber, /^\d+$/)
     const login = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { cpf: holderCpf, password: '02011990' } })
     assert.equal(login.statusCode, 200)
-    const memberToken = login.json<any>().token
+    const passwordChange = await app.inject({ method: 'POST', url: '/api/auth/password', headers: { authorization: `Bearer ${login.json<any>().token}`, 'content-type': 'application/json' }, payload: { currentPassword: '02011990', newPassword: '02011990x' } })
+    assert.equal(passwordChange.statusCode, 200)
+    const memberRole = await app.inject({ method: 'POST', url: '/api/auth/role', headers: { authorization: `Bearer ${login.json<any>().token}`, 'content-type': 'application/json' }, payload: { role: 'SOCIO' } })
+    assert.equal(memberRole.statusCode, 200)
+    const memberToken = memberRole.json<any>().token
 
     const dependentResponse = await app.inject({ method: 'POST', url: '/api/members', ...json({ fullName: 'Smoke Dependent', cpf: dependentCpf, birthDate: '2015-03-04', admissionDate: '2026-01-01', categoryId: dependentCategory.id, titularMemberId: holder.id, relationship: 'Filho', status: 'ACTIVE' }, adminToken) })
     assert.equal(dependentResponse.statusCode, 201)
     const dependent = dependentResponse.json<any>(); createdIds.dependent = dependent.id; createdIds.dependentPerson = dependent.person.id
+    assert.match(dependent.registrationNumber, /^\d+$/)
+    assert.notEqual(dependent.registrationNumber, holder.registrationNumber)
     assert.equal(dependent.financialResponsible.id, holder.id)
     assert.equal(await resolveFinancialResponsibleMemberId(dependent.id), holder.id)
     const dependentLogin = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { cpf: dependentCpf, password: '04032015' } })
     assert.equal(dependentLogin.statusCode, 200)
-    const dependentArea = await app.inject({ method: 'GET', url: '/api/member/me', headers: { authorization: `Bearer ${dependentLogin.json<any>().token}` } })
+    const dependentPasswordChange = await app.inject({ method: 'POST', url: '/api/auth/password', headers: { authorization: `Bearer ${dependentLogin.json<any>().token}`, 'content-type': 'application/json' }, payload: { currentPassword: '04032015', newPassword: '04032015x' } })
+    assert.equal(dependentPasswordChange.statusCode, 200)
+    const dependentRole = await app.inject({ method: 'POST', url: '/api/auth/role', headers: { authorization: `Bearer ${dependentLogin.json<any>().token}`, 'content-type': 'application/json' }, payload: { role: 'SOCIO' } })
+    assert.equal(dependentRole.statusCode, 200)
+    const dependentArea = await app.inject({ method: 'GET', url: '/api/member/me', headers: { authorization: `Bearer ${dependentRole.json<any>().token}` } })
     assert.equal(dependentArea.statusCode, 200)
     assert.equal(dependentArea.json<any>().isDependent, true)
     assert.deepEqual(dependentArea.json<any>().dependents.map((item: any) => item.id), [holder.id])
@@ -50,8 +61,6 @@ const main = async () => {
     assert.equal((await app.inject({ method: 'GET', url: `/api/members/holders/search?q=Smoke%20Holder`, headers: { authorization: `Bearer ${adminToken}` } })).statusCode, 200)
     assert.equal((await app.inject({ method: 'GET', url: `/api/members/holders/search?q=${holderCpf}`, headers: { authorization: `Bearer ${adminToken}` } })).statusCode, 200)
 
-    const reset = await app.inject({ method: 'POST', url: `/api/members/${holder.id}/access/reset-password`, headers: { authorization: `Bearer ${adminToken}` } })
-    assert.equal(reset.statusCode, 200)
     const secretaria = await prisma.role.findUniqueOrThrow({ where: { name: 'SECRETARIA' }, include: { permissions: { include: { permission: true } } } })
     const secretariaKeys = secretaria.permissions.map((item) => item.permission.key)
     assert.ok(secretariaKeys.includes('members.manage')); assert.ok(secretariaKeys.includes('finance.manage'))
@@ -60,19 +69,21 @@ const main = async () => {
     const expired = await app.inject({ method: 'POST', url: '/api/announcements', ...json({ title: 'Expired smoke', content: 'Gone', startDate: new Date(Date.now() - 172800000).toISOString(), endDate: new Date(Date.now() - 86400000).toISOString() }, adminToken) })
     assert.equal(future.statusCode, 201); assert.equal(expired.statusCode, 201); createdIds.announcements.push(future.json<any>().id, expired.json<any>().id)
     const announcements = await app.inject({ method: 'GET', url: '/api/member/me/announcements', headers: { authorization: `Bearer ${memberToken}` } })
-    assert.equal(announcements.statusCode, 200); assert.ok(!announcements.json<any[]>().some((item) => item.title.includes('smoke')))
+    assert.equal(announcements.statusCode, 200, announcements.body); assert.ok(!announcements.json<any[]>().some((item) => item.title.includes('smoke')))
+    const reset = await app.inject({ method: 'POST', url: `/api/members/${holder.id}/access/reset-password`, headers: { authorization: `Bearer ${adminToken}` } })
+    assert.equal(reset.statusCode, 200)
 
     const space = await prisma.reservableSpace.findFirstOrThrow({ where: { active: true } })
     const date = '2035-05-05'
     const first = await app.inject({ method: 'POST', url: '/api/reservations', ...json({ memberId: holder.id, spaceId: space.id, reservationDate: date, startTime: '10:00', endTime: '12:00', status: 'APPROVED' }, adminToken) })
-    assert.equal(first.statusCode, 201); createdIds.reservations.push(first.json<any>().id)
+    assert.equal(first.statusCode, 201); createdIds.reservations.push(first.json<any>().id); assert.equal(first.json<any>().financialCharge?.status, 'PENDING'); assert.equal(Number(first.json<any>().financialCharge?.amount), Number(space.price))
     const conflict = await app.inject({ method: 'POST', url: '/api/reservations', ...json({ memberId: holder.id, spaceId: space.id, reservationDate: date, startTime: '11:00', endTime: '13:00' }, adminToken) })
     assert.equal(conflict.statusCode, 409)
     const accessStats = await app.inject({ method: 'GET', url: '/api/access/stats', headers: { authorization: `Bearer ${adminToken}` } })
     assert.equal(accessStats.statusCode, 200); assert.deepEqual(Object.keys(accessStats.json<any>()).filter((key) => ['today', 'last2Days', 'last7Days'].includes(key)).sort(), ['last2Days', 'last7Days', 'today'])
     console.log('Club module smoke validated.')
   } finally {
-    if (createdIds.reservations.length) await prisma.reservation.deleteMany({ where: { id: { in: createdIds.reservations } } })
+    if (createdIds.reservations.length) { await prisma.financialCharge.deleteMany({ where: { reservationId: { in: createdIds.reservations } } }); await prisma.reservation.deleteMany({ where: { id: { in: createdIds.reservations } } }) }
     if (createdIds.announcements.length) await prisma.announcement.deleteMany({ where: { id: { in: createdIds.announcements } } })
     const people = [createdIds.person, createdIds.dependentPerson].filter(Boolean) as string[]
     if (people.length) await prisma.user.deleteMany({ where: { personId: { in: people } } })
