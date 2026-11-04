@@ -162,6 +162,7 @@ enum ReservationStatus {
   updatedAt        DateTime @updatedAt
   member           Member @relation(fields:[memberId], references:[id])
   space            ReservableSpace @relation(fields:[spaceId], references:[id])
+    financialCharge FinancialCharge?
     approvedBy       User? @relation("ReservationApprover", fields:[approvedByUserId], references:[id])
     statusHistory    ReservationStatusHistory[]
   @@index([spaceId, reservationDate])
@@ -399,10 +400,12 @@ model FinancialCharge {
   dueDate DateTime
   status FinancialChargeStatus @default(PENDING)
   paidAt DateTime?
+  reservationId String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   member Member @relation(fields:[memberId], references:[id])
   responsibleMember Member @relation("FinancialResponsible", fields:[responsibleMemberId], references:[id])
+  reservation Reservation? @relation(fields:[reservationId], references:[id], onDelete: SetNull)
   payments FinancialPayment[]
   @@index([responsibleMemberId, dueDate])
   @@index([dueDate, status])

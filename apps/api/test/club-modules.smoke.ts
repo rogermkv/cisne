@@ -28,6 +28,7 @@ const main = async () => {
     const holderResponse = await app.inject({ method: 'POST', url: '/api/members', ...json({ fullName: 'Smoke Holder', cpf: holderCpf, birthDate: '1990-01-02', admissionDate: '2026-01-01', categoryId: category.id, status: 'ACTIVE' }, adminToken) })
     assert.equal(holderResponse.statusCode, 201)
     const holder = holderResponse.json<any>(); createdIds.member = holder.id; createdIds.person = holder.person.id
+    assert.match(holder.registrationNumber, /^\d+$/)
     const login = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { cpf: holderCpf, password: '02011990' } })
     assert.equal(login.statusCode, 200)
     const memberToken = login.json<any>().token
@@ -35,6 +36,8 @@ const main = async () => {
     const dependentResponse = await app.inject({ method: 'POST', url: '/api/members', ...json({ fullName: 'Smoke Dependent', cpf: dependentCpf, birthDate: '2015-03-04', admissionDate: '2026-01-01', categoryId: dependentCategory.id, titularMemberId: holder.id, relationship: 'Filho', status: 'ACTIVE' }, adminToken) })
     assert.equal(dependentResponse.statusCode, 201)
     const dependent = dependentResponse.json<any>(); createdIds.dependent = dependent.id; createdIds.dependentPerson = dependent.person.id
+    assert.match(dependent.registrationNumber, /^\d+$/)
+    assert.notEqual(dependent.registrationNumber, holder.registrationNumber)
     assert.equal(dependent.financialResponsible.id, holder.id)
     assert.equal(await resolveFinancialResponsibleMemberId(dependent.id), holder.id)
     const dependentLogin = await app.inject({ method: 'POST', url: '/api/auth/login', payload: { cpf: dependentCpf, password: '04032015' } })
@@ -65,14 +68,14 @@ const main = async () => {
     const space = await prisma.reservableSpace.findFirstOrThrow({ where: { active: true } })
     const date = '2035-05-05'
     const first = await app.inject({ method: 'POST', url: '/api/reservations', ...json({ memberId: holder.id, spaceId: space.id, reservationDate: date, startTime: '10:00', endTime: '12:00', status: 'APPROVED' }, adminToken) })
-    assert.equal(first.statusCode, 201); createdIds.reservations.push(first.json<any>().id)
+    assert.equal(first.statusCode, 201); createdIds.reservations.push(first.json<any>().id); assert.equal(first.json<any>().financialCharge?.status, 'PENDING'); assert.equal(Number(first.json<any>().financialCharge?.amount), Number(space.price))
     const conflict = await app.inject({ method: 'POST', url: '/api/reservations', ...json({ memberId: holder.id, spaceId: space.id, reservationDate: date, startTime: '11:00', endTime: '13:00' }, adminToken) })
     assert.equal(conflict.statusCode, 409)
     const accessStats = await app.inject({ method: 'GET', url: '/api/access/stats', headers: { authorization: `Bearer ${adminToken}` } })
     assert.equal(accessStats.statusCode, 200); assert.deepEqual(Object.keys(accessStats.json<any>()).filter((key) => ['today', 'last2Days', 'last7Days'].includes(key)).sort(), ['last2Days', 'last7Days', 'today'])
     console.log('Club module smoke validated.')
   } finally {
-    if (createdIds.reservations.length) await prisma.reservation.deleteMany({ where: { id: { in: createdIds.reservations } } })
+    if (createdIds.reservations.length) { await prisma.financialCharge.deleteMany({ where: { reservationId: { in: createdIds.reservations } } }); await prisma.reservation.deleteMany({ where: { id: { in: createdIds.reservations } } }) }
     if (createdIds.announcements.length) await prisma.announcement.deleteMany({ where: { id: { in: createdIds.announcements } } })
     const people = [createdIds.person, createdIds.dependentPerson].filter(Boolean) as string[]
     if (people.length) await prisma.user.deleteMany({ where: { personId: { in: people } } })

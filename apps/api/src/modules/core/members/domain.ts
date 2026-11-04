@@ -1,8 +1,8 @@
 import { prisma } from '../../../lib/prisma.js'
 
 /** Resolves the single member responsible for all family-level financial records. */
-export async function resolveFinancialResponsibleMember(memberId: string) {
-  const member = await prisma.member.findUnique({
+export async function resolveFinancialResponsibleMember(memberId: string, db: any = prisma) {
+  const member = await db.member.findUnique({
     where: { id: memberId },
     include: { category: true, titular: true },
   })
@@ -12,9 +12,10 @@ export async function resolveFinancialResponsibleMember(memberId: string) {
     : member
 }
 
-export async function resolveFinancialResponsibleMemberId(memberId: string) {
-  return (await resolveFinancialResponsibleMember(memberId))?.id ?? null
+export async function resolveFinancialResponsibleMemberId(memberId: string, db: any = prisma) {
+  return (await resolveFinancialResponsibleMember(memberId, db))?.id ?? null
 }
+
 
 /** Same family scope used by the member activity record; invalid filters never become global. */
 export async function resolveActivityFamily(memberId: unknown) {
