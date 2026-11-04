@@ -4,7 +4,7 @@ import { annualChargeInclude } from '../annualities/routes.js'
 import { recordPayment, fail, lockCharge } from '../annualities/payments.js'
 import { prisma } from '../../../lib/prisma.js'
 import { resolveFinancialResponsibleMemberId } from '../members/domain.js'
-import { effectiveFinancialStatus, financialAmounts, summarizeFinancialPortfolio, summarizeOverdueAnnualInstallments } from './status.js'
+import { effectiveFinancialStatus, financialAmounts, summarizeFinancialOverview, summarizeFinancialPortfolio, summarizeReceivedByOrigin, summarizeOverdueAnnualInstallments } from './status.js'
 
 const annualDescription = (charge: any) => {
   if (charge.type !== 'ANNUAL_FEE' || typeof charge.description !== 'string') return charge.description
@@ -16,8 +16,9 @@ const serialize = (charge: any) => {
   return { ...charge, description: annualDescription(charge), ...financialAmounts({ ...charge, payments }), payments }
 }
 const effectiveStatus = effectiveFinancialStatus
-const chargeInclude = { ...annualChargeInclude, member: { include: { person: true, category: true, titular: { include: { person: true } } } }, responsibleMember: { include: { person: true } }, payments: { orderBy: { paidAt: 'desc' }, include: { registeredBy: { select: { id: true, person: { select: { fullName: true } } } } } } }
+const chargeInclude = { ...annualChargeInclude, member: { include: { person: true, category: true, titular: { include: { person: true } } } }, responsibleMember: { include: { person: true } }, reservation: { select: { id: true, reservationDate: true, startTime: true, endTime: true, status: true, space: { select: { id: true, name: true } } } }, payments: { orderBy: { paidAt: 'desc' }, include: { registeredBy: { select: { id: true, person: { select: { fullName: true } } } } } } }
 const civilDate = (value: any) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00.000Z`) : null
+const monthDate = (value: any, end = false) => { if (typeof value !== 'string' || !/^\d{4}-\d{2}$/.test(value)) return null; const [year, month] = value.split('-').map(Number); return end ? new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)) : new Date(Date.UTC(year, month - 1, 1)) }
 
 export const financeRoutes: FastifyPluginAsync = async (app) => {
   app.get('/member/me/finance', { preHandler: app.authenticate }, async (request: any, reply) => {
@@ -39,8 +40,11 @@ export const financeRoutes: FastifyPluginAsync = async (app) => {
     }
     const rows = await prisma.financialCharge.findMany({ where: responsibleMemberId ? { responsibleMemberId } : {}, include: chargeInclude, orderBy: [{ dueDate: 'desc' }, { id: 'asc' }] }); const status = request.query?.status; return rows.map((c) => ({ ...serialize(c), status: effectiveStatus(c), member: { ...c.member, person: { ...c.member.person, cpfMasked: `${c.member.person.cpf.slice(0, 3)}.***.***-**` } } })).filter((c) => !status || c.status === status) })
   app.get('/finance/dashboard', { preHandler: app.requirePermission('finance.view') }, async (request: any) => {
-    const from = request.query?.from ? new Date(request.query.from) : new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    const to = request.query?.to ? new Date(`${request.query.to}T23:59:59.999Z`) : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0, 23, 59, 59, 999)
+    const requestedMonth = typeof request.query?.from === 'string' ? request.query.from.slice(0, 7) : ''
+    const now = new Date()
+    const currentMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+    const from = monthDate(requestedMonth) || monthDate(currentMonth)
+    const to = monthDate(requestedMonth || currentMonth, true)
     const charges = await prisma.financialCharge.findMany({ include: { payments: true, responsibleMember: { include: { person: true } } } })
     const active = charges.filter((c) => c.status !== 'CANCELLED')
     const normalized = active.map((c) => ({ ...serialize(c), status: effectiveStatus(c), responsibleMemberId: c.responsibleMemberId }))
@@ -53,8 +57,8 @@ export const financeRoutes: FastifyPluginAsync = async (app) => {
       byDay.set(day, (byDay.get(day) || 0) + Number(p.amount))
     }
     const today = new Date(); const startToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())); const end30 = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 30, 23, 59, 59, 999)); const dueSoon = pending.filter(c => new Date(c.dueDate) >= startToday && new Date(c.dueDate) <= end30)
-    const overdueInstallmentAccounts = summarizeOverdueAnnualInstallments(normalized)
-    return { totalToReceive: pending.reduce((s, c) => s + c.balance, 0), openCount: pending.length, totalReceived: payments.reduce((s, p) => s + Number(p.amount), 0), receivedCount: payments.length, totalOverdue: overdue.reduce((s, c) => s + c.balance, 0), overdueCount: overdue.length, dueSoon: dueSoon.reduce((s, c) => s + c.balance, 0), dueSoonCount: dueSoon.length, membersWithPending: new Set(pending.map((c) => c.responsibleMemberId)).size, receivedByDay: [...byDay].map(([date, total]) => ({ date, total })), nextDue: pending.sort((a, b) => +new Date(a.dueDate) - +new Date(b.dueDate)).slice(0, 10), overdueInstallmentAccounts, overdueInstallmentCount: overdueInstallmentAccounts.reduce((sum, item) => sum + item.overdueCount, 0), ...summarizeFinancialPortfolio(normalized) }
+    const referenceMonth = `${from.getUTCFullYear()}-${String(from.getUTCMonth() + 1).padStart(2, '0')}`
+    return { totalToReceive: pending.reduce((s, c) => s + c.balance, 0), openCount: pending.length, totalReceived: payments.reduce((s, p) => s + Number(p.amount), 0), receivedCount: payments.length, totalOverdue: overdue.reduce((s, c) => s + c.balance, 0), overdueCount: overdue.length, dueSoon: dueSoon.reduce((s, c) => s + c.balance, 0), dueSoonCount: dueSoon.length, membersWithPending: new Set(pending.map((c) => c.responsibleMemberId)).size, receivedByDay: [...byDay].map(([date, total]) => ({ date, total })), nextDue: pending.sort((a, b) => +new Date(a.dueDate) - +new Date(b.dueDate)).slice(0, 10), receivedByOrigin: summarizeReceivedByOrigin(active, from, to), ...summarizeFinancialOverview(normalized, referenceMonth), ...summarizeFinancialPortfolio(normalized) }
   })
   app.get('/finance/overdue-installments', { preHandler: app.requirePermission('finance.view') }, async () => {
     const charges = await prisma.financialCharge.findMany({

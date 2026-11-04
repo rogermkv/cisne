@@ -253,6 +253,11 @@ button {
   box-shadow: inset 3px 0 #d3a93d;
 }
 
+.nav-group { display: grid; gap: 3px; }
+.nav-subitems { display: grid; gap: 3px; margin: -2px 0 4px 18px; padding-left: 12px; border-left: 1px solid rgb(159 199 232 / 28%); }
+.nav-item--subitem { padding: 9px 11px; color: #9fc7e8; font-size: .82rem; }
+.nav-item--subitem.nav-item--active { color: white; background: rgb(0 108 203 / 42%); box-shadow: inset 2px 0 var(--c-yellow); }
+
 .sidebar__footer {
   display: flex;
   align-items: center;

@@ -14,6 +14,7 @@ import { ChargeDocuments } from './ChargeDocuments'
 import { FinanceWorkspace } from './FinanceWorkspace'
 import type { Member } from '../../../api/members'
 import './finance.css'
+import './finance-redesign.css'
 import '../member-area/member-finance.css'
 
 const auth = () => ({ headers: { Authorization: `Bearer ${sessionStorage.getItem('cisne.accessToken') || ''}` } })
@@ -29,6 +30,13 @@ const chargeMessage = (row: any) => {
   const verb = row.status === 'OVERDUE' ? 'vencida em' : 'com vencimento em'
   return `Olá, ${name}. Consta em nosso sistema a cobrança ${row.description}, ${verb} ${dateLabel(row.dueDate)}, com saldo de ${money(row.balance ?? row.amount)}.`
 }
+
+const originLabel: Record<string, string> = { ANNUAL_FEE: 'Anuidades', RESERVATION: 'Reservas', EVENT: 'Eventos', OTHER: 'Outros' }
+const originIcon: Record<string, string> = { ANNUAL_FEE: 'parcelas', RESERVATION: 'reservas', EVENT: 'lançamentos', OTHER: 'lançamentos' }
+const nextMonth = (value: string) => { const date = new Date(`${value}-01T00:00:00`); date.setMonth(date.getMonth() + 1); return date.toISOString().slice(0, 7) }
+const monthName = (value: string) => new Date(`${value}-01T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+function FinanceOriginBreakdown({ data }: { data?: any }) { return <div className="finance-origin-breakdown">{['ANNUAL_FEE', 'RESERVATION'].map(key => { const item = data?.[key] || { amount: 0, count: 0 }; return <span key={key}><b>{originLabel[key]}</b><strong>{money(item.amount)}</strong><small>{item.count} {originIcon[key]}</small></span> })}</div> }
+function FinanceForecastCard({ title, data }: { title: string; data?: any }) { const annuality = data?.byOrigin?.ANNUAL_FEE || { amount: 0, count: 0 }; const reservations = data?.byOrigin?.RESERVATION || { amount: 0, count: 0 }; return <article className="finance-forecast-card"><div className="finance-forecast-card__heading"><div><span className="finance-card-kicker">Previsão de recebimentos</span><h3>{title}</h3></div><span className="finance-forecast-card__icon">↗</span></div><strong className="finance-forecast-card__total">{data ? money(data.amount) : '—'}</strong><small className="finance-forecast-card__caption">{data ? `${data.count} cobranças · ${data.responsibleCount} responsáveis` : 'Carregando previsão…'}</small><div className="finance-forecast-card__origins"><span><b>Anuidades</b><strong>{data ? money(annuality.amount) : '—'}</strong><small>{data ? `${annuality.count} parcelas` : '—'}</small></span><span><b>Reservas</b><strong>{data ? money(reservations.amount) : '—'}</strong><small>{data ? `${reservations.count} reservas` : '—'}</small></span></div>{(data?.overdueCount || 0) > 0 && <p className="finance-forecast-card__warning">{data.overdueCount} {data.overdueCount === 1 ? 'parcela em atraso' : 'parcelas em atraso'} · {money(data.overdueAmount)}</p>}</article> }
 export function AdminFinancePage({ onBack, member }: { onBack?: () => void; member?: Member }) {
   const { user } = useAuth()
   const canManage = hasPermission(user, 'finance.manage')
@@ -40,15 +48,16 @@ export function AdminFinancePage({ onBack, member }: { onBack?: () => void; memb
   const [status, setStatus] = useState(''), [type, setType] = useState('')
   const period = monthValue()
   const [message, setMessage] = useState(''), [error, setError] = useState(''), [loading, setLoading] = useState(true), [saving, setSaving] = useState(false)
+  const [dashboard, setDashboard] = useState<any>(null)
   const [payment, setPayment] = useState<any>(null), [detail, setDetail] = useState<any>(null), [editor, setEditor] = useState<any>(null)
 
   const load = async () => {
     setLoading(true); setError('')
     try {
       const requests: Promise<any>[] = [apiRequest<any[]>('/api/finance/charges' + (member ? '?memberId=' + encodeURIComponent(member.id) : ''), auth()), apiRequest<any>('/api/annualities', auth())]
-      if (!member) requests.push(apiRequest<any>('/api/finance/overdue-installments', auth()))
-      const [charges, annual, overdue] = await Promise.all(requests)
-      setRows(charges); setAnnualSeasons(annual.seasons.filter((season: any) => season.enrollmentOpen)); if (!member) setOverdueInstallments(overdue.accounts || [])
+      if (!member) { requests.push(apiRequest<any>('/api/finance/overdue-installments', auth())); requests.push(apiRequest<any>(`/api/finance/dashboard?from=${monthValue()}`, auth())) }
+      const [charges, annual, overdue, overview] = await Promise.all(requests)
+      setRows(charges); setAnnualSeasons(annual.seasons.filter((season: any) => season.enrollmentOpen)); if (!member) { setOverdueInstallments(overdue.accounts || []); setDashboard(overview) }
     } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }
   useEffect(() => { void load() }, [member?.id])
@@ -88,6 +97,10 @@ export function AdminFinancePage({ onBack, member }: { onBack?: () => void; memb
     {!member && <><button className="finance-back" onClick={onBack}><ArrowLeft size={18} /> Voltar ao painel</button>
     <span className="eyebrow">Gestão administrativa</span><h1>Financeiro</h1></>}
     <Feedback error={error} message={message} />
+    {!member && <>
+      <section className="finance-overview-section" aria-labelledby="finance-overview-title"><div className="section-heading"><div><span className="eyebrow">Resumo financeiro</span><h2 id="finance-overview-title">O que o clube tem a receber</h2><p className="finance-section-description">Anuidades e reservas aparecem separadas; valores atrasados continuam dentro do total a receber.</p></div></div><div className="finance-admin-stats finance-admin-stats-overview"><article><span>Total a receber</span><strong>{dashboard ? money(dashboard.totalToReceive) : '—'}</strong><small>{dashboard?.openCount ?? 0} cobranças · {dashboard?.membersWithPending ?? 0} responsáveis</small><FinanceOriginBreakdown data={dashboard?.receivableByOrigin} /></article><article className="finance-stat-danger"><span>Em atraso</span><strong>{dashboard ? money(dashboard.totalOverdue) : '—'}</strong><small>{dashboard?.overdueCount ?? 0} cobranças vencidas · incluído em Total a receber</small><FinanceOriginBreakdown data={dashboard?.overdueByOrigin} /></article><article><span>Recebido neste mês</span><strong>{dashboard ? money(dashboard.totalReceived) : '—'}</strong><small>{dashboard?.receivedCount ?? 0} pagamentos registrados</small></article></div></section>
+      <section className="finance-forecast-section" aria-labelledby="finance-forecast-title"><div className="section-heading"><div><span className="eyebrow">Previsão de recebimentos</span><h2 id="finance-forecast-title">Valores previstos por vencimento</h2><p className="finance-section-description">A previsão mostra apenas cobranças ainda abertas com vencimento no mês indicado.</p></div></div><div className="finance-forecast-grid"><FinanceForecastCard title={`Este mês · ${monthName(period)}`} data={dashboard?.forecast?.current} /><FinanceForecastCard title={`Próximo mês · ${monthName(nextMonth(period))}`} data={dashboard?.forecast?.next} /></div></section>
+    </>}
     {member && <div className="family-finance">
       <header className="family-finance-heading"><div><h2>Financeiro</h2><p>Responsável: <strong>{member.financialResponsible?.name || member.titular?.person.fullName || member.person.fullName}</strong></p></div>{canManage && <button className="btn btn-primary" disabled={loading || saving} onClick={() => { setError(''); setEditor({ form: { ...emptyCharge, memberId: member.id, referenceYear: seasonFilter || period.slice(0, 4), dueDate: `${seasonFilter || period.slice(0, 4)}-${period.slice(5)}-01` } }) }}><Plus size={16} /> Nova cobrança</button>}</header>
       <div className="family-finance-totals" role="group" aria-label="Totais da conta familiar"><div><span>Total em aberto</span><strong>{loading ? '—' : money(account.open)}</strong></div><div><span>Em atraso</span><strong>{loading ? '—' : money(account.overdue)}</strong></div><div><span>Total pago</span><strong>{loading ? '—' : money(account.paid)}</strong></div></div>
