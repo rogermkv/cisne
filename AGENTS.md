@@ -30,7 +30,7 @@ Antes de qualquer tarefa relevante:
 
 ## Production
 
-- Produção deve receber código pelo processo oficial.
+- Produção deve receber código pelo processo oficial: `publicar cisne` no .98 (deploy único `mkv-deploy`).
 - Todo deploy precisa registrar o SHA.
 - Backup obrigatório antes de migrations.
 - Preservar `.env` e storage persistente.
