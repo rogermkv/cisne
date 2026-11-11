@@ -31,6 +31,7 @@ const main = async () => {
     const first = await app.inject({ method: 'POST', url: '/api/members', ...request(token, { fullName: 'Smoke Sócio Validação', cpf: cpf(seed), birthDate: '1990-01-02', admissionDate: '2026-01-01', categoryId: category.id }) })
     assert.equal(first.statusCode, 201)
     const holder = first.json<any>(); members.push(holder.id); people.push(holder.person.id)
+    assert.match(holder.registrationNumber, /^\d+$/)
     const form = { ...holder.person, categoryId: category.id, admissionDate: String(holder.admissionDate).slice(0, 10), birthDate: String(holder.person.birthDate).slice(0, 10), cpf: holder.person.cpf }
     const invalid = await app.inject({ method: 'PUT', url: '/api/members/' + holder.id, ...request(token, { ...form, cpf: '11111111111' }) })
     assert.equal(invalid.statusCode, 400); assert.equal(invalid.json().field, 'cpf'); assert.equal(invalid.json().message, 'Informe um CPF válido.')
@@ -44,6 +45,8 @@ const main = async () => {
     const dependent = await app.inject({ method: 'POST', url: '/api/members/' + holder.id + '/dependents', ...request(token, { fullName: 'Smoke Dependente', cpf: cpf(seed + 2), birthDate: '2015-03-04', relationship: 'Filho' }) })
     assert.equal(dependent.statusCode, 200)
     const dependentRow = dependent.json<any>(); members.push(dependentRow.id); people.push(dependentRow.person.id)
+    assert.match(dependentRow.registrationNumber, /^\d+$/)
+    assert.notEqual(dependentRow.registrationNumber, holder.registrationNumber)
     const blockedStatus = await app.inject({ method: 'POST', url: '/api/members/' + holder.id + '/status', ...request(token, { status: 'INACTIVE' }) })
     assert.equal(blockedStatus.statusCode, 409)
     const blockedDelete = await app.inject({ method: 'DELETE', url: '/api/members/' + holder.id, headers: { authorization: 'Bearer ' + token } })
