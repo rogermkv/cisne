@@ -566,3 +566,7 @@ Pós-publicação no DEV real somente leitura: cadastro existente com12 parcelas
 Publicação atômica somente do frontend, sem reiniciar a API nem alterar schema/banco. API compilada/PID e .env/storage preservados; index/assets/manifest/SW200, arquivos servidos iguais ao build testado. Backup fontes/manifest em /opt/apps/cisne/shared/backups/before-scroll-20261015T234157Z e frontend anterior em app/apps/web/.before-scroll-dist-20261015T234157Z. Assets antigos retidos para abas já abertas. Manifest ativo, shared/dev-source.commit e app/DEV_SCROLL_RELEASE.json registram46f1bbc; permanece a pendência administrativa do marcador root-owned legado, já investigado e não usado como identificação da release ativa.
 
 origin/main e produção confirmados em4c5bee0bcf94b8b45aef8a53cc0cf0796faf9df1, ativos e inalterados. Original main749ce398 e alterações locais preservados; sem push/merge. Relatório local cisne-modal-scroll-dev.json. Próximo passo: atualizar o navegador do DEV com Ctrl+F5 e operar em zoom normal. Produção não recebeu esta alteração.
+
+## Limpeza da estrutura — 11/11/2026
+
+AUDITORIA_CISNE.md movido para docs/historico/. 21 branches locais antigos do Codex (conteúdo já incorporado ao main, conferido linha a linha) guardados em bundle e removidos.

@@ -1,3 +1,7 @@
+## Limpeza da estrutura — 11/11/2026
+
+AUDITORIA_CISNE.md movido para docs/historico/. 21 branches locais antigos do Codex (conteúdo já incorporado ao main, conferido linha a linha) guardados em bundle e removidos.
+
 ## Rolagem restaurada após janelas sobrepostas — DEV, 15/10/2026 23:42 UTC
 
 DEV192.168.0.98:8084 publicado em46f1bbcafdff01952cd396b9590dec1f77f982b6, branch codex/secretary-annuality-corrections, base DEVdb0c851. Falha reproduzida na versão anterior com API e PostgreSQL16 isolados: confirmar a modalidade desmontava a escolha e sua prévia juntas; cada Modal restaurava seu valor de overflow individualmente e a última limpeza podia reinstalar hidden no body. Não era necessário diminuir zoom; era uma trava residual de rolagem.
