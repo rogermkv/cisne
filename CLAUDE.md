@@ -28,7 +28,7 @@ Typecheck do web: `cd apps/web && ../../node_modules/.bin/tsc --noEmit -p tsconf
 | API | 127.0.0.1:3338 (`/api/health`) | 127.0.0.1:3338 (`/api/health`) |
 | Banco | PostgreSQL local 5432 | PostgreSQL 5432, banco `cisne` |
 | Mídia | `MEDIA_STORAGE_ROOT` | `/opt/apps/cisne/shared/media` |
-| Atualizar | roda como `herpich` em `/opt/apps/cisne/app`; não está no `mkv-dev-admin` | `publicar cisne [--migrate]` |
+| Atualizar | `publicar cisne --dev` | `publicar cisne [--migrate]` |
 
 ## Banco e migrations
 
